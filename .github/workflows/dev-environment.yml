@@ -1,0 +1,29 @@
+name: Dev Environment
+
+on:
+  workflow_dispatch:   # manual trigger
+  push:
+    branches: [ main ] # or whichever branch should spin up the stack
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set environment variables
+        run: |
+          echo "KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN }}" >> $GITHUB_ENV
+          echo "KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" >> $GITHUB_ENV
+          echo "SA_PASSWORD=${{ secrets.SA_PASSWORD }}" >> $GITHUB_ENV
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
+          echo "BACKEND_PORT=5000" >> $GITHUB_ENV
+          echo "FRONTEND_PORT=3000" >> $GITHUB_ENV
+
+      - name: Build and start services
+        working-directory: dev-environment
+        run: docker-compose up --build -d
+
+      - name: Check running containers
+        run: docker ps -a

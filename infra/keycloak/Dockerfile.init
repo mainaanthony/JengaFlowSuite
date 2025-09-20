@@ -1,0 +1,10 @@
+FROM alpine:latest
+
+# Install required tools
+RUN apk add --no-cache curl jq bash
+
+# Copy the init script
+COPY init-users.sh /init-users.sh
+RUN chmod +x /init-users.sh
+
+ENTRYPOINT ["/init-users.sh"]

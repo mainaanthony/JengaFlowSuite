@@ -1,0 +1,36 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Output directories
+bin/
+build/
+
+# Vendor folder (if vendoring dependencies)
+vendor/
+
+# Go workspace file
+*.code-workspace
+
+# Go module files that can be regenerated
+*.sum
+
+# IDE / Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp

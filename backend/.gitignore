@@ -1,0 +1,43 @@
+# Build results
+bin/
+obj/
+out/
+publish/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+logs/
+*.tlog
+
+# Visual Studio files
+.vs/
+
+# Resharper / Rider
+_ReSharper*/
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Others
+*.dbmdl
+*.bak
+*.Backup
+*.tmp
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# ignore appsettings dev
+appsettings.Development.json
+

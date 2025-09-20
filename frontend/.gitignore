@@ -1,0 +1,40 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# production
+/dist
+/build
+
+# misc
+/.sass-cache
+/.cache
+/.angular
+/.angular-cache
+
+# testing
+/coverage
+/karma-coverage
+
+# IDEs and editors
+/.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env

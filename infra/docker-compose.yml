@@ -1,0 +1,32 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD:  ${KEYCLOAK_ADMIN_PASSWORD}
+
+    ports: ["8080:8080"]
+    volumes:
+      - ./keycloak/realm-export:/opt/keycloak/data/import
+    networks: [devnet]
+
+  sqldb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${SA_PASSWORD}
+    ports: ["1438:1433"]
+    networks: [devnet]
+
+  otel:
+    image: otel/opentelemetry-collector:0.99.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
+    ports: ["4317:4317","4318:4318"]
+    networks: [devnet]
+
+networks:
+  devnet:
+    driver: bridge
