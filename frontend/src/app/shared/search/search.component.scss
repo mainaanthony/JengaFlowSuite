@@ -1,0 +1,23 @@
+.search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #eaedf1;
+    min-width: 420px;
+
+    input {
+        border: none;
+        outline: none;
+        font-size: 14px;
+        flex: 1;
+    }
+
+    button {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+}

@@ -1,0 +1,5 @@
+<app-card class="stat">
+    <div class="small"> {{title}} </div>
+    <div class="val"> {{value}} </div>
+    <div class="delta" [ngClass]="{positive: delta>0, negative:delta<0}">{{deltaLabel}}</div>
+</app-card>

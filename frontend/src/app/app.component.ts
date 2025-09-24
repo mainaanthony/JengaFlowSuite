@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-root',
+  imports: [RouterModule],
   standalone: true,
   templateUrl: './app.component.html'
 })
