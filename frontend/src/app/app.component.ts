@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   templateUrl: './app.component.html'
 })
+///initial comment 2026 push test
 export class AppComponent {
   title = 'frontend';
   products: any[] = [];
