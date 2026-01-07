@@ -1,0 +1,22 @@
+<nav class="sidebar">
+  <ul class="nav-list">
+    <li *ngFor="let item of navItems" [class.hidden]="item.visible === false">
+      <a *ngIf="!item.items" [routerLink]="item.link">
+        <mat-icon *ngIf="item.icon">{{ item.icon }}</mat-icon>
+        {{ item.title }}
+      </a>
+
+      <div *ngIf="item.items" class="submenu">
+        <div class="submenu-title">
+          <mat-icon *ngIf="item.icon">{{ item.icon }}</mat-icon>
+          {{ item.title }}
+        </div>
+        <ul>
+          <li *ngFor="let sub of item.items">
+            <a [routerLink]="sub.link">{{ sub.title }}</a>
+          </li>
+        </ul>
+      </div>
+    </li>
+  </ul>
+</nav>
