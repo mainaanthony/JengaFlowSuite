@@ -1,12 +1,74 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { StatCardComponent } from '../shared/stat-card/stat-card.component';
+import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
+import { CardComponent } from '../shared/card/card.component';
+import { SearchComponent } from '../shared/search/search.component';
+import { MatIconModule } from '@angular/material/icon';
+
+interface PurchaseOrder {
+  id: string;
+  supplier: string;
+  amount: number;
+  status: string;
+  date: string;
+}
+
+interface LowStockItem {
+  name: string;
+  current: number;
+  total: number;
+  branch: string;
+}
 
 @Component({
   selector: 'dashboard',
   standalone: true,
-  imports: [],
+  imports: [
+    CommonModule,
+    StatCardComponent,
+    ButtonSolidComponent,
+    CardComponent,
+    MatIconModule
+  ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
+  purchaseOrders: PurchaseOrder[] = [
+    { id: 'PO-2024-001', supplier: 'ABC Hardware Suppliers', amount: 45600, status: 'Pending', date: '2024-01-15' },
+    { id: 'PO-2024-002', supplier: 'XYZ Supply Co', amount: 32400, status: 'Approved', date: '2024-01-14' }
+  ];
 
+  lowStockItems: LowStockItem[] = [
+    { name: '25mm PVC Pipes', current: 5, total: 20, branch: 'Main Branch' },
+    { name: 'Wood Screws 2in', current: 8, total: 25, branch: 'Main Branch' }
+  ];
+
+  stats = {
+    totalRevenue: 'KES 2,847,000',
+    revenueChange: 12.3,
+    productsInStock: '1,247',
+    productsChange: -3.2,
+    ordersToday: 23,
+    ordersChange: 8.1,
+    lowStockItems: 12,
+    lowStockChange: 4
+  };
+
+  ngOnInit() {
+    // Load data from backend if needed
+  }
+
+  onSearch(query: string) {
+    console.log('Search query:', query);
+  }
+
+  generateReport() {
+    console.log('Generate Report clicked');
+  }
+
+  newSale() {
+    console.log('New Sale clicked');
+  }
 }

@@ -1,1 +1,90 @@
-<p>dashboard works!</p>
+<div class="dashboard">
+  <!-- Page Title and Actions -->
+  <div class="dashboard-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Welcome back, John. Here's what's happening with your business today.</p>
+    </div>
+    <div class="actions">
+      <app-button-solid variant="secondary" (click)="generateReport()">
+        <mat-icon>description</mat-icon>
+        Generate Report
+      </app-button-solid>
+      <app-button-solid variant="primary" (click)="newSale()">
+        <mat-icon>add</mat-icon>
+        New Sale
+      </app-button-solid>
+    </div>
+  </div>
+
+  <!-- Stat Cards Grid -->
+  <div class="stats-grid">
+    <app-stat-card
+      [title]="'Total Revenue'"
+      [value]="stats.totalRevenue"
+      [delta]="stats.revenueChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Products in Stock'"
+      [value]="stats.productsInStock"
+      [delta]="stats.productsChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Orders Today'"
+      [value]="stats.ordersToday"
+      [delta]="stats.ordersChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Low Stock Items'"
+      [value]="stats.lowStockItems"
+      [delta]="stats.lowStockChange">
+    </app-stat-card>
+  </div>
+
+  <!-- Content Grid -->
+  <div class="content-grid">
+    <!-- Recent Purchase Orders -->
+    <app-card class="section-card">
+      <div class="section-header">
+        <h2>Recent Purchase Orders</h2>
+        <p>Latest procurement activities</p>
+      </div>
+      <div class="section-content">
+        <div class="orders-list">
+          <div *ngFor="let order of purchaseOrders" class="order-item">
+            <div class="order-info">
+              <div class="order-id">{{ order.id }}</div>
+              <div class="order-supplier">{{ order.supplier }}</div>
+              <div class="order-date">{{ order.date }}</div>
+            </div>
+            <div class="order-amount">KES {{ order.amount.toLocaleString() }}</div>
+            <div [class]="'status-badge ' + order.status.toLowerCase()">{{ order.status }}</div>
+          </div>
+        </div>
+        <a href="#" class="view-all">View all →</a>
+      </div>
+    </app-card>
+
+    <!-- Low Stock Alerts -->
+    <app-card class="section-card">
+      <div class="section-header">
+        <h2>
+          <mat-icon>warning</mat-icon>
+          Low Stock Alerts
+        </h2>
+        <p>Items that need restocking</p>
+      </div>
+      <div class="section-content">
+        <div class="alerts-list">
+          <div *ngFor="let item of lowStockItems" class="alert-item">
+            <div class="alert-name">{{ item.name }}</div>
+            <div class="alert-stock">{{ item.current }} / {{ item.total }}</div>
+            <div class="alert-branch">{{ item.branch }}</div>
+            <button class="reorder-btn">Reorder</button>
+          </div>
+        </div>
+        <a href="#" class="manage-link">Manage →</a>
+      </div>
+    </app-card>
+  </div>
+</div>

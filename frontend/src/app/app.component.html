@@ -1,5 +1,33 @@
-<h1>{{ title }}</h1>
-<button (click)="loadProducts()">Load Products Moretre</button>
-<ul>
-  <li *ngFor="let p of products">{{ p.name }} - {{ p.price }}</li>
-</ul>
+<div class="app-container">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Header -->
+    <header class="header">
+      <div class="header-left">
+        <input type="text" class="search-input" placeholder="Search products, orders...">
+      </div>
+      <div class="header-right">
+        <button class="branch-selector">
+          <mat-icon>storage</mat-icon>
+          {{ currentBranch }}
+          <mat-icon>arrow_drop_down</mat-icon>
+        </button>
+        <button class="header-icon">
+          <mat-icon>notifications</mat-icon>
+          <span class="notification-badge">3</span>
+        </button>
+        <button class="user-profile">
+          <span class="initials">{{ userInitials }}</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

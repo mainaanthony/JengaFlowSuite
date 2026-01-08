@@ -1,23 +1,17 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
+import { SidebarComponent } from './core/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterModule],
+  imports: [CommonModule, RouterOutlet, MatIcon, SidebarComponent],
   standalone: true,
-  templateUrl: './app.component.html'
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
-///initial comment 2026 push test
 export class AppComponent {
-  title = 'frontend';
-  products: any[] = [];
-
-  constructor(private http: HttpClient) {}
-
-  loadProducts() {
-    const query = `{ products { nodes { id name price } } }`;
-    this.http.post<any>('http://localhost:5000/graphql', { query })
-      .subscribe(res => this.products = res.data.products.nodes);
-  }
+  userInitials = 'JK';
+  currentBranch = 'Main Branch';
 }

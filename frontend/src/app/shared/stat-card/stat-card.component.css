@@ -1,0 +1,65 @@
+:host {
+  display: block;
+}
+
+.stat {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.stat:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-color: #d0d0d0;
+}
+
+.small {
+  font-size: 13px;
+  color: #888;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.val {
+  font-size: 28px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 0.5rem;
+}
+
+.delta {
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.delta.positive {
+  color: #4caf50;
+}
+
+.delta.negative {
+  color: #f44336;
+}
+
+.delta::before {
+  content: '';
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+
+.delta.positive::before {
+  border-bottom: 4px solid #4caf50;
+}
+
+.delta.negative::before {
+  border-top: 4px solid #f44336;
+}
