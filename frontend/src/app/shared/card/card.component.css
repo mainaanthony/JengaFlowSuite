@@ -1,0 +1,30 @@
+:host {
+  display: block;
+}
+
+:host-context(.section-card) {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  display: block;
+  padding: 1.5rem;
+}
+
+:host-context(.section-card):hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  display: block;
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

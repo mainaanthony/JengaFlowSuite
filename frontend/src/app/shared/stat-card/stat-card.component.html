@@ -1,5 +1,10 @@
-<app-card class="stat">
-    <div class="small"> {{title}} </div>
-    <div class="val"> {{value}} </div>
-    <div class="delta" [ngClass]="{positive: delta>0, negative:delta<0}">{{deltaLabel}}</div>
-</app-card>
+<div class="stat-card">
+    <div class="stat-header">
+      <span class="stat-label">{{ title }}</span>
+      <span class="stat-icon" [ngClass]="{ positive: delta > 0, negative: delta < 0 }">
+        <mat-icon>{{ delta > 0 ? 'trending_up' : delta < 0 ? 'trending_down' : 'trending_flat' }}</mat-icon>
+      </span>
+    </div>
+    <div class="stat-value">{{ value }}</div>
+    <div class="stat-delta" [ngClass]="{ positive: delta > 0, negative: delta < 0 }">{{ deltaLabel }}</div>
+</div>

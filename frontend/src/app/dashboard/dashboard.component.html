@@ -45,9 +45,12 @@
   <div class="content-grid">
     <!-- Recent Purchase Orders -->
     <app-card class="section-card">
-      <div class="section-header">
-        <h2>Recent Purchase Orders</h2>
-        <p>Latest procurement activities</p>
+      <div class="section-header-top">
+        <div>
+          <h2>Recent Purchase Orders</h2>
+          <p>Latest procurement activities</p>
+        </div>
+        <a href="#" class="view-all">View all →</a>
       </div>
       <div class="section-content">
         <div class="orders-list">
@@ -61,18 +64,20 @@
             <div [class]="'status-badge ' + order.status.toLowerCase()">{{ order.status }}</div>
           </div>
         </div>
-        <a href="#" class="view-all">View all →</a>
       </div>
     </app-card>
 
     <!-- Low Stock Alerts -->
     <app-card class="section-card">
-      <div class="section-header">
-        <h2>
-          <mat-icon>warning</mat-icon>
-          Low Stock Alerts
-        </h2>
-        <p>Items that need restocking</p>
+      <div class="section-header-top">
+        <div>
+          <h2>
+            ⚠️
+            Low Stock Alerts
+          </h2>
+          <p>Items that need restocking</p>
+        </div>
+        <a href="#" class="manage-link">Manage →</a>
       </div>
       <div class="section-content">
         <div class="alerts-list">
@@ -83,8 +88,31 @@
             <button class="reorder-btn">Reorder</button>
           </div>
         </div>
-        <a href="#" class="manage-link">Manage →</a>
       </div>
     </app-card>
+  </div>
+
+  <!-- Quick Actions Section -->
+  <div class="quick-actions-section">
+    <h2>Quick Actions</h2>
+    <p>Common tasks and shortcuts</p>
+    <div class="quick-actions-grid">
+      <div class="action-card" (click)="addProduct()">
+        <mat-icon>inventory_2</mat-icon>
+        <span>Add Product</span>
+      </div>
+      <div class="action-card" (click)="newSale()">
+        <mat-icon>shopping_cart</mat-icon>
+        <span>New Sale</span>
+      </div>
+      <div class="action-card" (click)="createPO()">
+        <mat-icon>description</mat-icon>
+        <span>Create PO</span>
+      </div>
+      <div class="action-card" (click)="addUser()">
+        <mat-icon>group</mat-icon>
+        <span>Add User</span>
+      </div>
+    </div>
   </div>
 </div>

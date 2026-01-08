@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { CardComponent } from '../shared/card/card.component';
-import { SearchComponent } from '../shared/search/search.component';
 import { MatIconModule } from '@angular/material/icon';
 
 interface PurchaseOrder {
@@ -57,7 +56,7 @@ export class DashboardComponent implements OnInit {
   };
 
   ngOnInit() {
-    // Load data from backend if needed
+    // Component initialized, data ready
   }
 
   onSearch(query: string) {
@@ -70,5 +69,17 @@ export class DashboardComponent implements OnInit {
 
   newSale() {
     console.log('New Sale clicked');
+  }
+
+  addProduct() {
+    console.log('Add Product clicked');
+  }
+
+  createPO() {
+    console.log('Create PO clicked');
+  }
+
+  addUser() {
+    console.log('Add User clicked');
   }
 }
