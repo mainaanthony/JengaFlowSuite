@@ -1,0 +1,245 @@
+<div class="sales">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Sales & POS</h1>
+      <p>Manage sales transactions and customer orders</p>
+    </div>
+    <div class="header-actions">
+      <app-button-solid variant="secondary" (click)="exportSales()">
+        <mat-icon>download</mat-icon>
+        Export Sales
+      </app-button-solid>
+      <app-button-solid variant="secondary" (click)="printReceipt()">
+        <mat-icon>print</mat-icon>
+        Print Receipt
+      </app-button-solid>
+      <app-button-solid variant="primary" (click)="newSale()">
+        <mat-icon>add</mat-icon>
+        New Sale
+      </app-button-solid>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <app-stat-card
+      [title]="'Today\'s Sales'"
+      [value]="stats.todaysSales"
+      [delta]="stats.salesChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Transactions'"
+      [value]="stats.transactions"
+      [delta]="stats.transactionsChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Pending Orders'"
+      [value]="stats.pendingOrders"
+      [delta]="stats.pendingChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Avg. Sale Value'"
+      [value]="stats.avgSaleValue"
+      [delta]="stats.avgChange">
+    </app-stat-card>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-container">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'today'"
+      (click)="setTab('today')">
+      Today's Sales
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'pending'"
+      (click)="setTab('pending')">
+      Pending Orders
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'customers'"
+      (click)="setTab('customers')">
+      Customers
+    </button>
+  </div>
+
+  <!-- Today's Transactions Section -->
+  <app-card class="section-card" *ngIf="activeTab === 'today'">
+    <div class="section-header">
+      <div>
+        <h2>Today's Transactions</h2>
+        <p>All sales made today across all branches</p>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="table-header">
+      <div class="search-box">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          placeholder="Search transactions..."
+          [formControl]="searchControl"
+          class="search-input">
+      </div>
+      <button class="filter-btn">
+        <mat-icon>tune</mat-icon>
+        Filter
+      </button>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="table-container">
+      <table class="transactions-table">
+        <thead>
+          <tr>
+            <th>Sale ID</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Time</th>
+            <th>Attendant</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let transaction of filteredTransactions" class="transaction-row">
+            <td class="id-cell">{{ transaction.id }}</td>
+            <td class="customer-cell">
+              <div class="customer-info">
+                <mat-icon>person</mat-icon>
+                {{ transaction.customer }}
+              </div>
+            </td>
+            <td class="items-cell">{{ transaction.items }} items</td>
+            <td class="total-cell">KES {{ transaction.total.toLocaleString() }}</td>
+            <td class="payment-cell">
+              <span [class]="'payment-badge ' + getPaymentMethodClass(transaction.paymentMethod)">
+                {{ transaction.paymentMethod }}
+              </span>
+            </td>
+            <td class="status-cell">
+              <span [class]="'status-badge ' + getStatusClass(transaction.status)">
+                {{ transaction.status }}
+              </span>
+            </td>
+            <td class="time-cell">{{ transaction.time }}</td>
+            <td class="attendant-cell">{{ transaction.attendant }}</td>
+            <td class="actions-cell">
+              <button class="action-btn" (click)="editTransaction(transaction)" title="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="action-btn delete" (click)="deleteTransaction(transaction)" title="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredTransactions.length === 0" class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>No transactions found</p>
+    </div>
+  </app-card>
+
+  <!-- Pending Orders Section -->
+  <app-card class="section-card" *ngIf="activeTab === 'pending'">
+    <div class="section-header">
+      <div>
+        <h2>Pending Orders</h2>
+        <p>Customer orders awaiting fulfillment</p>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="table-header">
+      <div class="search-box">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          placeholder="Search orders..."
+          [formControl]="searchControl"
+          class="search-input">
+      </div>
+      <button class="filter-btn">
+        <mat-icon>tune</mat-icon>
+        Filter
+      </button>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="table-container">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Deadline</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of filteredOrders" class="order-row">
+            <td class="id-cell">{{ order.id }}</td>
+            <td class="customer-cell">{{ order.customer }}</td>
+            <td class="items-cell">{{ order.items }} items</td>
+            <td class="total-cell">KES {{ order.total.toLocaleString() }}</td>
+            <td class="deadline-cell">{{ order.deadline }}</td>
+            <td class="status-cell">
+              <span [class]="'status-badge ' + getStatusClass(order.status)">
+                {{ order.status }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="action-btn" (click)="editOrder(order)" title="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="action-btn delete" (click)="deleteOrder(order)" title="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredOrders.length === 0" class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>No orders found</p>
+    </div>
+  </app-card>
+
+  <!-- Customer Management Section -->
+  <app-card class="section-card" *ngIf="activeTab === 'customers'">
+    <div class="section-header">
+      <div>
+        <h2>Customer Management</h2>
+        <p>Manage customer information and purchase history</p>
+      </div>
+    </div>
+
+    <!-- Empty State with Call to Action -->
+    <div class="empty-state centered">
+      <mat-icon>person_outline</mat-icon>
+      <h3>Customer Management</h3>
+      <p>Track customer purchases, loyalty points, and contact information</p>
+      <app-button-solid variant="primary" (click)="addCustomer()">
+        <mat-icon>person_add</mat-icon>
+        Add Customer
+      </app-button-solid>
+    </div>
+  </app-card>
+</div>
