@@ -1,0 +1,129 @@
+<div class="inventory">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Inventory Management</h1>
+      <p>Manage your products and stock levels across all branches</p>
+    </div>
+    <div class="header-actions">
+      <app-button-solid variant="secondary" (click)="exportData()">
+        <mat-icon>download</mat-icon>
+        Export
+      </app-button-solid>
+      <app-button-solid variant="secondary" (click)="scanProduct()">
+        <mat-icon>qr_code_scanner</mat-icon>
+        Scan Product
+      </app-button-solid>
+      <app-button-solid variant="primary" (click)="addProduct()">
+        <mat-icon>add</mat-icon>
+        Add Product
+      </app-button-solid>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <app-stat-card
+      [title]="'Total Products'"
+      [value]="stats.totalProducts"
+      [delta]="stats.productsChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Low Stock Items'"
+      [value]="stats.lowStockItems"
+      [delta]="stats.lowStockChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Total Value'"
+      [value]="stats.totalValue"
+      [delta]="stats.valueChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Categories'"
+      [value]="stats.categories"
+      [delta]="stats.categoriesChange">
+    </app-stat-card>
+  </div>
+
+  <!-- Product Inventory Section -->
+  <app-card class="section-card">
+    <div class="section-header">
+      <div>
+        <h2>Product Inventory</h2>
+        <p>Manage and track your product stock levels</p>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="table-header">
+      <div class="search-box">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          placeholder="Search products..."
+          [formControl]="searchControl"
+          class="search-input">
+      </div>
+      <button class="filter-btn">
+        <mat-icon>tune</mat-icon>
+        Filter
+      </button>
+    </div>
+
+    <!-- Products Table -->
+    <div class="table-container">
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Category</th>
+            <th>Stock Status</th>
+            <th class="branch-col">Main</th>
+            <th class="branch-col">Westlands</th>
+            <th class="branch-col">Eastleigh</th>
+            <th class="total-col">Total</th>
+            <th class="price-col">Price</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of filteredProducts" class="product-row">
+            <td class="product-cell">
+              <div class="product-info">
+                <div class="product-name">{{ product.name }}</div>
+                <div class="product-brand">{{ product.brand }}</div>
+              </div>
+            </td>
+            <td class="sku-cell">{{ product.sku }}</td>
+            <td class="category-cell">{{ product.category }}</td>
+            <td class="status-cell">
+              <span [class]="'status-badge ' + getStatusClass(product.status)">
+                {{ product.status }}
+              </span>
+            </td>
+            <td class="branch-col number">{{ product.main }}</td>
+            <td class="branch-col number">{{ product.westlands }}</td>
+            <td class="branch-col number">{{ product.eastleigh }}</td>
+            <td class="total-col number">{{ product.total }}</td>
+            <td class="price-col">KES {{ product.price }}</td>
+            <td class="actions-col">
+              <button class="action-btn" (click)="editProduct(product)" title="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="action-btn delete" (click)="deleteProduct(product)" title="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredProducts.length === 0" class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>No products found</p>
+    </div>
+  </app-card>
+</div>
