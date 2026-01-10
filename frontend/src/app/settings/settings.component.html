@@ -1,0 +1,640 @@
+<div class="settings-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Settings</h1>
+      <p>Configure system preferences and business settings</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="resetChanges()">
+        <span class="material-icons">refresh</span>
+        Reset
+      </button>
+      <button class="btn-primary" (click)="saveChanges()">
+        <span class="material-icons">save</span>
+        Save Changes
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <div class="tabs">
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'company'"
+        (click)="setActiveTab('company')">
+        Company
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'notifications'"
+        (click)="setActiveTab('notifications')">
+        Notifications
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'security'"
+        (click)="setActiveTab('security')">
+        Security
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'tax'"
+        (click)="setActiveTab('tax')">
+        Tax Settings
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'system'"
+        (click)="setActiveTab('system')">
+        System
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'backup'"
+        (click)="setActiveTab('backup')">
+        Backup
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB 1: Company -->
+  <div class="tab-content" *ngIf="activeTab === 'company'">
+    <div class="settings-grid">
+      <!-- Company Information -->
+      <div class="settings-section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">business</span>
+            Company Information
+          </h2>
+          <p>Basic company details and contact information</p>
+        </div>
+
+        <form [formGroup]="companyForm" class="form-group">
+          <div class="form-field">
+            <label for="company-name">Company Name</label>
+            <input 
+              id="company-name"
+              type="text" 
+              formControlName="name"
+              placeholder="Enter company name"
+              class="form-input">
+          </div>
+
+          <div class="form-field">
+            <label for="email-address">Email Address</label>
+            <input 
+              id="email-address"
+              type="email" 
+              formControlName="email"
+              placeholder="Enter email address"
+              class="form-input">
+          </div>
+
+          <div class="form-field">
+            <label for="phone-number">Phone Number</label>
+            <input 
+              id="phone-number"
+              type="tel" 
+              formControlName="phone"
+              placeholder="Enter phone number"
+              class="form-input">
+          </div>
+
+          <div class="form-field">
+            <label for="company-address">Address</label>
+            <textarea 
+              id="company-address"
+              formControlName="address"
+              placeholder="Enter company address"
+              class="form-textarea"
+              rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+
+      <!-- Business Preferences -->
+      <div class="settings-section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">public</span>
+            Business Preferences
+          </h2>
+          <p>Regional and operational preferences</p>
+        </div>
+
+        <div class="preference-group">
+          <div class="preference-item">
+            <label for="currency">Default Currency</label>
+            <select id="currency" class="form-select">
+              <option>Kenyan Shilling (KES)</option>
+              <option>US Dollar (USD)</option>
+              <option>Euro (EUR)</option>
+            </select>
+          </div>
+
+          <div class="preference-item">
+            <label for="timezone">Timezone</label>
+            <select id="timezone" class="form-select">
+              <option>Africa/Nairobi (GMT+3)</option>
+              <option>UTC</option>
+              <option>Europe/London (GMT)</option>
+            </select>
+          </div>
+
+          <div class="preference-item">
+            <label for="language">Language</label>
+            <select id="language" class="form-select">
+              <option>English</option>
+              <option>Swahili</option>
+              <option>Spanish</option>
+            </select>
+          </div>
+
+          <div class="preference-item">
+            <label for="date-format">Date Format</label>
+            <select id="date-format" class="form-select">
+              <option>DD/MM/YYYY</option>
+              <option>MM/DD/YYYY</option>
+              <option>YYYY-MM-DD</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Notifications -->
+  <div class="tab-content" *ngIf="activeTab === 'notifications'">
+    <div class="notification-settings">
+      <!-- Notification Preferences -->
+      <div class="settings-section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">notifications</span>
+            Notification Preferences
+          </h2>
+          <p>Configure how and when you receive notifications</p>
+        </div>
+
+        <div class="notification-channels">
+          <div class="notification-item" *ngFor="let channel of notificationChannels; let i = index">
+            <div class="notification-content">
+              <span class="material-icons">{{ channel.icon }}</span>
+              <div class="notification-details">
+                <h3>{{ channel.type }}</h3>
+                <p>{{ channel.description }}</p>
+              </div>
+            </div>
+            <div class="toggle-switch">
+              <input 
+                type="checkbox" 
+                [checked]="channel.enabled"
+                (change)="toggleNotificationChannel(i)"
+                [id]="'channel-' + i">
+              <label [for]="'channel-' + i"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification Types -->
+      <div class="settings-section">
+        <div class="section-header">
+          <h2>Notification Types</h2>
+        </div>
+
+        <div class="notification-types">
+          <div class="notification-type-item" *ngFor="let notifType of notificationTypes; let i = index">
+            <span>{{ notifType.name }}</span>
+            <div class="toggle-switch">
+              <input 
+                type="checkbox" 
+                [checked]="notifType.enabled"
+                (change)="toggleNotificationType(i)"
+                [id]="'type-' + i">
+              <label [for]="'type-' + i"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Security -->
+  <div class="tab-content" *ngIf="activeTab === 'security'">
+    <div class="security-settings">
+      <!-- Security Settings -->
+      <div class="settings-section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">lock</span>
+            Security Settings
+          </h2>
+          <p>Manage password and security preferences</p>
+        </div>
+
+        <form [formGroup]="securityForm" class="form-group">
+          <div class="form-field">
+            <label for="current-password">Current Password</label>
+            <input 
+              id="current-password"
+              type="password" 
+              formControlName="currentPassword"
+              placeholder="Enter current password"
+              class="form-input">
+          </div>
+
+          <div class="form-field">
+            <label for="new-password">New Password</label>
+            <input 
+              id="new-password"
+              type="password" 
+              formControlName="newPassword"
+              placeholder="Enter new password"
+              class="form-input">
+          </div>
+
+          <div class="form-field">
+            <label for="confirm-password">Confirm New Password</label>
+            <input 
+              id="confirm-password"
+              type="password" 
+              formControlName="confirmPassword"
+              placeholder="Confirm new password"
+              class="form-input">
+          </div>
+
+          <button type="button" (click)="updatePassword()" class="btn-primary" style="width: 100%;">
+            Update Password
+          </button>
+        </form>
+      </div>
+
+      <!-- Access Control -->
+      <div class="settings-section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">person</span>
+            Access Control
+          </h2>
+          <p>Session and access management</p>
+        </div>
+
+        <div class="access-control-items">
+          <div class="access-item">
+            <div class="access-info">
+              <h3>Two-Factor Authentication</h3>
+              <!-- Empty for now -->
+            </div>
+            <div class="toggle-switch">
+              <input 
+                type="checkbox" 
+                [checked]="twoFactorAuthEnabled"
+                (change)="toggleTwoFactor()"
+                id="2fa">
+              <label for="2fa"></label>
+            </div>
+          </div>
+
+          <div class="access-item">
+            <div class="access-info">
+              <h3>Auto Logout (30 min inactive)</h3>
+            </div>
+            <div class="toggle-switch">
+              <input 
+                type="checkbox" 
+                [checked]="autoLogoutEnabled"
+                (change)="toggleAutoLogout()"
+                id="auto-logout">
+              <label for="auto-logout"></label>
+            </div>
+          </div>
+
+          <div class="access-item">
+            <div class="access-info">
+              <h3>Login Notifications</h3>
+            </div>
+            <div class="toggle-switch">
+              <input 
+                type="checkbox" 
+                [checked]="loginNotificationsEnabled"
+                (change)="toggleLoginNotifications()"
+                id="login-notif">
+              <label for="login-notif"></label>
+            </div>
+          </div>
+
+          <div class="access-action">
+            <button class="btn-secondary" (click)="viewActiveSessions()">
+              View Active Sessions
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: Tax Settings -->
+  <div class="tab-content" *ngIf="activeTab === 'tax'">
+    <div class="tax-settings">
+      <!-- Tax Configuration -->
+      <div class="settings-section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">receipt</span>
+            Tax Configuration
+          </h2>
+          <p>Configure tax rates and compliance settings</p>
+        </div>
+
+        <div class="tax-form-group">
+          <div class="tax-input-group">
+            <div class="form-field">
+              <label>VAT Rate (%)</label>
+              <input 
+                type="number" 
+                [(ngModel)]="taxSettings.vatRate"
+                min="0"
+                max="100"
+                class="form-input">
+            </div>
+
+            <div class="form-field">
+              <label>KRA PIN Number</label>
+              <input 
+                type="text" 
+                [(ngModel)]="taxSettings.kraPin"
+                placeholder="Enter KRA PIN"
+                class="form-input">
+            </div>
+
+            <div class="form-field">
+              <label>VAT Number</label>
+              <input 
+                type="text" 
+                [(ngModel)]="taxSettings.vatNumber"
+                placeholder="Enter VAT registration number"
+                class="form-input">
+            </div>
+          </div>
+
+          <div class="tax-toggle-group">
+            <div class="tax-toggle-item">
+              <label>VAT Registered Business</label>
+              <div class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [checked]="taxSettings.vatRegistered"
+                  (change)="toggleVATRegistration()"
+                  id="vat-reg">
+                <label for="vat-reg"></label>
+              </div>
+            </div>
+
+            <div class="tax-toggle-item">
+              <label>Withholding Tax Applicable</label>
+              <div class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [checked]="taxSettings.withholding"
+                  (change)="toggleWithholding()"
+                  id="withholding">
+                <label for="withholding"></label>
+              </div>
+            </div>
+
+            <div class="tax-toggle-item">
+              <label>Auto Tax Calculation</label>
+              <div class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [checked]="taxSettings.autoTaxCalculation"
+                  (change)="toggleAutoTaxCalculation()"
+                  id="auto-tax">
+                <label for="auto-tax"></label>
+              </div>
+            </div>
+
+            <div class="tax-toggle-item">
+              <label>Tax Filing Period</label>
+              <select class="form-select" [(ngModel)]="taxSettings.taxFilingPeriod">
+                <option>Monthly</option>
+                <option>Quarterly</option>
+                <option>Annually</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: System -->
+  <div class="tab-content" *ngIf="activeTab === 'system'">
+    <div class="system-settings">
+      <!-- System Configuration -->
+      <div class="settings-section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">settings</span>
+            System Configuration
+          </h2>
+          <p>System-wide settings and preferences</p>
+        </div>
+
+        <div class="system-items">
+          <div class="system-item">
+            <div class="system-info">
+              <h3>Company Logo</h3>
+              <div class="file-input-wrapper">
+                <button class="btn-secondary">Choose File</button>
+                <span class="file-name">No file chosen</span>
+                <input 
+                  type="file" 
+                  (change)="onLogoFileSelected($event)"
+                  accept="image/*"
+                  class="file-input">
+              </div>
+            </div>
+            <span class="material-icons">download</span>
+          </div>
+
+          <div class="system-item">
+            <div class="system-info">
+              <h3>Dark Mode</h3>
+            </div>
+            <div class="toggle-switch">
+              <input 
+                type="checkbox" 
+                [checked]="systemSettings.darkMode"
+                (change)="toggleDarkMode()"
+                id="dark-mode">
+              <label for="dark-mode"></label>
+            </div>
+          </div>
+
+          <div class="system-item">
+            <div class="system-info">
+              <h3>Maintenance Mode</h3>
+            </div>
+            <div class="toggle-switch">
+              <input 
+                type="checkbox" 
+                [checked]="systemSettings.maintenanceMode"
+                (change)="toggleMaintenanceMode()"
+                id="maintenance">
+              <label for="maintenance"></label>
+            </div>
+          </div>
+
+          <div class="system-item">
+            <div class="system-info">
+              <h3>Debug Mode</h3>
+            </div>
+            <div class="toggle-switch">
+              <input 
+                type="checkbox" 
+                [checked]="systemSettings.debugMode"
+                (change)="toggleDebugMode()"
+                id="debug">
+              <label for="debug"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interface Preferences -->
+      <div class="settings-section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">palette</span>
+            Interface Preferences
+          </h2>
+          <p>Customize the user interface</p>
+        </div>
+
+        <div class="interface-settings">
+          <div class="preference-item">
+            <label>Theme Color</label>
+            <div class="color-picker">
+              <button 
+                *ngFor="let color of themeColors"
+                class="color-option"
+                [style.background-color]="color"
+                [class.selected]="color === selectedThemeColor"
+                (click)="selectThemeColor(color)"
+                [title]="color">
+              </button>
+            </div>
+          </div>
+
+          <div class="preference-item">
+            <label>Items per Page</label>
+            <select class="form-select" [(ngModel)]="itemsPerPage">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+
+          <div class="preference-item">
+            <label>Show Tooltips</label>
+            <div class="toggle-switch">
+              <input 
+                type="checkbox" 
+                [checked]="showTooltips"
+                (change)="showTooltips = !showTooltips"
+                id="tooltips">
+              <label for="tooltips"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: Backup -->
+  <div class="tab-content" *ngIf="activeTab === 'backup'">
+    <div class="backup-settings">
+      <div class="settings-section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">backup</span>
+            Backup & Restore
+          </h2>
+          <p>Manage system backups and data recovery</p>
+        </div>
+
+        <div class="backup-grid">
+          <!-- Create Backup -->
+          <div class="backup-section">
+            <h3>Create Backup</h3>
+            <p>Create a full backup of your system data</p>
+            <button class="btn-primary" (click)="createBackupNow()">
+              <span class="material-icons">download</span>
+              Create Backup Now
+            </button>
+          </div>
+
+          <!-- Restore Data -->
+          <div class="backup-section">
+            <h3>Restore Data</h3>
+            <p>Restore system from a backup file</p>
+            <div class="file-input-wrapper">
+              <button class="btn-secondary">Choose File</button>
+              <span class="file-name">No file chosen</span>
+              <input 
+                type="file" 
+                (change)="onRestoreFileSelected($event)"
+                class="file-input">
+            </div>
+            <button class="btn-secondary" style="margin-top: 1rem;">
+              <span class="material-icons">upload</span>
+              Restore
+            </button>
+          </div>
+        </div>
+
+        <!-- Automatic Backups -->
+        <div class="automatic-backups">
+          <div class="auto-backup-header">
+            <h3>Automatic Backups</h3>
+            <div class="toggle-switch">
+              <input 
+                type="checkbox" 
+                [checked]="backupSettings.autoBackupEnabled"
+                (change)="toggleAutoBackup()"
+                id="auto-backup">
+              <label for="auto-backup"></label>
+            </div>
+          </div>
+
+          <div class="backup-options">
+            <div class="backup-option">
+              <label>Backup Frequency</label>
+              <select class="form-select" [(ngModel)]="backupSettings.backupFrequency">
+                <option>Daily</option>
+                <option>Weekly</option>
+                <option>Monthly</option>
+              </select>
+            </div>
+
+            <div class="backup-option">
+              <label>Retention Period</label>
+              <select class="form-select" [(ngModel)]="backupSettings.retentionPeriod">
+                <option>30 days</option>
+                <option>90 days</option>
+                <option>180 days</option>
+                <option>1 year</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

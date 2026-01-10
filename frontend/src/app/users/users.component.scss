@@ -1,0 +1,904 @@
+.users {
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #212121;
+    }
+
+    p {
+      margin: 0.5rem 0 0 0;
+      color: #757575;
+      font-size: 0.95rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+
+      app-button-solid {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .tabs-container {
+    display: flex;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 2rem;
+    gap: 0;
+
+    .tab {
+      padding: 1rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #757575;
+      transition: all 0.3s ease;
+      position: relative;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+
+      &:hover {
+        color: #1976d2;
+      }
+
+      &.active {
+        color: #1976d2;
+        border-bottom-color: #1976d2;
+      }
+    }
+  }
+
+  .section-card,
+  .roles-header-card {
+    animation: fadeIn 0.3s ease-in;
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #212121;
+      }
+
+      p {
+        margin: 0;
+        color: #757575;
+        font-size: 0.9rem;
+      }
+
+      .search-container {
+        display: flex;
+        align-items: center;
+        background: #f5f5f5;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        padding: 0.5rem;
+        gap: 0.75rem;
+        flex: 1;
+        min-width: 250px;
+
+        mat-icon {
+          color: #757575;
+          font-size: 1.2rem;
+          width: 1.2rem;
+          height: 1.2rem;
+        }
+
+        .search-input {
+          flex: 1;
+          border: none;
+          background: none;
+          outline: none;
+          font-size: 0.9rem;
+          color: #212121;
+
+          &::placeholder {
+            color: #999;
+          }
+        }
+
+        .filter-btn {
+          background: none;
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          color: #1976d2;
+          font-size: 0.85rem;
+          font-weight: 500;
+          padding: 0 0.5rem;
+          transition: all 0.2s ease;
+
+          mat-icon {
+            font-size: 1rem;
+            width: 1rem;
+            height: 1rem;
+          }
+
+          &:hover {
+            background: rgba(25, 118, 210, 0.1);
+            border-radius: 4px;
+          }
+        }
+      }
+
+      .logs-actions {
+        display: flex;
+        gap: 0.75rem;
+      }
+    }
+
+    .roles-header {
+      h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #212121;
+      }
+
+      p {
+        margin: 0.5rem 0 0 0;
+        color: #757575;
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  // Users Table
+  .table-container {
+    overflow-x: auto;
+
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #bdbdbd;
+      border-radius: 4px;
+
+      &:hover {
+        background: #9e9e9e;
+      }
+    }
+
+    .users-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+
+      thead {
+        background: #fafafa;
+        border-bottom: 2px solid #e0e0e0;
+
+        th {
+          padding: 1rem;
+          text-align: left;
+          font-weight: 600;
+          color: #212121;
+          font-size: 0.9rem;
+
+          &:nth-child(1) { width: 25%; } /* User */
+          &:nth-child(2) { width: 12%; } /* Role */
+          &:nth-child(3) { width: 15%; } /* Branch */
+          &:nth-child(4) { width: 20%; } /* Contact */
+          &:nth-child(5) { width: 10%; } /* Status */
+          &:nth-child(6) { width: 12%; } /* Last Login */
+          &:nth-child(7) { width: 6%; }  /* Actions */
+        }
+      }
+
+      tbody {
+        tr {
+          border-bottom: 1px solid #e0e0e0;
+          transition: background 0.2s ease;
+
+          &:hover {
+            background: #f5f5f5;
+          }
+
+          td {
+            padding: 1rem;
+            color: #212121;
+            font-size: 0.9rem;
+
+            &.user-cell {
+              .user-info {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+
+                .user-avatar {
+                  width: 40px;
+                  height: 40px;
+                  border-radius: 50%;
+                  background: linear-gradient(135deg, #1976d2, #1565c0);
+                  color: white;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-weight: 600;
+                  font-size: 0.9rem;
+                  flex-shrink: 0;
+                }
+
+                .user-details {
+                  display: flex;
+                  flex-direction: column;
+                  gap: 0.25rem;
+
+                  .user-name {
+                    font-weight: 600;
+                    color: #212121;
+                  }
+
+                  .user-id {
+                    font-size: 0.8rem;
+                    color: #757575;
+                  }
+                }
+              }
+            }
+
+            &.role-cell {
+              .role-badge {
+                display: inline-block;
+                padding: 0.35rem 0.75rem;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: white;
+              }
+            }
+
+            &.branch-cell {
+              color: #757575;
+              font-size: 0.9rem;
+            }
+
+            &.contact-cell {
+              .contact-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+
+                .contact-email,
+                .contact-phone {
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                  font-size: 0.85rem;
+
+                  mat-icon {
+                    font-size: 0.95rem;
+                    width: 0.95rem;
+                    height: 0.95rem;
+                    color: #757575;
+                  }
+                }
+              }
+            }
+
+            &.status-cell {
+              .status-badge {
+                padding: 0.35rem 0.75rem;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                display: inline-block;
+
+                &.active {
+                  background: #d4edda;
+                  color: #155724;
+                }
+
+                &.inactive {
+                  background: #f8d7da;
+                  color: #721c24;
+                }
+              }
+            }
+
+            &.date-cell {
+              display: flex;
+              align-items: center;
+              gap: 0.25rem;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+
+              .date-icon {
+                font-size: 1rem;
+                width: 1rem;
+                height: 1rem;
+                color: #757575;
+                flex-shrink: 0;
+              }
+            }
+
+            &.actions-cell {
+              display: flex;
+              gap: 0.25rem;
+              justify-content: center;
+              padding: 1rem 0.5rem;
+
+              .action-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #1976d2;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.4rem;
+                transition: all 0.2s ease;
+                flex-shrink: 0;
+
+                mat-icon {
+                  font-size: 1rem;
+                  width: 1rem;
+                  height: 1rem;
+                }
+
+                &:hover {
+                  color: #1565c0;
+                  background: rgba(25, 118, 210, 0.1);
+                  border-radius: 4px;
+                }
+
+                &.delete {
+                  color: #dc3545;
+
+                  &:hover {
+                    background: rgba(220, 53, 69, 0.1);
+                    color: #c82333;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Roles Section
+  .section-content {
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+
+    .role-card {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      min-height: 380px;
+
+      .role-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+
+        h3 {
+          margin: 0;
+          font-size: 1.15rem;
+          font-weight: 600;
+          color: #212121;
+          line-height: 1.3;
+          flex: 1;
+        }
+
+        .user-count {
+          background: #f0f7ff;
+          color: #1976d2;
+          padding: 0.4rem 0.85rem;
+          border-radius: 12px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+      }
+
+      .role-description {
+        margin: 0;
+        color: #757575;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        min-height: 45px;
+      }
+
+      .permissions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        flex: 1;
+
+        .permissions-label {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #212121;
+          margin: 0.25rem 0 0 0;
+        }
+
+        .permission-item {
+          display: flex;
+          align-items: center;
+          gap: 0.65rem;
+          font-size: 0.88rem;
+          color: #757575;
+          line-height: 1.4;
+
+          mat-icon {
+            font-size: 1.05rem;
+            width: 1.05rem;
+            height: 1.05rem;
+            color: #10b981;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+          }
+        }
+      }
+
+      .manage-btn {
+        background: none;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        padding: 0.85rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        color: #1976d2;
+        font-size: 0.92rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        margin-top: auto;
+
+        mat-icon {
+          font-size: 1.1rem;
+          width: 1.1rem;
+          height: 1.1rem;
+        }
+
+        &:hover {
+          background: #f0f7ff;
+          border-color: #1976d2;
+          box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+        }
+      }
+    }
+  }
+
+  // Empty State
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+
+    .empty-icon {
+      margin-bottom: 1.5rem;
+
+      mat-icon {
+        font-size: 4rem;
+        width: 4rem;
+        height: 4rem;
+        color: #d0d0d0;
+      }
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #212121;
+    }
+
+    p {
+      margin: 0.5rem 0 1.5rem 0;
+      color: #757575;
+      font-size: 0.95rem;
+      max-width: 400px;
+    }
+
+    app-button-solid {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive Design
+@media (max-width: 1400px) {
+  .users {
+    .page-header {
+      flex-direction: column;
+
+      .header-actions {
+        width: 100%;
+      }
+    }
+
+    .roles-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .users {
+    padding: 1rem;
+
+    .page-header {
+      flex-direction: column;
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .header-actions {
+        width: 100%;
+        flex-direction: column;
+
+        app-button-solid {
+          width: 100%;
+        }
+      }
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .tabs-container {
+      margin-bottom: 1rem;
+
+      .tab {
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .search-container {
+        width: 100%;
+        min-width: auto;
+      }
+
+      .logs-actions {
+        width: 100%;
+
+        app-button-solid {
+          width: 100%;
+        }
+      }
+    }
+
+    .table-container {
+      .users-table {
+        tbody tr td {
+          padding: 0.75rem 0.5rem;
+          font-size: 0.8rem;
+
+          &.user-cell {
+            .user-info {
+              flex-direction: column;
+              align-items: flex-start;
+
+              .user-avatar {
+                width: 32px;
+                height: 32px;
+              }
+            }
+          }
+
+          &.contact-cell {
+            .contact-info {
+              .contact-email,
+              .contact-phone {
+                font-size: 0.75rem;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .roles-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+
+      .role-card {
+        min-height: 350px;
+
+        .role-header {
+          h3 {
+            font-size: 1.08rem;
+          }
+
+          .user-count {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.78rem;
+          }
+        }
+
+        .role-description {
+          font-size: 0.88rem;
+          min-height: 40px;
+        }
+
+        .permissions-list {
+          gap: 0.68rem;
+
+          .permission-item {
+            font-size: 0.86rem;
+          }
+        }
+
+        .manage-btn {
+          font-size: 0.89rem;
+          padding: 0.78rem;
+        }
+      }
+    }
+
+    .empty-state {
+      padding: 2rem 1rem;
+
+      .empty-icon mat-icon {
+        font-size: 3rem;
+        width: 3rem;
+        height: 3rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .users {
+    padding: 1rem;
+
+    .page-header {
+      h1 {
+        font-size: 1.25rem;
+      }
+
+      .header-actions {
+        width: 100%;
+        flex-direction: column;
+
+        app-button-solid {
+          width: 100%;
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .tabs-container {
+      .tab {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+      }
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: stretch;
+
+      h2 {
+        font-size: 1.1rem;
+      }
+
+      .search-container {
+        width: 100%;
+        padding: 0.4rem;
+
+        .search-input {
+          font-size: 0.85rem;
+        }
+
+        .filter-btn {
+          font-size: 0.75rem;
+        }
+      }
+    }
+
+    .table-container {
+      .users-table {
+        thead th {
+          padding: 0.5rem;
+          font-size: 0.75rem;
+        }
+
+        tbody tr td {
+          padding: 0.5rem;
+
+          &.user-cell {
+            .user-info {
+              .user-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+              }
+
+              .user-details {
+                .user-name {
+                  font-size: 0.85rem;
+                }
+
+                .user-id {
+                  font-size: 0.7rem;
+                }
+              }
+            }
+          }
+
+          &.actions-cell {
+            gap: 0.25rem;
+
+            .action-btn {
+              padding: 0.3rem;
+
+              mat-icon {
+                font-size: 0.9rem;
+                width: 0.9rem;
+                height: 0.9rem;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .roles-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+
+      .role-card {
+        min-height: auto;
+
+        .role-header {
+          gap: 0.75rem;
+
+          h3 {
+            font-size: 1.05rem;
+            line-height: 1.3;
+          }
+
+          .user-count {
+            padding: 0.35rem 0.7rem;
+            font-size: 0.75rem;
+          }
+        }
+
+        .role-description {
+          font-size: 0.88rem;
+          line-height: 1.4;
+          min-height: 35px;
+        }
+
+        .permissions-list {
+          gap: 0.65rem;
+
+          .permissions-label {
+            font-size: 0.8rem;
+            margin: 0.1rem 0 0 0;
+          }
+
+          .permission-item {
+            font-size: 0.85rem;
+            gap: 0.55rem;
+
+            mat-icon {
+              font-size: 0.95rem;
+              width: 0.95rem;
+              height: 0.95rem;
+            }
+          }
+        }
+
+        .manage-btn {
+          font-size: 0.88rem;
+          padding: 0.75rem;
+          gap: 0.5rem;
+
+          mat-icon {
+            font-size: 1rem;
+            width: 1rem;
+            height: 1rem;
+          }
+        }
+      }
+    }
+
+    .empty-state {
+      padding: 1.5rem 1rem;
+
+      .empty-icon mat-icon {
+        font-size: 2.5rem;
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+
+      h3 {
+        font-size: 1.1rem;
+      }
+
+      p {
+        font-size: 0.85rem;
+      }
+    }
+  }
+}

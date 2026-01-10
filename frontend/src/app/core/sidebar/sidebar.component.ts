@@ -52,7 +52,8 @@ export class SidebarComponent {
       label: 'MANAGEMENT',
       items: [
         { title: 'Users', icon: 'group', link: '/users' },
-        { title: 'Branches', icon: 'location_on', link: '/branches' }
+        { title: 'Branches', icon: 'location_on', link: '/branches' },
+        { title: 'Settings', icon: 'settings', link: '/settings' }
       ]
     }
   ];

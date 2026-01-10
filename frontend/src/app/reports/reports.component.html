@@ -1,0 +1,249 @@
+<div class="reports">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Reports & Analytics</h1>
+      <p>Comprehensive business insights and performance metrics</p>
+    </div>
+    <div class="header-actions">
+      <select class="month-filter" [(ngModel)]="selectedMonth">
+        <option>This Month</option>
+        <option>Last Month</option>
+        <option>Last Quarter</option>
+        <option>This Year</option>
+      </select>
+      <app-button-solid variant="secondary" (click)="exportData()">
+        <mat-icon>download</mat-icon>
+        Export Data
+      </app-button-solid>
+      <app-button-solid variant="primary" (click)="generateReport()">
+        <mat-icon>assessment</mat-icon>
+        Generate Report
+      </app-button-solid>
+    </div>
+  </div>
+
+  <!-- Key Metrics Cards -->
+  <div class="metrics-grid">
+    <app-stat-card
+      [title]="'Total Revenue'"
+      [value]="stats.totalRevenue"
+      [delta]="stats.totalRevenueChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Gross Profit'"
+      [value]="stats.grossProfit"
+      [delta]="stats.grossProfitChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Units Sold'"
+      [value]="stats.unitsSold"
+      [delta]="stats.unitsSoldChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Avg. Order Value'"
+      [value]="stats.avgOrderValue"
+      [delta]="stats.avgOrderValueChange">
+    </app-stat-card>
+  </div>
+
+  <!-- Report Tabs -->
+  <div class="tabs-container">
+    <button
+      class="tab"
+      [class.active]="activeReportTab === 'sales-analytics'"
+      (click)="setReportTab('sales-analytics')">
+      Sales Analytics
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeReportTab === 'inventory-reports'"
+      (click)="setReportTab('inventory-reports')">
+      Inventory Reports
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeReportTab === 'financial-reports'"
+      (click)="setReportTab('financial-reports')">
+      Financial Reports
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeReportTab === 'custom-reports'"
+      (click)="setReportTab('custom-reports')">
+      Custom Reports
+    </button>
+  </div>
+
+  <!-- Sales Analytics Tab -->
+  <div *ngIf="activeReportTab === 'sales-analytics'" class="tab-content">
+    <div class="reports-grid">
+      <!-- Top Selling Products -->
+      <app-card class="report-card">
+        <div class="card-header">
+          <mat-icon>trending_up</mat-icon>
+          <h3>Top Selling Products</h3>
+          <p>Best performing products this month</p>
+        </div>
+
+        <div class="product-list">
+          <div *ngFor="let product of topProducts" class="product-item">
+            <div class="product-info">
+              <h4>{{ product.name }}</h4>
+              <p class="product-meta">{{ product.units }} units • {{ product.margin }}% margin</p>
+            </div>
+            <div class="product-revenue">KES {{ product.revenue.toLocaleString() }}</div>
+          </div>
+        </div>
+      </app-card>
+
+      <!-- Branch Performance -->
+      <app-card class="report-card">
+        <div class="card-header">
+          <mat-icon>location_on</mat-icon>
+          <h3>Branch Performance</h3>
+          <p>Revenue by branch location</p>
+        </div>
+
+        <div class="branch-list">
+          <div *ngFor="let branch of branchPerformance" class="branch-item">
+            <div class="branch-info">
+              <h4>{{ branch.branch }}</h4>
+              <p class="branch-meta">{{ branch.orders }} orders</p>
+            </div>
+            <div class="branch-revenue">
+              <span class="amount">KES {{ branch.revenue.toLocaleString() }}</span>
+              <span [class]="'delta ' + getDeltaClass(branch.deltaType)">{{ branch.delta }}</span>
+            </div>
+          </div>
+        </div>
+      </app-card>
+    </div>
+  </div>
+
+  <!-- Inventory Reports Tab -->
+  <div *ngIf="activeReportTab === 'inventory-reports'" class="tab-content">
+    <div class="reports-grid">
+      <!-- Inventory Health -->
+      <app-card class="report-card">
+        <div class="card-header">
+          <mat-icon>inventory</mat-icon>
+          <h3>Inventory Health</h3>
+          <p>Current inventory status overview</p>
+        </div>
+
+        <div class="metrics-list">
+          <div *ngFor="let metric of inventoryHealth" class="metric-item">
+            <div class="metric-label">{{ metric.label }}</div>
+            <div class="metric-value">
+              {{ metric.value }}
+              <span [class]="'status-dot ' + metric.status"></span>
+            </div>
+          </div>
+        </div>
+      </app-card>
+
+      <!-- Stock Movement Analysis -->
+      <app-card class="report-card">
+        <div class="card-header">
+          <mat-icon>sync_alt</mat-icon>
+          <h3>{{ stockMovement.title }}</h3>
+          <p>{{ stockMovement.description }}</p>
+        </div>
+
+        <div class="empty-state">
+          <div class="empty-icon">
+            <mat-icon>bar_chart</mat-icon>
+          </div>
+          <h4>Stock Movement Charts</h4>
+          <p>Visual analysis of inventory flow, restocking patterns, and seasonal trends</p>
+          <app-button-solid variant="primary" (click)="viewAnalytics()">
+            <mat-icon>insights</mat-icon>
+            View Analytics
+          </app-button-solid>
+        </div>
+      </app-card>
+    </div>
+  </div>
+
+  <!-- Financial Reports Tab -->
+  <div *ngIf="activeReportTab === 'financial-reports'" class="tab-content">
+    <div class="reports-grid">
+      <!-- P&L Statement -->
+      <app-card class="report-card">
+        <div class="card-header">
+          <mat-icon>paid</mat-icon>
+          <h3>P&L Statement</h3>
+        </div>
+
+        <div class="financial-list">
+          <div *ngFor="let item of pnlStatement" class="financial-item">
+            <span class="label" [class.profit]="item.label === 'Gross Profit'">{{ item.label }}</span>
+            <span class="value" [class.profit]="item.label === 'Gross Profit'">
+              {{ formatCurrency(item.value) }}
+            </span>
+          </div>
+        </div>
+      </app-card>
+
+      <!-- Cash Flow -->
+      <app-card class="report-card">
+        <div class="card-header">
+          <mat-icon>trending_up</mat-icon>
+          <h3>Cash Flow</h3>
+        </div>
+
+        <div class="cash-flow-list">
+          <div *ngFor="let flow of cashFlow" class="cash-item" [class]="flow.type">
+            <span class="label">{{ flow.label }}</span>
+            <span class="value">{{ formatCurrency(flow.value) }}</span>
+          </div>
+        </div>
+      </app-card>
+
+      <!-- Key Ratios -->
+      <app-card class="report-card">
+        <div class="card-header">
+          <mat-icon>pie_chart</mat-icon>
+          <h3>Key Ratios</h3>
+        </div>
+
+        <div class="ratios-list">
+          <div *ngFor="let ratio of keyRatios" class="ratio-item">
+            <span class="label">{{ ratio.label }}</span>
+            <span class="value">{{ ratio.value }}</span>
+          </div>
+        </div>
+      </app-card>
+    </div>
+  </div>
+
+  <!-- Custom Reports Tab -->
+  <div *ngIf="activeReportTab === 'custom-reports'" class="tab-content">
+    <app-card class="full-width-card">
+      <div class="custom-report-header">
+        <h2>Custom Report Builder</h2>
+        <p>Create personalized reports with specific metrics</p>
+      </div>
+
+      <div class="empty-state custom">
+        <div class="empty-icon">
+          <mat-icon>description</mat-icon>
+        </div>
+        <h3>Build Custom Reports</h3>
+        <p>Create detailed reports with custom date ranges, filters, and metrics</p>
+
+        <div class="action-buttons">
+          <app-button-solid variant="primary" (click)="createReport()">
+            <mat-icon>add</mat-icon>
+            Create Report
+          </app-button-solid>
+          <app-button-solid variant="secondary" (click)="scheduleReport()">
+            <mat-icon>schedule</mat-icon>
+            Schedule Report
+          </app-button-solid>
+        </div>
+      </div>
+    </app-card>
+  </div>
+</div>

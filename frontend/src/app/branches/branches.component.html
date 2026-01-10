@@ -1,0 +1,234 @@
+<div class="branches-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Branch Management</h1>
+      <p>Manage branch locations, staff, and performance</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="stockTransfer()">
+        <span class="material-icons">compare_arrows</span>
+        Stock Transfer
+      </button>
+      <button class="btn-primary" (click)="addBranch()">
+        <span class="material-icons">add</span>
+        Add Branch
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of stats">
+      <div class="stat-header">
+        <h3>{{ stat.label }}</h3>
+        <span class="material-icons stat-icon">{{ stat.icon }}</span>
+      </div>
+      <div class="stat-value">
+        {{ stat.value }}
+      </div>
+      <div class="stat-delta" *ngIf="stat.delta !== undefined" [ngClass]="getDeltaClass(stat.delta)">
+        <span class="material-icons">{{ stat.delta > 0 ? 'trending_up' : stat.delta < 0 ? 'trending_down' : 'remove' }}</span>
+        {{ Math.abs(stat.delta) }} vs last month
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <div class="tabs">
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'allBranches'"
+        (click)="setActiveTab('allBranches')">
+        All Branches
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'performance'"
+        (click)="setActiveTab('performance')">
+        Performance
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'inventory'"
+        (click)="setActiveTab('inventory')">
+        Inventory Distribution
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB 1: All Branches -->
+  <div class="tab-content" *ngIf="activeTab === 'allBranches'">
+    <!-- Search Bar -->
+    <div class="search-section">
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input 
+          type="text" 
+          placeholder="Search branches..."
+          [formControl]="searchControl">
+      </div>
+      <button class="btn-filter">
+        <span class="material-icons">tune</span>
+        Filter
+      </button>
+    </div>
+
+    <!-- Branch Directory Table -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Branch Directory</h2>
+        <p>Manage all branch locations and details</p>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="branches-table">
+          <thead>
+            <tr>
+              <th>Branch</th>
+              <th>Location</th>
+              <th>Manager</th>
+              <th>Staff</th>
+              <th>Revenue</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let branch of filteredBranches">
+              <td class="branch-cell">
+                <div class="branch-info">
+                  <strong>{{ branch.name }}</strong>
+                  <span class="branch-id">{{ branch.code }}</span>
+                </div>
+              </td>
+              <td class="location-cell">
+                <div class="location-info">
+                  <span class="location">{{ branch.location }}</span>
+                  <span class="contact">{{ branch.phone }}</span>
+                  <span class="email">{{ branch.email }}</span>
+                </div>
+              </td>
+              <td class="manager-cell">
+                <div class="manager-info">
+                  <span class="material-icons">person</span>
+                  <span>{{ branch.manager }}</span>
+                </div>
+              </td>
+              <td class="staff-cell">
+                <div class="staff-badge">{{ branch.staff }} staff</div>
+              </td>
+              <td class="revenue-cell">
+                <div class="revenue">
+                  <strong>{{ branch.revenue }}</strong>
+                  <span class="products">{{ branch.products }} products • {{ branch.customers }} customers</span>
+                </div>
+              </td>
+              <td class="status-cell">
+                <span class="status-badge" [ngClass]="getStatusClass(branch.status)">
+                  {{ branch.status }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button class="action-btn" (click)="editBranch(branch)" title="Edit">
+                  <span class="material-icons">edit</span>
+                </button>
+                <button class="action-btn" (click)="deleteBranch(branch)" title="Delete">
+                  <span class="material-icons">delete</span>
+                </button>
+                <button class="action-btn more" title="More options">
+                  <span class="material-icons">more_vert</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Performance -->
+  <div class="tab-content" *ngIf="activeTab === 'performance'">
+    <div class="performance-container">
+      <!-- Revenue by Branch -->
+      <div class="section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">trending_up</span>
+            Revenue by Branch
+          </h2>
+          <p>Monthly revenue performance</p>
+        </div>
+
+        <div class="performance-list">
+          <div class="performance-item" *ngFor="let perf of performanceData">
+            <div class="perf-branch">
+              <strong>{{ perf.branch }}</strong>
+              <span class="perf-manager">{{ perf.manager }}</span>
+            </div>
+            <div class="perf-revenue">{{ perf.revenue }}</div>
+            <div class="perf-delta" [ngClass]="perf.deltaPercent > 0 ? 'positive' : 'negative'">
+              {{ perf.deltaPercent > 0 ? '+' : '' }}{{ perf.deltaPercent }}%
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Staff Distribution -->
+      <div class="section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">group</span>
+            Staff Distribution
+          </h2>
+          <p>Staff allocation across branches</p>
+        </div>
+
+        <div class="staff-list">
+          <div class="staff-item" *ngFor="let staff of staffAllocation">
+            <div class="staff-branch">
+              <strong>{{ staff.branch }}</strong>
+              <span class="staff-established">Established: {{ staff.established }}</span>
+            </div>
+            <div class="staff-count">{{ staff.staff }} staff</div>
+            <span class="status-badge" [ngClass]="getStatusClass(staff.status)">
+              {{ staff.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Inventory Distribution -->
+  <div class="tab-content" *ngIf="activeTab === 'inventory'">
+    <div class="inventory-container">
+      <div class="section">
+        <div class="section-header">
+          <h2>
+            <span class="material-icons">inventory_2</span>
+            Inventory Distribution
+          </h2>
+          <p>Stock levels and distribution across branches</p>
+        </div>
+
+        <div class="empty-state">
+          <div class="empty-icon">
+            <span class="material-icons">inventory_2</span>
+          </div>
+          <h3>Inventory Management</h3>
+          <p>View stock levels, manage transfers, and track inventory across all branches</p>
+          <button class="btn-primary">
+            <span class="material-icons">visibility</span>
+            View Inventory
+          </button>
+          <button class="btn-secondary">
+            <span class="material-icons">swap_horiz</span>
+            Transfer Stock
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

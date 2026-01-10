@@ -10,8 +10,9 @@ export const APP_ROUTES: Routes = [
     {path: 'procurement', loadComponent: () => import('./procurement/procurement.component').then(m => m.ProcurementComponent)},
     {path: 'delivery', loadComponent: () => import('./delivery/delivery.component').then(m => m.DeliveryComponent)},
     {path: 'tax-compliance', loadComponent: () => import('./tax-compliance/tax-compliance.component').then(m => m.TaxComplianceComponent)},
-    {path: 'reports', loadComponent: () => import('./placeholder/placeholder.component').then(m => m.PlaceholderComponent)},
-    {path: 'users', loadComponent: () => import('./placeholder/placeholder.component').then(m => m.PlaceholderComponent)},
-    {path: 'branches', loadComponent: () => import('./placeholder/placeholder.component').then(m => m.PlaceholderComponent)},
+    {path: 'reports', loadComponent: () => import('./reports/reports.component').then(m => m.ReportsComponent)},
+    {path: 'users', loadComponent: () => import('./users/users.component').then(m => m.UsersComponent)},
+    {path: 'branches', loadComponent: () => import('./branches/branches.component').then(m => m.BranchesComponent)},
+    {path: 'settings', loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent)},
     { path: '**', redirectTo: '' }
 ]
