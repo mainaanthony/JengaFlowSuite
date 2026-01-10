@@ -1,0 +1,258 @@
+<div class="delivery">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Delivery Management</h1>
+      <p>Track deliveries, manage drivers, and monitor routes</p>
+    </div>
+    <div class="header-actions">
+      <app-button-solid variant="secondary" (click)="exportRoutes()">
+        <mat-icon>download</mat-icon>
+        Export Routes
+      </app-button-solid>
+      <app-button-solid variant="secondary" (click)="addDriver()">
+        <mat-icon>person_add</mat-icon>
+        Add Driver
+      </app-button-solid>
+      <app-button-solid variant="primary" (click)="scheduleDelivery()">
+        <mat-icon>add</mat-icon>
+        Schedule Delivery
+      </app-button-solid>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <app-stat-card
+      [title]="'Active Deliveries'"
+      [value]="stats.activeDeliveries"
+      [delta]="stats.activeDeliveriesChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Today\'s Deliveries'"
+      [value]="stats.todaysDeliveries"
+      [delta]="stats.todaysDeliveriesChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Available Drivers'"
+      [value]="stats.availableDrivers"
+      [delta]="stats.availableDriversChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Avg. Delivery Time'"
+      [value]="stats.avgDeliveryTime"
+      [delta]="stats.avgDeliveryTimeChange">
+    </app-stat-card>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-container">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'active-deliveries'"
+      (click)="setTab('active-deliveries')">
+      Active Deliveries
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'drivers'"
+      (click)="setTab('drivers')">
+      Drivers
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'route-optimization'"
+      (click)="setTab('route-optimization')">
+      Route Optimization
+    </button>
+  </div>
+
+  <!-- Active Deliveries Section -->
+  <app-card class="section-card" *ngIf="activeTab === 'active-deliveries'">
+    <div class="section-header">
+      <div>
+        <h2>Delivery Tracking</h2>
+        <p>Monitor all delivery activities and status</p>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="table-header">
+      <div class="search-box">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          placeholder="Search deliveries..."
+          [formControl]="searchControl"
+          class="search-input">
+      </div>
+      <button class="filter-btn">
+        <mat-icon>tune</mat-icon>
+        Filter
+      </button>
+    </div>
+
+    <!-- Deliveries Table -->
+    <div class="table-container">
+      <table class="deliveries-table">
+        <thead>
+          <tr>
+            <th>Delivery ID</th>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Address</th>
+            <th>Driver</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Scheduled</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let delivery of filteredDeliveries" class="delivery-row">
+            <td class="id-cell">{{ delivery.id }}</td>
+            <td class="order-cell">
+              <a href="#" class="order-link">{{ delivery.orderId }}</a>
+            </td>
+            <td class="customer-cell">{{ delivery.customer }}</td>
+            <td class="address-cell">
+              <div class="address-info">
+                <mat-icon>location_on</mat-icon>
+                <span>{{ delivery.address }}</span>
+              </div>
+            </td>
+            <td class="driver-cell">
+              <div class="driver-info">
+                <div class="driver-name">{{ delivery.driver }}</div>
+                <div class="driver-vehicle">{{ delivery.driverVehicle }}</div>
+              </div>
+            </td>
+            <td class="status-cell">
+              <span [class]="'status-badge ' + getStatusClass(delivery.status)">
+                {{ delivery.status }}
+              </span>
+            </td>
+            <td class="priority-cell">
+              <span [class]="'priority-badge ' + getPriorityClass(delivery.priority)">
+                {{ delivery.priority }}
+              </span>
+            </td>
+            <td class="scheduled-cell">{{ delivery.scheduled }}</td>
+            <td class="actions-cell">
+              <button class="action-btn" (click)="editDelivery(delivery)" title="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="action-btn delete" (click)="deleteDelivery(delivery)" title="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredDeliveries.length === 0" class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>No deliveries found</p>
+    </div>
+  </app-card>
+
+  <!-- Drivers Section -->
+  <app-card class="section-card" *ngIf="activeTab === 'drivers'">
+    <div class="section-header">
+      <div>
+        <h2>Driver Management</h2>
+        <p>Manage delivery drivers and vehicles</p>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="table-header">
+      <div class="search-box">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          placeholder="Search drivers..."
+          [formControl]="searchControl"
+          class="search-input">
+      </div>
+      <button class="filter-btn">
+        <mat-icon>tune</mat-icon>
+        Filter
+      </button>
+    </div>
+
+    <!-- Drivers Table -->
+    <div class="table-container">
+      <table class="drivers-table">
+        <thead>
+          <tr>
+            <th>Driver ID</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Vehicle</th>
+            <th>Status</th>
+            <th>Active Deliveries</th>
+            <th>Rating</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let driver of filteredDrivers" class="driver-row">
+            <td class="id-cell">{{ driver.id }}</td>
+            <td class="name-cell">{{ driver.name }}</td>
+            <td class="phone-cell">{{ driver.phone }}</td>
+            <td class="vehicle-cell">{{ driver.vehicle }}</td>
+            <td class="status-cell">
+              <span [class]="'status-badge ' + getStatusClass(driver.status)">
+                {{ driver.status }}
+              </span>
+            </td>
+            <td class="deliveries-cell">{{ driver.activeDeliveries }}</td>
+            <td class="rating-cell">
+              <span class="rating">
+                ⭐ {{ driver.rating }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="action-btn" (click)="editDriver(driver)" title="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="action-btn delete" (click)="deleteDriver(driver)" title="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredDrivers.length === 0" class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>No drivers found</p>
+    </div>
+  </app-card>
+
+  <!-- Route Optimization Section -->
+  <app-card class="section-card" *ngIf="activeTab === 'route-optimization'">
+    <div class="section-header">
+      <div>
+        <h2>Route Optimization</h2>
+        <p>Optimize delivery routes for efficiency</p>
+      </div>
+    </div>
+
+    <!-- Empty State with Call to Action -->
+    <div class="empty-state centered">
+      <mat-icon>flight_takeoff</mat-icon>
+      <h3>Route Optimization</h3>
+      <p>AI-powered route optimization to reduce delivery time and fuel costs</p>
+      <app-button-solid variant="primary" (click)="optimizeRoutes()">
+        <mat-icon>check_circle</mat-icon>
+        Optimize Routes
+      </app-button-solid>
+    </div>
+  </app-card>
+</div>

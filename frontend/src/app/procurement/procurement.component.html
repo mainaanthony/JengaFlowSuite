@@ -1,0 +1,245 @@
+<div class="procurement">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Procurement</h1>
+      <p>Manage purchase orders, suppliers, and procurement workflow</p>
+    </div>
+    <div class="header-actions">
+      <app-button-solid variant="secondary" (click)="exportData()">
+        <mat-icon>download</mat-icon>
+        Export Data
+      </app-button-solid>
+      <app-button-solid variant="secondary" (click)="addSupplier()">
+        <mat-icon>person_add</mat-icon>
+        Add Supplier
+      </app-button-solid>
+      <app-button-solid variant="primary" (click)="createPO()">
+        <mat-icon>add</mat-icon>
+        Create PO
+      </app-button-solid>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <app-stat-card
+      [title]="'Active POs'"
+      [value]="stats.activePOs"
+      [delta]="stats.activePOsChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Pending Approval'"
+      [value]="stats.pendingApproval"
+      [delta]="stats.pendingApprovalChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'In Transit'"
+      [value]="stats.inTransit"
+      [delta]="stats.inTransitChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Monthly Spend'"
+      [value]="stats.monthlySpend"
+      [delta]="stats.monthlySpendChange">
+    </app-stat-card>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-container">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'purchase-orders'"
+      (click)="setTab('purchase-orders')">
+      Purchase Orders
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'suppliers'"
+      (click)="setTab('suppliers')">
+      Suppliers
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'goods-received'"
+      (click)="setTab('goods-received')">
+      Goods Received
+    </button>
+  </div>
+
+  <!-- Purchase Orders Section -->
+  <app-card class="section-card" *ngIf="activeTab === 'purchase-orders'">
+    <div class="section-header">
+      <div>
+        <h2>Purchase Orders</h2>
+        <p>Manage all purchase orders and their status</p>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="table-header">
+      <div class="search-box">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          placeholder="Search POs..."
+          [formControl]="searchControl"
+          class="search-input">
+      </div>
+      <button class="filter-btn">
+        <mat-icon>tune</mat-icon>
+        Filter
+      </button>
+    </div>
+
+    <!-- POs Table -->
+    <div class="table-container">
+      <table class="pos-table">
+        <thead>
+          <tr>
+            <th>PO Number</th>
+            <th>Supplier</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Expected Delivery</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let po of filteredPOs" class="po-row">
+            <td class="id-cell">
+              <a href="#" class="po-link">{{ po.id }}</a>
+            </td>
+            <td class="supplier-cell">{{ po.supplier }}</td>
+            <td class="items-cell">{{ po.items }} items</td>
+            <td class="total-cell">KES {{ po.total.toLocaleString() }}</td>
+            <td class="status-cell">
+              <span [class]="'status-badge ' + getStatusClass(po.status)">
+                {{ po.status }}
+              </span>
+            </td>
+            <td class="date-cell">{{ po.created }}</td>
+            <td class="date-cell">{{ po.expectedDelivery }}</td>
+            <td class="actions-cell">
+              <button class="action-btn" (click)="editPO(po)" title="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="action-btn delete" (click)="deletePO(po)" title="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredPOs.length === 0" class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>No purchase orders found</p>
+    </div>
+  </app-card>
+
+  <!-- Supplier Management Section -->
+  <app-card class="section-card" *ngIf="activeTab === 'suppliers'">
+    <div class="section-header">
+      <div>
+        <h2>Supplier Management</h2>
+        <p>Manage supplier information and performance</p>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="table-header">
+      <div class="search-box">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          placeholder="Search suppliers..."
+          [formControl]="searchControl"
+          class="search-input">
+      </div>
+      <button class="filter-btn">
+        <mat-icon>tune</mat-icon>
+        Filter
+      </button>
+    </div>
+
+    <!-- Suppliers Table -->
+    <div class="table-container">
+      <table class="suppliers-table">
+        <thead>
+          <tr>
+            <th>Supplier ID</th>
+            <th>Name</th>
+            <th>Contact</th>
+            <th>Category</th>
+            <th>Rating</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let supplier of filteredSuppliers" class="supplier-row">
+            <td class="id-cell">{{ supplier.id }}</td>
+            <td class="name-cell">
+              <div class="supplier-info">
+                <div class="supplier-name">{{ supplier.name }}</div>
+                <div class="supplier-contact">{{ supplier.contact }}</div>
+              </div>
+            </td>
+            <td class="contact-cell">{{ supplier.phone }}</td>
+            <td class="category-cell">{{ supplier.category }}</td>
+            <td class="rating-cell">
+              <span class="rating">
+                ⭐ {{ supplier.rating }}
+              </span>
+            </td>
+            <td class="status-cell">
+              <span [class]="'status-badge ' + getStatusClass(supplier.status)">
+                {{ supplier.status }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="action-btn" (click)="editSupplier(supplier)" title="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="action-btn delete" (click)="deleteSupplier(supplier)" title="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredSuppliers.length === 0" class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>No suppliers found</p>
+    </div>
+  </app-card>
+
+  <!-- Goods Received Notes Section -->
+  <app-card class="section-card" *ngIf="activeTab === 'goods-received'">
+    <div class="section-header">
+      <div>
+        <h2>Goods Received Notes</h2>
+        <p>Track and manage received goods</p>
+      </div>
+    </div>
+
+    <!-- Empty State with Call to Action -->
+    <div class="empty-state centered">
+      <mat-icon>done_all</mat-icon>
+      <h3>Goods Received Notes</h3>
+      <p>Create GRNs when goods are delivered and match them to purchase orders</p>
+      <app-button-solid variant="primary" (click)="createGRN()">
+        <mat-icon>add</mat-icon>
+        Create GRN
+      </app-button-solid>
+    </div>
+  </app-card>
+</div>

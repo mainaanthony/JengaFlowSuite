@@ -1,0 +1,255 @@
+<div class="tax-compliance">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Tax & Compliance</h1>
+      <p>Manage tax calculations, returns, and regulatory compliance</p>
+    </div>
+    <div class="header-actions">
+      <app-button-solid variant="secondary" (click)="exportForKRA()">
+        <mat-icon>download</mat-icon>
+        Export for KRA
+      </app-button-solid>
+      <app-button-solid variant="secondary" (click)="generateReport()">
+        <mat-icon>assessment</mat-icon>
+        Generate Report
+      </app-button-solid>
+      <app-button-solid variant="primary" (click)="submitVATReturn()">
+        <mat-icon>send</mat-icon>
+        Submit VAT Return
+      </app-button-solid>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <app-stat-card
+      [title]="'Current VAT Due'"
+      [value]="stats.currentVATDue"
+      [delta]="0">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Compliance Score'"
+      [value]="stats.complianceScore"
+      [delta]="stats.complianceScoreChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Pending Returns'"
+      [value]="stats.pendingReturns"
+      [delta]="stats.pendingReturnsChange">
+    </app-stat-card>
+    <app-stat-card
+      [title]="'Annual Tax Paid'"
+      [value]="stats.annualTaxPaid"
+      [delta]="stats.taxPaidChange">
+    </app-stat-card>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-container">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'vat-management'"
+      (click)="setTab('vat-management')">
+      VAT Management
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'tax-returns'"
+      (click)="setTab('tax-returns')">
+      Tax Returns
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'compliance'"
+      (click)="setTab('compliance')">
+      Compliance
+    </button>
+  </div>
+
+  <!-- VAT Management Section -->
+  <div *ngIf="activeTab === 'vat-management'" class="vat-section">
+    <div class="vat-grid">
+      <!-- Current VAT Period Card -->
+      <app-card class="vat-card">
+        <div class="card-header">
+          <mat-icon>receipt</mat-icon>
+          <h3>Current VAT Period</h3>
+          <p>January 2024</p>
+        </div>
+
+        <div class="vat-details">
+          <div class="vat-item">
+            <span class="label">Input VAT (Purchases)</span>
+            <span class="value">KES {{ vatData.inputVAT.toLocaleString() }}</span>
+          </div>
+          <div class="vat-item">
+            <span class="label">Output VAT (Sales)</span>
+            <span class="value">KES {{ vatData.outputVAT.toLocaleString() }}</span>
+          </div>
+          <div class="vat-item total">
+            <span class="label">Net VAT Due</span>
+            <span class="value">KES {{ vatData.netVATDue.toLocaleString() }}</span>
+          </div>
+        </div>
+
+        <div class="submission-status">
+          <div class="status-badge pending">{{ vatData.submissionStatus }}</div>
+          <div class="due-date">Due: {{ vatData.submissionDueDate }}</div>
+        </div>
+
+        <div class="card-actions">
+          <app-button-solid variant="primary" (click)="previewReturn()">
+            <mat-icon>preview</mat-icon>
+            Preview Return
+          </app-button-solid>
+          <app-button-solid variant="secondary" (click)="downloadReturn()">
+            <mat-icon>download</mat-icon>
+            Download
+          </app-button-solid>
+        </div>
+      </app-card>
+
+      <!-- Monthly VAT Trend Card -->
+      <app-card class="vat-card">
+        <div class="card-header">
+          <h3>Monthly VAT Trend</h3>
+          <p>VAT payments over the last 6 months</p>
+        </div>
+
+        <div class="chart-container">
+          <div class="chart-bars">
+            <div *ngFor="let item of monthlyVATTrend" class="chart-item">
+              <div class="bar-label">{{ item.month }}</div>
+              <div class="bar-wrapper">
+                <div class="bar" [style.width]="(item.amount / 160000 * 100) + '%'"></div>
+              </div>
+              <div class="bar-value">KES {{ item.amount.toLocaleString() }}</div>
+            </div>
+          </div>
+        </div>
+      </app-card>
+    </div>
+  </div>
+
+  <!-- Tax Returns Section -->
+  <app-card class="section-card" *ngIf="activeTab === 'tax-returns'">
+    <div class="section-header">
+      <div>
+        <h2>Tax Returns History</h2>
+        <p>Track submitted tax returns and their status</p>
+      </div>
+    </div>
+
+    <!-- Tax Returns Table -->
+    <div class="table-container">
+      <table class="returns-table">
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Due Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ret of taxReturns" class="return-row">
+            <td class="period-cell">{{ ret.period }}</td>
+            <td class="type-cell">
+              <div class="type-info">
+                <mat-icon>receipt_long</mat-icon>
+                {{ ret.type }}
+              </div>
+            </td>
+            <td class="amount-cell">KES {{ ret.amount.toLocaleString() }}</td>
+            <td class="status-cell">
+              <span [class]="'status-badge ' + getStatusClass(ret.status)">
+                {{ ret.status }}
+              </span>
+            </td>
+            <td class="date-cell">{{ ret.submitted }}</td>
+            <td class="date-cell">{{ ret.dueDate }}</td>
+            <td class="actions-cell">
+              <button class="download-btn" (click)="downloadDocument(ret)" title="Download">
+                <mat-icon>download</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </app-card>
+
+  <!-- Compliance Section -->
+  <app-card class="section-card" *ngIf="activeTab === 'compliance'">
+    <div class="section-header">
+      <div>
+        <h2>Compliance Requirements</h2>
+        <p>Track regulatory compliance and certificate renewals</p>
+      </div>
+    </div>
+
+    <div class="compliance-list">
+      <div *ngFor="let requirement of complianceRequirements" class="compliance-item">
+        <div class="compliance-row">
+          <div class="compliance-left">
+            <mat-icon [class]="requirement.status === 'Valid' ? 'valid' : requirement.status === 'Pending Renewal' ? 'warning' : 'info'">
+              {{ requirement.icon }}
+            </mat-icon>
+            <div class="title-content">
+              <h4>{{ requirement.name }}</h4>
+              <span *ngIf="requirement.expiryDate" class="expiry">
+                Expires: {{ requirement.expiryDate }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="progress-section">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width]="requirement.progress + '%'"></div>
+            </div>
+          </div>
+
+          <div class="compliance-right">
+            <span [class]="'status-badge ' + getStatusClass(requirement.status)">
+              {{ requirement.status }}
+            </span>
+            <button *ngIf="requirement.status === 'Valid' || requirement.status === 'Not Required'" 
+                    class="action-link" 
+                    (click)="viewDocument(requirement)">
+              View
+            </button>
+            <button *ngIf="requirement.status === 'Pending Renewal'" 
+                    class="action-link renew" 
+                    (click)="renewCertificate(requirement)">
+              Renew
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <div class="quick-actions">
+      <h3>Quick Actions</h3>
+      <p>Common compliance tasks</p>
+      <div class="actions-grid">
+        <button class="action-card" (click)="fileVATReturn()">
+          <mat-icon>description</mat-icon>
+          <span>File VAT Return</span>
+        </button>
+        <button class="action-card" (click)="calculateWHT()">
+          <mat-icon>calculate</mat-icon>
+          <span>Calculate WHT</span>
+        </button>
+        <button class="action-card" (click)="runComplianceCheck()">
+          <mat-icon>verified_user</mat-icon>
+          <span>Compliance Check</span>
+        </button>
+      </div>
+    </div>
+  </app-card>
+</div>
