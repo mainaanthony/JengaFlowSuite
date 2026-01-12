@@ -4,8 +4,10 @@ import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { CardComponent } from '../shared/card/card.component';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
+import { AddProductModalComponent } from '../shared/modals/add-product-modal.component';
 
 interface Product {
   id: string;
@@ -30,6 +32,7 @@ interface Product {
     ButtonSolidComponent,
     CardComponent,
     MatIconModule,
+    MatDialogModule,
     ReactiveFormsModule
   ],
   templateUrl: './inventory.component.html',
@@ -37,6 +40,8 @@ interface Product {
 })
 export class InventoryComponent implements OnInit {
   searchControl = new FormControl('');
+
+  constructor(private dialog: MatDialog) {}
 
   stats = {
     totalProducts: '1,247',
@@ -142,7 +147,19 @@ export class InventoryComponent implements OnInit {
   }
 
   addProduct() {
-    console.log('Open add product form');
+    const dialogRef = this.dialog.open(AddProductModalComponent, {
+      width: '1100px',
+      maxWidth: '95vw',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Product added/saved:', result);
+        alert(`Product "${result.name}" ${result.isDraft ? 'saved as draft' : 'added'} successfully!`);
+        // TODO: Add product to inventory list
+      }
+    });
   }
 
   editProduct(product: Product) {

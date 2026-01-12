@@ -1,0 +1,567 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="header-content">
+        <h2>Add New Product</h2>
+        <p>Create a new product with all details and inventory information</p>
+      </div>
+      <button class="close-btn" (click)="cancel()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button 
+        class="tab-button"
+        [ngClass]="getTabClass('basicInfo')"
+        (click)="selectTab('basicInfo')">
+        <span class="material-icons">info</span>
+        Basic Info
+      </button>
+      <button 
+        class="tab-button"
+        [ngClass]="getTabClass('pricing')"
+        (click)="selectTab('pricing')">
+        <span class="material-icons">local_offer</span>
+        Pricing & Stock
+      </button>
+      <button 
+        class="tab-button"
+        [ngClass]="getTabClass('details')"
+        (click)="selectTab('details')">
+        <span class="material-icons">description</span>
+        Details
+      </button>
+      <button 
+        class="tab-button"
+        [ngClass]="getTabClass('variants')"
+        (click)="selectTab('variants')">
+        <span class="material-icons">tune</span>
+        Variants
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <form [formGroup]="productForm">
+        <!-- BASIC INFO TAB -->
+        <div class="tab-content" *ngIf="currentTab === 'basicInfo'">
+          <!-- Product Information & Identification Row -->
+          <div class="form-row">
+            <!-- Left Column: Product Information -->
+            <div class="form-column">
+              <div class="form-section">
+                <h3>
+                  <span class="material-icons">info</span>
+                  Product Information
+                </h3>
+                
+                <div class="form-group">
+                  <label for="product-name">Product Name *</label>
+                  <input 
+                    id="product-name"
+                    type="text" 
+                    formControlName="name"
+                    placeholder="Enter product name"
+                    class="form-input"
+                    (change)="generateSKU()">
+                  <small *ngIf="productForm.get('name')?.hasError('required')" class="error">Product name is required</small>
+                  <small *ngIf="productForm.get('name')?.hasError('minlength')" class="error">Minimum 3 characters</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="description">Description</label>
+                  <textarea 
+                    id="description"
+                    formControlName="description"
+                    placeholder="Product description..."
+                    class="form-textarea"
+                    rows="2"></textarea>
+                </div>
+
+                <div class="form-group-row">
+                  <div class="form-group">
+                    <label for="category">Category *</label>
+                    <select 
+                      id="category"
+                      formControlName="category"
+                      class="form-select">
+                      <option value="">Select category</option>
+                      <option *ngFor="let cat of categories">{{ cat }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="brand">Brand</label>
+                    <select 
+                      id="brand"
+                      formControlName="brand"
+                      class="form-select">
+                      <option value="">Select brand</option>
+                      <option *ngFor="let b of brands">{{ b }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Identification -->
+            <div class="form-column">
+              <div class="form-section">
+                <h3>
+                  <span class="material-icons">barcode</span>
+                  Identification
+                </h3>
+                
+                <div class="form-group">
+                  <label for="sku">SKU *</label>
+                  <div class="input-with-button">
+                    <input 
+                      id="sku"
+                      type="text" 
+                      formControlName="sku"
+                      placeholder="Product SKU"
+                      class="form-input"
+                      readonly>
+                    <button type="button" class="btn-generate" (click)="generateSKU()">
+                      Generate
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="barcode">Barcode</label>
+                  <div class="input-with-button">
+                    <input 
+                      id="barcode"
+                      type="text" 
+                      formControlName="barcode"
+                      placeholder="Product barcode"
+                      class="form-input">
+                    <button type="button" class="btn-generate" (click)="generateBarcode()">
+                      Generate
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="tags">Tags</label>
+                  <div class="tag-input">
+                    <input 
+                      id="tags"
+                      type="text" 
+                      [(ngModel)]="currentTag"
+                      (keyup.enter)="addTag()"
+                      placeholder="Add tag..."
+                      class="form-input"
+                      ngModelOptions="{ standalone: true }">
+                    <button type="button" class="btn-add-tag" (click)="addTag()">
+                      <span class="material-icons">add</span>
+                    </button>
+                  </div>
+                  <div class="tags-container">
+                    <span class="tag" *ngFor="let tag of tags; let i = index">
+                      {{ tag }}
+                      <button type="button" class="tag-remove" (click)="removeTag(i)">
+                        <span class="material-icons">close</span>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Images Full Width -->
+          <div class="form-section">
+            <h3>
+              <span class="material-icons">image</span>
+              Product Images
+            </h3>
+            <div class="image-upload-area">
+              <input 
+                type="file" 
+                #fileInput 
+                multiple 
+                accept="image/*"
+                (change)="onImageSelect($event)"
+                style="display: none">
+              <div class="upload-placeholder" (click)="fileInput.click()">
+                <span class="material-icons">cloud_upload</span>
+                <p>Click to upload or drag and drop images</p>
+              </div>
+              <button type="button" class="btn-choose-files" (click)="fileInput.click()">
+                Choose Files
+              </button>
+            </div>
+            
+            <!-- Image Previews -->
+            <div class="image-previews" *ngIf="imagePreviewUrls.length > 0">
+              <div class="image-preview-item" *ngFor="let preview of imagePreviewUrls; let i = index">
+                <img [src]="preview" alt="Product image preview">
+                <button type="button" class="btn-remove-image" (click)="removeImage(i)">
+                  <span class="material-icons">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRICING & STOCK TAB -->
+        <div class="tab-content" *ngIf="currentTab === 'pricing'">
+          <div class="form-row">
+            <!-- Pricing -->
+            <div class="form-column">
+              <div class="form-section">
+                <h3>
+                  <span class="material-icons">local_offer</span>
+                  Pricing
+                </h3>
+                
+                <div class="form-group">
+                  <label for="cost-price">Cost Price (KES) *</label>
+                  <input 
+                    id="cost-price"
+                    type="number" 
+                    formControlName="costPrice"
+                    placeholder="0"
+                    class="form-input"
+                    min="0"
+                    step="0.01">
+                  <small *ngIf="productForm.get('costPrice')?.hasError('required')" class="error">Cost price is required</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="selling-price">Selling Price (KES) *</label>
+                  <input 
+                    id="selling-price"
+                    type="number" 
+                    formControlName="sellingPrice"
+                    placeholder="0"
+                    class="form-input"
+                    min="0"
+                    step="0.01">
+                  <small *ngIf="productForm.get('sellingPrice')?.hasError('required')" class="error">Selling price is required</small>
+                </div>
+
+                <!-- Profit & Margin -->
+                <div class="profit-section">
+                  <div class="profit-item">
+                    <span class="profit-label">Profit:</span>
+                    <span class="profit-value">KES {{ calculateProfit() | number:'1.2-2' }}</span>
+                  </div>
+                  <div class="profit-item">
+                    <span class="profit-label">Margin:</span>
+                    <span class="profit-value">{{ calculateMargin() | number:'1.1-1' }}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inventory -->
+            <div class="form-column">
+              <div class="form-section">
+                <h3>
+                  <span class="material-icons">inventory_2</span>
+                  Inventory
+                </h3>
+                
+                <div class="form-group">
+                  <label for="current-stock">Current Stock</label>
+                  <input 
+                    id="current-stock"
+                    type="number" 
+                    formControlName="currentStock"
+                    placeholder="0"
+                    class="form-input"
+                    min="0">
+                </div>
+
+                <div class="form-group">
+                  <label for="minimum-stock">Minimum Stock</label>
+                  <input 
+                    id="minimum-stock"
+                    type="number" 
+                    formControlName="minimumStock"
+                    placeholder="0"
+                    class="form-input"
+                    min="0">
+                </div>
+
+                <div class="form-group">
+                  <label for="storage-location">Storage Location</label>
+                  <select 
+                    id="storage-location"
+                    formControlName="storageLocation"
+                    class="form-select">
+                    <option value="">Select location</option>
+                    <option *ngFor="let location of storageLocations">{{ location }}</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="supplier">Supplier</label>
+                  <select 
+                    id="supplier"
+                    formControlName="supplier"
+                    class="form-select">
+                    <option value="">Select supplier</option>
+                    <option *ngFor="let supp of suppliers">{{ supp }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAILS TAB -->
+        <div class="tab-content" *ngIf="currentTab === 'details'">
+          <div class="form-row">
+            <!-- Physical Properties -->
+            <div class="form-column">
+              <div class="form-section">
+                <h3>
+                  <span class="material-icons">straighten</span>
+                  Physical Properties
+                </h3>
+                
+                <div class="form-group">
+                  <label for="weight">Weight (kg)</label>
+                  <input 
+                    id="weight"
+                    type="number" 
+                    formControlName="weight"
+                    placeholder="0"
+                    class="form-input"
+                    min="0"
+                    step="0.01">
+                </div>
+
+                <div class="form-group">
+                  <label>Dimensions (cm)</label>
+                  <div class="dimensions-row">
+                    <input 
+                      type="number" 
+                      formControlName="dimensionLength"
+                      placeholder="Length"
+                      class="form-input dimension-input"
+                      min="0"
+                      step="0.1">
+                    <input 
+                      type="number" 
+                      formControlName="dimensionWidth"
+                      placeholder="Width"
+                      class="form-input dimension-input"
+                      min="0"
+                      step="0.1">
+                    <input 
+                      type="number" 
+                      formControlName="dimensionHeight"
+                      placeholder="Height"
+                      class="form-input dimension-input"
+                      min="0"
+                      step="0.1">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Settings -->
+            <div class="form-column">
+              <div class="form-section">
+                <h3>
+                  <span class="material-icons">settings</span>
+                  Product Settings
+                </h3>
+                
+                <div class="checkbox-group">
+                  <div class="checkbox-item">
+                    <input 
+                      type="checkbox" 
+                      id="taxable"
+                      formControlName="taxable">
+                    <label for="taxable">Taxable (VAT applicable)</label>
+                  </div>
+                  
+                  <div class="checkbox-item">
+                    <input 
+                      type="checkbox" 
+                      id="track-inventory"
+                      formControlName="trackInventory">
+                    <label for="track-inventory">Track inventory</label>
+                  </div>
+                  
+                  <div class="checkbox-item">
+                    <input 
+                      type="checkbox" 
+                      id="allow-backorders"
+                      formControlName="allowBackorders">
+                    <label for="allow-backorders">Allow backorders</label>
+                  </div>
+                  
+                  <div class="checkbox-item">
+                    <input 
+                      type="checkbox" 
+                      id="requires-serial"
+                      formControlName="requiresSerialNumber">
+                    <label for="requires-serial">Requires serial number</label>
+                  </div>
+                  
+                  <div class="checkbox-item">
+                    <input 
+                      type="checkbox" 
+                      id="has-expiry"
+                      formControlName="hasExpiryDate">
+                    <label for="has-expiry">Has expiry date</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VARIANTS TAB -->
+        <div class="tab-content" *ngIf="currentTab === 'variants'">
+          <div class="form-section">
+            <h3>
+              <span class="material-icons">tune</span>
+              Product Variants
+            </h3>
+            
+            <div class="checkbox-item">
+              <input 
+                type="checkbox" 
+                id="has-variants"
+                (change)="toggleVariants($event)">
+              <label for="has-variants">This product has variants (size, color, etc.)</label>
+            </div>
+
+            <p class="info-text">Create different variants of this product with unique SKUs, pricing, and stock levels.</p>
+
+            <!-- Add Variant Form -->
+            <div class="variant-form" *ngIf="hasVariants">
+              <h4>Add Variant</h4>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="variant-size">Size</label>
+                  <input 
+                    id="variant-size"
+                    type="text" 
+                    [(ngModel)]="newVariant.size"
+                    placeholder="e.g. Large"
+                    class="form-input"
+                    ngModelOptions="{ standalone: true }">
+                </div>
+                <div class="form-group">
+                  <label for="variant-color">Color</label>
+                  <input 
+                    id="variant-color"
+                    type="text" 
+                    [(ngModel)]="newVariant.color"
+                    placeholder="e.g. Red"
+                    class="form-input"
+                    ngModelOptions="{ standalone: true }">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="variant-sku">SKU</label>
+                  <input 
+                    id="variant-sku"
+                    type="text" 
+                    [(ngModel)]="newVariant.sku"
+                    placeholder="-1"
+                    class="form-input"
+                    ngModelOptions="{ standalone: true }">
+                </div>
+                <div class="form-group">
+                  <label for="variant-price">Price (KES)</label>
+                  <input 
+                    id="variant-price"
+                    type="number" 
+                    [(ngModel)]="newVariant.price"
+                    placeholder="0"
+                    class="form-input"
+                    ngModelOptions="{ standalone: true }"
+                    min="0"
+                    step="0.01">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="variant-stock">Stock</label>
+                  <input 
+                    id="variant-stock"
+                    type="number" 
+                    [(ngModel)]="newVariant.stock"
+                    placeholder="0"
+                    class="form-input"
+                    ngModelOptions="{ standalone: true }"
+                    min="0">
+                </div>
+              </div>
+
+              <button type="button" class="btn-add-variant" (click)="addVariant()">
+                <span class="material-icons">add</span>
+                Add Variant
+              </button>
+            </div>
+
+            <!-- Variants List -->
+            <div class="variants-list" *ngIf="variants.length > 0">
+              <h4>Added Variants ({{ variants.length }})</h4>
+              <div class="variant-table">
+                <div class="variant-row header">
+                  <div class="variant-cell">Size</div>
+                  <div class="variant-cell">Color</div>
+                  <div class="variant-cell">SKU</div>
+                  <div class="variant-cell">Price</div>
+                  <div class="variant-cell">Stock</div>
+                  <div class="variant-cell">Action</div>
+                </div>
+
+                <div class="variant-row" *ngFor="let variant of variants">
+                  <div class="variant-cell">{{ variant.size }}</div>
+                  <div class="variant-cell">{{ variant.color }}</div>
+                  <div class="variant-cell">{{ variant.sku }}</div>
+                  <div class="variant-cell">KES {{ variant.price | number:'1.2-2' }}</div>
+                  <div class="variant-cell">{{ variant.stock }}</div>
+                  <div class="variant-cell">
+                    <button type="button" class="btn-delete-variant" (click)="removeVariant(variant.id)">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cancel()">
+        Cancel
+      </button>
+
+      <div class="footer-actions">
+        <button class="btn-secondary" (click)="saveAsDraft()">
+          Save as Draft
+        </button>
+
+        <button 
+          class="btn-primary" 
+          (click)="addProduct()"
+          [disabled]="!isFormValid()">
+          <span class="material-icons">add_circle</span>
+          Add Product
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
