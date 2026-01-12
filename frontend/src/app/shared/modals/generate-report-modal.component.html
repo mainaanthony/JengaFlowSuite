@@ -1,0 +1,325 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="header-content">
+        <h2>Generate Report</h2>
+        <p>Create custom reports with advanced filtering and formatting options</p>
+      </div>
+      <button class="close-btn" (click)="cancel()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <!-- Step Indicators -->
+    <div class="step-indicators">
+      <button 
+        class="step-indicator"
+        [ngClass]="getStepClass(1)"
+        (click)="goToStep(1)">
+        <span class="step-number">1</span>
+        <span class="step-label">Report Type</span>
+      </button>
+      <div class="step-connector"></div>
+      <button 
+        class="step-indicator"
+        [ngClass]="getStepClass(2)"
+        (click)="goToStep(2)">
+        <span class="step-number">2</span>
+        <span class="step-label">Filters & Options</span>
+      </button>
+      <div class="step-connector"></div>
+      <button 
+        class="step-indicator"
+        [ngClass]="getStepClass(3)"
+        (click)="goToStep(3)">
+        <span class="step-number">3</span>
+        <span class="step-label">Delivery & Schedule</span>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <!-- STEP 1: Report Type Selection -->
+      <div class="step-content" *ngIf="currentStep === 1">
+        <h3>Select Report Type</h3>
+        <div class="report-types-grid">
+          <div 
+            class="report-type-card"
+            *ngFor="let report of reportTypes"
+            [class.selected]="selectedReportType === report.id"
+            (click)="selectReportType(report.id)">
+            <span *ngIf="selectedReportType === report.id" class="material-icons checkmark">check_circle</span>
+            <div class="report-card-header">
+              <span class="material-icons report-icon">{{ report.icon }}</span>
+              <h4>{{ report.name }}</h4>
+            </div>
+            <p class="report-description">{{ report.description }}</p>
+            <ul class="report-features">
+              <li *ngFor="let feature of report.features">• {{ feature }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Report Details Preview (appears after selection) -->
+        <div class="selected-report-details" *ngIf="selectedReportType">
+          <div class="selected-report-container">
+            <h4>
+              <span class="material-icons">check_circle</span>
+              Selected Report Details
+            </h4>
+            
+            <div class="details-preview">
+              <div class="preview-item">
+                <span class="preview-icon">
+                  <span class="material-icons">{{ getSelectedReport()?.icon }}</span>
+                </span>
+                <div class="preview-info">
+                  <p class="preview-title">{{ getSelectedReport()?.name }}</p>
+                  <p class="preview-desc">{{ getSelectedReport()?.description }}</p>
+                </div>
+              </div>
+
+              <div class="features-highlight">
+                <p class="features-label">Key Features:</p>
+                <ul class="features-list">
+                  <li *ngFor="let feature of getSelectedReport()?.features">
+                    <span class="feature-dot">•</span>
+                    <span class="feature-text">{{ feature }}</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="selection-info">
+                <span class="material-icons">info</span>
+                <p>Click "Continue" to proceed with filtering and formatting options.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Filters & Options -->
+      <div class="step-content" *ngIf="currentStep === 2">
+        <h3>Filters & Options</h3>
+
+        <!-- Date Range & Location -->
+        <div class="filters-section">
+          <div class="filter-group">
+            <h4>
+              <span class="material-icons">calendar_today</span>
+              Date Range
+            </h4>
+            <div class="filter-content">
+              <label>Time Period</label>
+              <select [(ngModel)]="timePeriod" (change)="updateReportPreview()">
+                <option *ngFor="let period of timePeriods">{{ period }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <h4>
+              <span class="material-icons">location_on</span>
+              Location & Scope
+            </h4>
+            <div class="filter-content">
+              <label>Branches</label>
+              <div class="checkbox-group">
+                <div class="checkbox-item" *ngFor="let branch of branches">
+                  <input 
+                    type="checkbox" 
+                    [checked]="isBranchSelected(branch.id)"
+                    (change)="toggleBranch(branch.id)"
+                    [id]="'branch-' + branch.id">
+                  <label [for]="'branch-' + branch.id">{{ branch.name }}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Configuration -->
+        <div class="filters-section">
+          <h4>Report Configuration</h4>
+          <div class="config-grid">
+            <div class="config-item">
+              <label>Format</label>
+              <select [(ngModel)]="reportFormat" (change)="updateReportPreview()">
+                <option *ngFor="let format of reportFormats">{{ format }}</option>
+              </select>
+            </div>
+            <div class="config-item">
+              <label>Group By</label>
+              <select [(ngModel)]="groupBy">
+                <option *ngFor="let option of groupByOptions">{{ option }}</option>
+              </select>
+            </div>
+            <div class="config-item">
+              <label>Sort By</label>
+              <select [(ngModel)]="sortBy">
+                <option *ngFor="let option of sortByOptions">{{ option }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Include in Report -->
+        <div class="filters-section">
+          <h4>Include in Report</h4>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="includeExecutiveSummary"
+                id="executive-summary">
+              <label for="executive-summary">Executive Summary</label>
+            </div>
+            <div class="checkbox-item">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="includeChartsGraphs"
+                id="charts-graphs">
+              <label for="charts-graphs">Charts & Graphs</label>
+            </div>
+            <div class="checkbox-item">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="includeDetailedData"
+                id="detailed-data">
+              <label for="detailed-data">Detailed Data</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Delivery & Scheduling -->
+      <div class="step-content" *ngIf="currentStep === 3">
+        <h3>Delivery & Scheduling</h3>
+
+        <!-- Delivery Options -->
+        <div class="delivery-section">
+          <h4>
+            <span class="material-icons">mail</span>
+            Delivery Options
+          </h4>
+
+          <div class="form-group">
+            <label>Email Recipients (Optional)</label>
+            <input 
+              type="text" 
+              [(ngModel)]="emailRecipients"
+              placeholder="email1@company.com, email2@company.com"
+              class="form-input">
+            <small>Separate multiple emails with commas</small>
+          </div>
+
+          <div class="checkbox-item">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="saveToLibrary"
+              id="save-to-library">
+            <label for="save-to-library">Save to Report Library</label>
+          </div>
+
+          <div class="checkbox-item">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="scheduleAutomaticGeneration"
+              id="schedule-automatic">
+            <label for="schedule-automatic">Schedule Automatic Generation</label>
+          </div>
+        </div>
+
+        <!-- Report Details -->
+        <div class="details-section">
+          <h4>Report Details</h4>
+
+          <div class="form-group">
+            <label>Report Title</label>
+            <input 
+              type="text" 
+              [(ngModel)]="reportTitle"
+              placeholder="e.g., Customer Report - 1/12/2026"
+              class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label>Description (Optional)</label>
+            <textarea 
+              [(ngModel)]="reportDescription"
+              placeholder="Brief description of this report..."
+              class="form-textarea"
+              rows="3"></textarea>
+          </div>
+        </div>
+
+        <!-- Report Preview -->
+        <div class="preview-section">
+          <h4>Report Preview</h4>
+          <div class="preview-box">
+            <div class="preview-row">
+              <span class="preview-label">Report Type:</span>
+              <span class="preview-value">
+                <span class="report-badge">{{ reportPreview.type }}</span>
+              </span>
+            </div>
+            <div class="preview-row">
+              <span class="preview-label">Date Range:</span>
+              <span class="preview-value">{{ reportPreview.dateRange }}</span>
+            </div>
+            <div class="preview-row">
+              <span class="preview-label">Branches:</span>
+              <span class="preview-value">{{ reportPreview.branches }}</span>
+            </div>
+            <div class="preview-row">
+              <span class="preview-label">Format:</span>
+              <span class="preview-value">{{ reportPreview.format }}</span>
+            </div>
+            <div class="estimated-size">{{ reportPreview.estimatedSize }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cancel()">
+        Cancel
+      </button>
+
+      <div class="footer-actions">
+        <button 
+          class="btn-secondary" 
+          *ngIf="currentStep > 1"
+          (click)="previousStep()">
+          Back
+        </button>
+
+        <button 
+          class="btn-secondary" 
+          *ngIf="currentStep === 3"
+          (click)="previewReport()">
+          <span class="material-icons">visibility</span>
+          Preview
+        </button>
+
+        <button 
+          class="btn-primary" 
+          *ngIf="currentStep < 3"
+          (click)="nextStep()"
+          [disabled]="!isStepValid(currentStep)">
+          Continue
+        </button>
+
+        <button 
+          class="btn-primary" 
+          *ngIf="currentStep === 3"
+          (click)="generateReport()">
+          <span class="material-icons">download</span>
+          Generate Report
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
