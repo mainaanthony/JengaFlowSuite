@@ -1,0 +1,421 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div>
+        <h2>Create Purchase Order</h2>
+        <p>Create a new purchase order for supplier procurement</p>
+      </div>
+      <button class="btn-close" (click)="closeDialog()" title="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Steps Indicator -->
+    <div class="steps-indicator">
+      <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+        <div class="step-number">1</div>
+        <div class="step-label">Supplier & Details</div>
+      </div>
+      <div class="step-connector" [class.completed]="currentStep > 1"></div>
+
+      <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+        <div class="step-number">2</div>
+        <div class="step-label">Items</div>
+      </div>
+      <div class="step-connector" [class.completed]="currentStep > 2"></div>
+
+      <div class="step" [class.active]="currentStep === 3">
+        <div class="step-number">3</div>
+        <div class="step-label">Review & Submit</div>
+      </div>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <!-- Step 1: Supplier & Details -->
+      <div class="step-content" *ngIf="currentStep === 1">
+        <div class="section-card">
+          <h4>Supplier Selection</h4>
+
+          <form [formGroup]="poForm">
+            <div class="form-group">
+              <label>Select Supplier <span class="required">*</span></label>
+              <select formControlName="supplier">
+                <option value="" disabled>Choose a supplier</option>
+                <option *ngFor="let supplier of suppliers" [value]="supplier.id">
+                  {{ supplier.name }} - {{ supplier.category }}
+                </option>
+              </select>
+            </div>
+
+            <div class="supplier-info" *ngIf="selectedSupplier">
+              <div class="supplier-badge">
+                <strong>{{ selectedSupplier.name }}</strong>
+                <span class="category">Category: {{ selectedSupplier.category }}</span>
+                <span class="terms">Payment Terms: {{ selectedSupplier.paymentTerms }}</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Payment Terms</label>
+                <select formControlName="paymentTerms">
+                  <option value="" disabled>Select payment terms</option>
+                  <option *ngFor="let term of paymentTermsOptions" [value]="term">{{ term }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>PO Number</label>
+                <input type="text" formControlName="poNumber" readonly />
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="section-card">
+          <h4>Purchase Order Details</h4>
+
+          <form [formGroup]="poForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label>PO Number</label>
+                <input type="text" formControlName="poNumber" readonly />
+              </div>
+
+              <div class="form-group">
+                <label>Requested By</label>
+                <input type="text" formControlName="requestedBy" readonly />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Branch/Location <span class="required">*</span></label>
+                <select formControlName="branch">
+                  <option value="" disabled>Select branch</option>
+                  <option *ngFor="let branch of branches" [value]="branch">{{ branch }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Priority</label>
+                <select formControlName="priority">
+                  <option *ngFor="let priority of priorities" [value]="priority">{{ priority }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Expected Delivery Date</label>
+              <input type="date" formControlName="expectedDelivery" />
+            </div>
+
+            <div class="form-group">
+              <label>Delivery Address</label>
+              <textarea formControlName="deliveryAddress" rows="3" placeholder="Enter complete delivery address..."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Budget Code</label>
+                <select formControlName="budgetCode">
+                  <option value="">Select budget code</option>
+                  <option *ngFor="let code of budgetCodes" [value]="code">{{ code }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Approver</label>
+                <select formControlName="approver">
+                  <option value="">Select approver</option>
+                  <option *ngFor="let approver of approvers" [value]="approver">{{ approver }}</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Step 2: Items -->
+      <div class="step-content" *ngIf="currentStep === 2">
+        <h3>Purchase Items</h3>
+
+        <div class="section-card">
+          <h4>Add New Item</h4>
+
+          <form [formGroup]="itemForm">
+            <div class="item-form-row">
+              <div class="form-group">
+                <label>Item Name <span class="required">*</span></label>
+                <input type="text" formControlName="itemName" placeholder="Enter item name" />
+              </div>
+
+              <div class="form-group">
+                <label>Quantity <span class="required">*</span></label>
+                <input type="number" formControlName="quantity" placeholder="1" min="1" />
+              </div>
+
+              <div class="form-group">
+                <label>Unit Price (KES) <span class="required">*</span></label>
+                <input type="number" formControlName="unitPrice" placeholder="0" min="0" step="0.01" />
+              </div>
+
+              <div class="form-group">
+                <label>Urgency</label>
+                <select formControlName="urgency">
+                  <option *ngFor="let urgency of urgencies" [value]="urgency">{{ urgency }}</option>
+                </select>
+              </div>
+
+              <div class="form-group-button">
+                <button type="button" class="btn-add-item" (click)="addItem()">
+                  <mat-icon>add</mat-icon>
+                  Add Item
+                </button>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Description</label>
+                <textarea formControlName="description" rows="3" placeholder="Item description..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Specifications</label>
+                <textarea formControlName="specifications" rows="3" placeholder="Technical specifications..."></textarea>
+              </div>
+            </div>
+
+            <div class="line-total" *ngIf="getItemTotal() > 0">
+              Line Total: KES {{ getItemTotal() | number: '1.0-2' }}
+            </div>
+          </form>
+        </div>
+
+        <div class="section-card">
+          <h4>Purchase Order Items</h4>
+
+          <div class="items-table" *ngIf="items.length > 0; else noItems">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Qty</th>
+                  <th>Unit Price</th>
+                  <th>Total</th>
+                  <th>Urgency</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of items; let i = index">
+                  <td>
+                    <div class="item-name">{{ item.name }}</div>
+                    <div class="item-description" *ngIf="item.description">{{ item.description }}</div>
+                  </td>
+                  <td>
+                    <input type="number" [(ngModel)]="item.quantity" (change)="updateItemQuantity(i, item.quantity)" min="1" class="qty-input" />
+                  </td>
+                  <td>{{ item.unitPrice }}</td>
+                  <td class="total-cell">KES {{ item.total | number: '1.0-2' }}</td>
+                  <td>
+                    <span class="urgency-badge" [class.urgent]="item.urgency === 'Urgent'" [class.critical]="item.urgency === 'Critical'">
+                      {{ item.urgency }}
+                    </span>
+                  </td>
+                  <td>
+                    <button type="button" class="btn-delete" (click)="removeItem(i)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="totals-section">
+              <div class="total-row">
+                <span>Subtotal</span>
+                <span class="amount">KES {{ getSubtotal() | number: '1.0-2' }}</span>
+              </div>
+              <div class="total-row">
+                <span>VAT (16%)</span>
+                <span class="amount">KES {{ getVAT() | number: '1.0-2' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noItems>
+            <p class="no-items">No items added yet. Add items above to create the purchase order.</p>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Step 3: Review & Submit -->
+      <div class="step-content" *ngIf="currentStep === 3">
+        <h3>Review & Submit</h3>
+
+        <div class="review-tabs">
+          <button
+            class="review-tab"
+            [class.active]="activeReviewTab === 'review'"
+            (click)="setReviewTab('review')"
+          >
+            Review Order
+          </button>
+          <button
+            class="review-tab"
+            [class.active]="activeReviewTab === 'notes'"
+            (click)="setReviewTab('notes')"
+          >
+            Notes & Attachments
+          </button>
+        </div>
+
+        <div class="review-content" *ngIf="activeReviewTab === 'review'">
+          <div class="section-card">
+            <h4>Order Summary</h4>
+
+            <div class="summary-grid">
+              <div class="summary-item">
+                <label>PO Number</label>
+                <div>{{ poForm.get('poNumber')?.value }}</div>
+              </div>
+
+              <div class="summary-item">
+                <label>Supplier</label>
+                <div>{{ selectedSupplier?.name }}</div>
+              </div>
+
+              <div class="summary-item">
+                <label>Branch</label>
+                <div>{{ poForm.get('branch')?.value }}</div>
+              </div>
+
+              <div class="summary-item">
+                <label>Expected Delivery</label>
+                <div>{{ poForm.get('expectedDelivery')?.value || 'Not set' }}</div>
+              </div>
+
+              <div class="summary-item">
+                <label>Priority</label>
+                <div>{{ poForm.get('priority')?.value }}</div>
+              </div>
+
+              <div class="summary-item">
+                <label>Total Items</label>
+                <div>{{ items.length }} items</div>
+              </div>
+            </div>
+
+            <div class="order-totals">
+              <div class="total-line">
+                <span>Subtotal:</span>
+                <span>KES {{ getSubtotal() | number: '1.0-2' }}</span>
+              </div>
+              <div class="total-line">
+                <span>VAT:</span>
+                <span>KES {{ getVAT() | number: '1.0-2' }}</span>
+              </div>
+              <div class="total-line grand-total">
+                <span>Total:</span>
+                <span>KES {{ getTotal() | number: '1.0-2' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-content" *ngIf="activeReviewTab === 'notes'">
+          <div class="section-card">
+            <h4>Additional Information</h4>
+
+            <form [formGroup]="reviewForm">
+              <div class="form-group">
+                <label>Public Notes (visible to supplier)</label>
+                <textarea formControlName="publicNotes" rows="4" placeholder="Any special instructions for the supplier..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Internal Notes (private)</label>
+                <textarea formControlName="internalNotes" rows="4" placeholder="Internal notes for your team..."></textarea>
+              </div>
+            </form>
+          </div>
+
+          <div class="section-card">
+            <h4>Attachments</h4>
+
+            <div class="attachments-area" *ngIf="attachments.length === 0">
+              <input
+                type="file"
+                id="attachments"
+                multiple
+                (change)="onFileSelect($event)"
+                hidden
+              />
+              <label for="attachments" class="upload-label">
+                <mat-icon>upload</mat-icon>
+                <span>Upload RFQs, specifications, or other documents</span>
+                <button type="button" class="btn-choose-files">Choose Files</button>
+              </label>
+            </div>
+
+            <div class="attachments-list" *ngIf="attachments.length > 0">
+              <div class="attachment-item" *ngFor="let file of attachments; let i = index">
+                <mat-icon>description</mat-icon>
+                <span>{{ file.name }}</span>
+                <button type="button" class="btn-remove" (click)="removeAttachment(i)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+              <input
+                type="file"
+                id="attachmentsMore"
+                multiple
+                (change)="onFileSelect($event)"
+                hidden
+              />
+              <label for="attachmentsMore" class="btn-add-more">
+                <mat-icon>add</mat-icon>
+                Add More Files
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeDialog()" *ngIf="currentStep === 1">
+        Cancel
+      </button>
+
+      <button class="btn-secondary" *ngIf="currentStep > 1" (click)="previousStep()">
+        Back
+      </button>
+
+      <div class="footer-right">
+        <button class="btn-secondary-outline" *ngIf="currentStep === 3" (click)="saveDraft()">
+          Save as Draft
+        </button>
+
+        <button
+          class="btn-primary"
+          *ngIf="currentStep < 3"
+          (click)="nextStep()"
+          [disabled]="(currentStep === 1 && !canProceedToStep2()) || (currentStep === 2 && !canProceedToStep3())"
+        >
+          Continue
+        </button>
+
+        <button class="btn-primary" *ngIf="currentStep === 3" (click)="createPO()">
+          <mat-icon>description</mat-icon>
+          Create PO
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

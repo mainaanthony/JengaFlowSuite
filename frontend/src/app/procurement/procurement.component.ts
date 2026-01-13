@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
 import { AddSupplierModalComponent } from './add-supplier-modal/add-supplier-modal.component';
+import { CreatePOModalComponent } from './create-po-modal/create-po-modal.component';
 
 interface PurchaseOrder {
   id: string;
@@ -201,7 +202,21 @@ export class ProcurementComponent implements OnInit {
   }
 
   createPO() {
-    console.log('Create new purchase order');
+    const dialogRef = this.dialog.open(CreatePOModalComponent, {
+      width: '1200px',
+      maxHeight: '90vh',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.action === 'create') {
+        console.log('Purchase Order created:', result.data);
+        // Handle the created PO (e.g., save to backend, update UI)
+      } else if (result && result.action === 'draft') {
+        console.log('Purchase Order saved as draft:', result.data);
+        // Handle the draft PO
+      }
+    });
   }
 
   editPO(po: PurchaseOrder) {
