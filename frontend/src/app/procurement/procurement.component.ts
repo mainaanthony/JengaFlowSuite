@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { CardComponent } from '../shared/card/card.component';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
+import { AddSupplierModalComponent } from './add-supplier-modal/add-supplier-modal.component';
 
 interface PurchaseOrder {
   id: string;
@@ -45,6 +47,7 @@ interface GoodsReceivedNote {
     ButtonSolidComponent,
     CardComponent,
     MatIconModule,
+    MatDialogModule,
     ReactiveFormsModule
   ],
   templateUrl: './procurement.component.html',
@@ -53,6 +56,8 @@ interface GoodsReceivedNote {
 export class ProcurementComponent implements OnInit {
   searchControl = new FormControl('');
   activeTab: 'purchase-orders' | 'suppliers' | 'goods-received' = 'purchase-orders';
+
+  constructor(private dialog: MatDialog) {}
 
   stats = {
     activePOs: 23,
@@ -181,7 +186,18 @@ export class ProcurementComponent implements OnInit {
   }
 
   addSupplier() {
-    console.log('Add new supplier');
+    const dialogRef = this.dialog.open(AddSupplierModalComponent, {
+      width: '1100px',
+      maxWidth: '95vw',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Supplier added:', result);
+        alert(`Supplier "${result.companyName}" added successfully!`);
+      }
+    });
   }
 
   createPO() {
