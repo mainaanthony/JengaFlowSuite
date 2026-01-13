@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { CardComponent } from '../shared/card/card.component';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
+import { NewSaleModalComponent } from './new-sale-modal/new-sale-modal.component';
 
 interface Transaction {
   id: string;
@@ -36,6 +38,7 @@ interface PendingOrder {
     ButtonSolidComponent,
     CardComponent,
     MatIconModule,
+    MatDialogModule,
     ReactiveFormsModule
   ],
   templateUrl: './sales.component.html',
@@ -44,6 +47,8 @@ interface PendingOrder {
 export class SalesComponent implements OnInit {
   searchControl = new FormControl('');
   activeTab: 'today' | 'pending' | 'customers' = 'today';
+
+  constructor(private dialog: MatDialog) {}
 
   stats = {
     todaysSales: 'KES 156,400',
@@ -164,7 +169,18 @@ export class SalesComponent implements OnInit {
   }
 
   newSale() {
-    console.log('Create new sale');
+    const dialogRef = this.dialog.open(NewSaleModalComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Sale completed:', result);
+        alert(`Sale completed for ${result.customerName}! Total: KES ${result.total.toFixed(2)}`);
+      }
+    });
   }
 
   getPaymentMethodClass(method: string): string {

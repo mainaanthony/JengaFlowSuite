@@ -1,0 +1,319 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div>
+        <h2>New Sale</h2>
+        <p>Process a new sales transaction</p>
+      </div>
+      <button class="btn-close" (click)="closeDialog()" title="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Steps Indicator -->
+    <div class="steps-indicator">
+      <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+        <div class="step-number">1</div>
+        <div class="step-label">Customer</div>
+      </div>
+      <div class="step-connector" [class.completed]="currentStep > 1"></div>
+
+      <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+        <div class="step-number">2</div>
+        <div class="step-label">Products</div>
+      </div>
+      <div class="step-connector" [class.completed]="currentStep > 2"></div>
+
+      <div class="step" [class.active]="currentStep === 3" [class.completed]="currentStep >= 3">
+        <div class="step-number">3</div>
+        <div class="step-label">Checkout</div>
+      </div>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <!-- Step 1: Customer Selection -->
+      <div class="step-content" *ngIf="currentStep === 1" [@fadeInOut]>
+        <h3>Select a Customer</h3>
+
+        <div class="search-box">
+          <mat-icon>search</mat-icon>
+          <input
+            type="text"
+            placeholder="Search by name or phone..."
+            [formControl]="customerForm.get('customerSearch')"
+            (input)="searchCustomers()"
+          />
+        </div>
+
+        <div class="customer-cards">
+          <div
+            class="customer-card"
+            *ngFor="let customer of filteredCustomers"
+            (click)="selectCustomer(customer)"
+            [class.selected]="selectedCustomer?.id === customer.id"
+          >
+            <div class="card-header">
+              <h4>{{ customer.name }}</h4>
+              <mat-icon *ngIf="selectedCustomer?.id === customer.id">check_circle</mat-icon>
+            </div>
+            <div class="card-details">
+              <p *ngIf="customer.phone"><strong>Phone:</strong> {{ customer.phone }}</p>
+              <p *ngIf="customer.email"><strong>Email:</strong> {{ customer.email }}</p>
+              <p *ngIf="customer.loyaltyPoints > 0"><strong>Points:</strong> {{ customer.loyaltyPoints }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="new-customer-section">
+          <h4>Create New Customer</h4>
+          <div class="form-row">
+            <input
+              type="text"
+              placeholder="Full Name"
+              [formControl]="customerForm.get('newCustomerName')"
+            />
+            <input
+              type="tel"
+              placeholder="Phone Number"
+              [formControl]="customerForm.get('newCustomerPhone')"
+            />
+            <button class="btn-primary" (click)="createNewCustomer()">
+              <mat-icon>add</mat-icon>
+              Add Customer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Product Selection -->
+      <div class="step-content" *ngIf="currentStep === 2" [@fadeInOut]>
+        <h3>Add Products to Cart</h3>
+
+        <div class="products-section">
+          <!-- Search and Barcode Input -->
+          <div class="search-controls">
+            <div class="search-box">
+              <mat-icon>search</mat-icon>
+              <input
+                type="text"
+                placeholder="Search products..."
+                [formControl]="productsForm.get('productSearch')"
+                (input)="searchProducts()"
+              />
+            </div>
+            <div class="search-box">
+              <mat-icon>barcode</mat-icon>
+              <input
+                type="text"
+                placeholder="Scan barcode..."
+                [formControl]="productsForm.get('barcodeInput')"
+                (keyup.enter)="scanBarcode()"
+              />
+            </div>
+          </div>
+
+          <!-- Products and Cart Layout -->
+          <div class="products-cart-layout">
+            <!-- Available Products -->
+            <div class="available-products">
+              <h4>Available Products</h4>
+              <div class="products-list">
+                <div class="product-item" *ngFor="let product of filteredProducts">
+                  <div class="product-info">
+                    <h5>{{ product.name }}</h5>
+                    <p class="sku">SKU: {{ product.sku }}</p>
+                    <p class="price">KES {{ product.price | number: '1.0-0' }}</p>
+                    <p class="stock" [class.low-stock]="product.stock < 5">
+                      Stock: {{ product.stock }}
+                    </p>
+                  </div>
+                  <button
+                    class="btn-add"
+                    (click)="addProductToCart(product)"
+                    [disabled]="product.stock === 0"
+                  >
+                    <mat-icon>add_shopping_cart</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shopping Cart -->
+            <div class="shopping-cart">
+              <h4>Shopping Cart ({{ cart.length }})</h4>
+              <div class="cart-items" *ngIf="cart.length > 0; else emptyCart">
+                <div class="cart-item" *ngFor="let item of cart; let i = index">
+                  <div class="item-info">
+                    <h5>{{ item.productName }}</h5>
+                    <p class="sku">{{ item.sku }}</p>
+                    <p class="price">KES {{ item.price | number: '1.0-0' }}</p>
+                  </div>
+                  <div class="quantity-control">
+                    <button (click)="updateCartQuantity(i, item.quantity - 1)" [disabled]="item.quantity === 1">
+                      <mat-icon>remove</mat-icon>
+                    </button>
+                    <input type="number" [(ngModel)]="item.quantity" (change)="updateCartQuantity(i, item.quantity)" />
+                    <button (click)="updateCartQuantity(i, item.quantity + 1)">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
+                  <div class="subtotal">KES {{ item.subtotal | number: '1.0-0' }}</div>
+                  <button class="btn-delete" (click)="removeFromCart(i)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+              <ng-template #emptyCart>
+                <p class="empty-message">No items in cart</p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Checkout -->
+      <div class="step-content" *ngIf="currentStep === 3" [@fadeInOut]>
+        <h3>Checkout & Payment</h3>
+
+        <div class="checkout-layout">
+          <!-- Order Summary -->
+          <div class="order-summary">
+            <h4>Order Summary</h4>
+
+            <div class="summary-section">
+              <h5>Items ({{ cart.length }})</h5>
+              <div class="summary-items">
+                <div class="summary-item" *ngFor="let item of cart">
+                  <span>{{ item.productName }} x{{ item.quantity }}</span>
+                  <span class="price">KES {{ item.subtotal | number: '1.0-0' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span class="amount">KES {{ totals.subtotal | number: '1.0-0' }}</span>
+            </div>
+
+            <div class="discount-section" [formGroup]="checkoutForm">
+              <div class="discount-row">
+                <div class="discount-input-group">
+                  <select formControlName="discountType" (change)="onDiscountChange()">
+                    <option value="percentage">Discount %</option>
+                    <option value="fixed">Discount KES</option>
+                  </select>
+                  <input
+                    type="number"
+                    formControlName="discountValue"
+                    placeholder="0"
+                    (change)="onDiscountChange()"
+                    min="0"
+                  />
+                </div>
+                <span class="discount-amount" *ngIf="totals.discountAmount > 0">
+                  -KES {{ totals.discountAmount | number: '1.0-0' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="summary-row tax">
+              <span>VAT (16%)</span>
+              <span class="amount">KES {{ totals.taxAmount | number: '1.0-0' }}</span>
+            </div>
+
+            <div class="summary-row total">
+              <span>Total Amount</span>
+              <span class="amount">KES {{ totals.total | number: '1.0-0' }}</span>
+            </div>
+          </div>
+
+          <!-- Payment Information -->
+          <div class="payment-info" [formGroup]="checkoutForm">
+            <h4>Payment Information</h4>
+
+            <div class="form-group">
+              <label>Payment Method</label>
+              <select formControlName="paymentMethod">
+                <option value="Cash">Cash</option>
+                <option value="M-Pesa">M-Pesa</option>
+                <option value="Card">Card</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Amount Paid (KES)</label>
+              <input
+                type="number"
+                formControlName="amountPaid"
+                placeholder="0"
+                min="0"
+              />
+            </div>
+
+            <div class="balance-section" [class.insufficient]="getBalance() > 0">
+              <div class="balance-label">Balance</div>
+              <div class="balance-amount" [class.due]="getBalance() > 0" [class.change]="getBalance() < 0">
+                KES {{ Math.abs(getBalance()) | number: '1.0-0' }}
+              </div>
+              <div class="balance-status">
+                <span *ngIf="getBalance() > 0" class="status-due">
+                  <mat-icon>info</mat-icon> Amount Due
+                </span>
+                <span *ngIf="getBalance() < 0" class="status-change">
+                  <mat-icon>check_circle</mat-icon> Change
+                </span>
+                <span *ngIf="getBalance() === 0" class="status-exact">
+                  <mat-icon>check_circle</mat-icon> Exact Amount
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Notes (Optional)</label>
+              <textarea formControlName="notes" placeholder="Add order notes..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeDialog()">
+        Cancel
+      </button>
+
+      <div class="step-buttons">
+        <button
+          class="btn-secondary"
+          *ngIf="currentStep > 1"
+          (click)="previousStep()"
+        >
+          <mat-icon>arrow_back</mat-icon>
+          Back
+        </button>
+
+        <button
+          class="btn-primary"
+          *ngIf="currentStep < 3"
+          (click)="nextStep()"
+          [disabled]="(currentStep === 1 && !canProceedToStep2()) || (currentStep === 2 && !canProceedToStep3())"
+        >
+          Continue
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+
+        <button
+          class="btn-success"
+          *ngIf="currentStep === 3"
+          (click)="completeSale()"
+        >
+          <mat-icon>check</mat-icon>
+          Complete Sale
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
