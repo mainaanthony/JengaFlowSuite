@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
 import { AddDriverModalComponent } from './add-driver-modal/add-driver-modal.component';
+import { ScheduleDeliveryModalComponent } from './schedule-delivery-modal/schedule-delivery-modal.component';
 
 interface Delivery {
   id: string;
@@ -189,7 +190,29 @@ export class DeliveryComponent implements OnInit {
   }
 
   scheduleDelivery() {
-    console.log('Schedule new delivery');
+    const dialogRef = this.dialog.open(ScheduleDeliveryModalComponent, {
+      width: '1000px',
+      maxHeight: '90vh',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Delivery scheduled:', result);
+        // Handle the scheduled delivery data (e.g., save to backend, update UI)
+        this.deliveries.push({
+          id: `DEL-${Date.now()}`,
+          orderId: `ORD-${Date.now()}`,
+          customer: result.customerName,
+          address: result.deliveryAddress,
+          driver: result.assignedDriver,
+          driverVehicle: result.assignedVehicle,
+          status: 'Pending',
+          priority: result.priority,
+          scheduled: `${result.deliveryDate} ${result.preferredTime || '09:00'}`
+        });
+      }
+    });
   }
 
   editDelivery(delivery: Delivery) {
