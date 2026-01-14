@@ -1,0 +1,352 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div>
+        <h2>Add New Driver</h2>
+      </div>
+      <button class="btn-close" (click)="closeDialog()" title="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'personal'"
+        [class.completed]="isTabValid('personal') && activeTab !== 'personal'"
+        (click)="setTab('personal')"
+      >
+        Personal Info
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'employment'"
+        [class.completed]="isTabValid('employment') && activeTab !== 'employment'"
+        (click)="setTab('employment')"
+      >
+        Employment
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'license'"
+        [class.completed]="isTabValid('license') && activeTab !== 'license'"
+        (click)="setTab('license')"
+      >
+        License & Vehicle
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'documents'"
+        (click)="setTab('documents')"
+      >
+        Documents
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <!-- Personal Info Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'personal'">
+        <div class="section-header">
+          <mat-icon>person</mat-icon>
+          <h3>Personal Information</h3>
+        </div>
+
+        <form [formGroup]="driverForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name <span class="required">*</span></label>
+              <input type="text" formControlName="firstName" placeholder="Enter first name" />
+            </div>
+
+            <div class="form-group">
+              <label>Last Name <span class="required">*</span></label>
+              <input type="text" formControlName="lastName" placeholder="Enter last name" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" formControlName="email" placeholder="driver@example.com" />
+            </div>
+
+            <div class="form-group">
+              <label>Phone Number <span class="required">*</span></label>
+              <input type="tel" formControlName="phone" placeholder="+254 XXX XXX XXX" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Date of Birth</label>
+              <input type="date" formControlName="dateOfBirth" />
+            </div>
+
+            <div class="form-group">
+              <label>ID Number</label>
+              <input type="text" formControlName="idNumber" placeholder="Enter ID number" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Address</label>
+            <textarea formControlName="address" rows="3" placeholder="Enter full address"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Emergency Contact Name</label>
+              <input type="text" formControlName="emergencyContactName" placeholder="Enter emergency contact name" />
+            </div>
+
+            <div class="form-group">
+              <label>Emergency Contact Phone</label>
+              <input type="tel" formControlName="emergencyContactPhone" placeholder="+254 XXX XXX XXX" />
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Employment Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'employment'">
+        <div class="section-header">
+          <mat-icon>work</mat-icon>
+          <h3>Employment Information</h3>
+        </div>
+
+        <form [formGroup]="driverForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Employee ID</label>
+              <input type="text" formControlName="employeeId" placeholder="Auto-generated if empty" />
+            </div>
+
+            <div class="form-group">
+              <label>Hire Date</label>
+              <input type="date" formControlName="hireDate" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Employment Type</label>
+              <select formControlName="employmentType">
+                <option *ngFor="let type of employmentTypes" [value]="type">{{ type }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Monthly Salary (KSH)</label>
+              <input type="number" formControlName="monthlySalary" placeholder="0" min="0" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Department</label>
+              <select formControlName="department">
+                <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Supervisor</label>
+              <select formControlName="supervisor">
+                <option value="">Select supervisor</option>
+                <option *ngFor="let sup of supervisors" [value]="sup">{{ sup }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Status</label>
+            <select formControlName="status">
+              <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <!-- License & Vehicle Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'license'">
+        <div class="section-header">
+          <mat-icon>local_shipping</mat-icon>
+          <h3>License & Vehicle Information</h3>
+        </div>
+
+        <form [formGroup]="driverForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>License Number <span class="required">*</span></label>
+              <input type="text" formControlName="licenseNumber" placeholder="Enter license number" />
+            </div>
+
+            <div class="form-group">
+              <label>License Class</label>
+              <select formControlName="licenseClass">
+                <option value="">Select license class</option>
+                <option *ngFor="let licClass of licenseClasses" [value]="licClass">{{ licClass }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>License Expiry Date</label>
+            <input type="date" formControlName="licenseExpiryDate" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Assigned Vehicle</label>
+              <select formControlName="assignedVehicle">
+                <option value="">Select vehicle</option>
+                <option *ngFor="let vehicle of vehicles" [value]="vehicle">{{ vehicle }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Vehicle Type</label>
+              <select formControlName="vehicleType">
+                <option value="">Select vehicle type</option>
+                <option *ngFor="let type of vehicleTypes" [value]="type">{{ type }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Maximum Deliveries per Day</label>
+            <input type="number" formControlName="maxDeliveriesPerDay" placeholder="10" min="1" />
+          </div>
+        </form>
+      </div>
+
+      <!-- Documents Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'documents'">
+        <div class="section-header">
+          <mat-icon>upload_file</mat-icon>
+          <h3>Document Upload</h3>
+        </div>
+
+        <div class="upload-grid">
+          <!-- Profile Photo -->
+          <div class="upload-box">
+            <div class="upload-label">Profile Photo</div>
+            <div class="upload-area" *ngIf="!hasFile('profilePhoto')">
+              <mat-icon>upload</mat-icon>
+              <p>Upload photo</p>
+              <input
+                type="file"
+                id="profilePhoto"
+                accept="image/*"
+                (change)="onFileSelect($event, 'profilePhoto')"
+                hidden
+              />
+              <label for="profilePhoto" class="btn-choose">Choose File</label>
+            </div>
+            <div class="file-selected" *ngIf="hasFile('profilePhoto')">
+              <mat-icon>check_circle</mat-icon>
+              <span>{{ getFileName('profilePhoto') }}</span>
+              <button type="button" class="btn-remove" (click)="removeFile('profilePhoto')">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- ID Copy -->
+          <div class="upload-box">
+            <div class="upload-label">ID Copy</div>
+            <div class="upload-area" *ngIf="!hasFile('idCopy')">
+              <mat-icon>upload</mat-icon>
+              <p>Upload ID copy</p>
+              <input
+                type="file"
+                id="idCopy"
+                accept="image/*,.pdf"
+                (change)="onFileSelect($event, 'idCopy')"
+                hidden
+              />
+              <label for="idCopy" class="btn-choose">Choose File</label>
+            </div>
+            <div class="file-selected" *ngIf="hasFile('idCopy')">
+              <mat-icon>check_circle</mat-icon>
+              <span>{{ getFileName('idCopy') }}</span>
+              <button type="button" class="btn-remove" (click)="removeFile('idCopy')">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- License Copy -->
+          <div class="upload-box">
+            <div class="upload-label">License Copy</div>
+            <div class="upload-area" *ngIf="!hasFile('licenseCopy')">
+              <mat-icon>upload</mat-icon>
+              <p>Upload license copy</p>
+              <input
+                type="file"
+                id="licenseCopy"
+                accept="image/*,.pdf"
+                (change)="onFileSelect($event, 'licenseCopy')"
+                hidden
+              />
+              <label for="licenseCopy" class="btn-choose">Choose File</label>
+            </div>
+            <div class="file-selected" *ngIf="hasFile('licenseCopy')">
+              <mat-icon>check_circle</mat-icon>
+              <span>{{ getFileName('licenseCopy') }}</span>
+              <button type="button" class="btn-remove" (click)="removeFile('licenseCopy')">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Contract -->
+          <div class="upload-box">
+            <div class="upload-label">Contract</div>
+            <div class="upload-area" *ngIf="!hasFile('contract')">
+              <mat-icon>upload</mat-icon>
+              <p>Upload signed contract</p>
+              <input
+                type="file"
+                id="contract"
+                accept=".pdf,.doc,.docx"
+                (change)="onFileSelect($event, 'contract')"
+                hidden
+              />
+              <label for="contract" class="btn-choose">Choose File</label>
+            </div>
+            <div class="file-selected" *ngIf="hasFile('contract')">
+              <mat-icon>check_circle</mat-icon>
+              <span>{{ getFileName('contract') }}</span>
+              <button type="button" class="btn-remove" (click)="removeFile('contract')">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <form [formGroup]="driverForm">
+          <div class="form-group">
+            <label>Additional Notes</label>
+            <textarea formControlName="additionalNotes" rows="4" placeholder="Any additional notes about the driver..."></textarea>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeDialog()">
+        Cancel
+      </button>
+
+      <button class="btn-primary" (click)="addDriver()">
+        <mat-icon>person_add</mat-icon>
+        Add Driver
+      </button>
+    </div>
+  </div>
+</div>

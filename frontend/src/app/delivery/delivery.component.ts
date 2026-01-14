@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { CardComponent } from '../shared/card/card.component';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
+import { AddDriverModalComponent } from './add-driver-modal/add-driver-modal.component';
 
 interface Delivery {
   id: string;
@@ -38,7 +40,8 @@ interface Driver {
     ButtonSolidComponent,
     CardComponent,
     MatIconModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatDialogModule
   ],
   templateUrl: './delivery.component.html',
   styleUrls: ['./delivery.component.scss']
@@ -118,6 +121,8 @@ export class DeliveryComponent implements OnInit {
   filteredDeliveries: Delivery[] = [];
   filteredDrivers: Driver[] = [];
 
+  constructor(private dialog: MatDialog) {}
+
   ngOnInit() {
     this.filteredDeliveries = this.deliveries;
     this.filteredDrivers = this.drivers;
@@ -169,7 +174,18 @@ export class DeliveryComponent implements OnInit {
   }
 
   addDriver() {
-    console.log('Add new driver');
+    const dialogRef = this.dialog.open(AddDriverModalComponent, {
+      width: '900px',
+      maxHeight: '90vh',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Driver added:', result);
+        // Handle the new driver data (e.g., save to backend, update UI)
+      }
+    });
   }
 
   scheduleDelivery() {
