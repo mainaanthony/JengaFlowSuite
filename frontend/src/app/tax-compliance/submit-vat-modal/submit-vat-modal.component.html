@@ -1,0 +1,335 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div>
+        <h2>Submit VAT Return</h2>
+        <p class="subtitle">Review and submit your VAT return to KRA</p>
+      </div>
+      <button class="btn-close" (click)="closeDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+      <div class="step" [class.active]="isStepActive(1)" [class.completed]="isStepCompleted(1)">
+        <div class="step-number">1</div>
+      </div>
+      <div class="step-line" [class.active]="isStepCompleted(1) || isStepActive(2) || isStepActive(3)"></div>
+      <div class="step" [class.active]="isStepActive(2)" [class.completed]="isStepCompleted(2)">
+        <div class="step-number">2</div>
+      </div>
+      <div class="step-line" [class.active]="isStepCompleted(2) || isStepActive(3)"></div>
+      <div class="step" [class.active]="isStepActive(3)">
+        <div class="step-number">3</div>
+      </div>
+    </div>
+
+    <!-- Step Titles -->
+    <div class="step-title">
+      <span *ngIf="activeStep === 1">VAT Calculation Review</span>
+      <span *ngIf="activeStep === 2">Compliance Verification</span>
+      <span *ngIf="activeStep === 3">Declaration & Submit</span>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <!-- Step 1: VAT Calculation Review -->
+      <div *ngIf="activeStep === 1" class="step-content">
+        <div class="content-section">
+          <div class="section-header">
+            <mat-icon>receipt</mat-icon>
+            <h3>VAT Calculation Summary</h3>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-item">
+              <label>Tax Period</label>
+              <span class="value">{{ vatCalculation.taxPeriod }}</span>
+            </div>
+            <div class="summary-item">
+              <label>PIN Number</label>
+              <span class="value">{{ vatCalculation.pinNumber }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output VAT Section -->
+        <div class="content-section">
+          <h4 class="section-title">Output VAT (Sales)</h4>
+
+          <div class="vat-table">
+            <div class="vat-row">
+              <span class="vat-label">Standard Rate Sales (16%)</span>
+              <div class="vat-amounts">
+                <span class="amount">KES {{ vatCalculation.outputVat.standardRateSales | number:'1.2-2' }}</span>
+                <span class="vat-value">VAT: KES {{ vatCalculation.outputVat.standardRateAmount | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <div class="vat-row">
+              <span class="vat-label">Zero Rated Sales</span>
+              <div class="vat-amounts">
+                <span class="amount">KES {{ vatCalculation.outputVat.zeroRatedSales | number:'1.2-2' }}</span>
+                <span class="vat-value">VAT: KES {{ vatCalculation.outputVat.zeroRatedAmount | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <div class="vat-row">
+              <span class="vat-label">Exempt Sales</span>
+              <div class="vat-amounts">
+                <span class="amount">KES {{ vatCalculation.outputVat.exemptSales | number:'1.2-2' }}</span>
+                <span class="vat-value">VAT: KES {{ vatCalculation.outputVat.exemptAmount | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <div class="vat-row total">
+              <span class="vat-label">Total Output VAT</span>
+              <span class="amount">KES {{ vatCalculation.outputVat.totalOutput | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input VAT Section -->
+        <div class="content-section">
+          <h4 class="section-title">Input VAT (Purchases)</h4>
+
+          <div class="vat-table">
+            <div class="vat-row">
+              <span class="vat-label">Local Purchases</span>
+              <div class="vat-amounts">
+                <span class="amount">KES {{ vatCalculation.inputVat.localPurchases | number:'1.2-2' }}</span>
+                <span class="vat-value">VAT: KES {{ vatCalculation.inputVat.localPurchasesVat | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <div class="vat-row">
+              <span class="vat-label">Import VAT</span>
+              <div class="vat-amounts">
+                <span class="amount">KES {{ vatCalculation.inputVat.importVat | number:'1.2-2' }}</span>
+                <span class="vat-value">VAT: KES {{ vatCalculation.inputVat.importVatAmount | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <div class="vat-row">
+              <span class="vat-label">Other Input VAT</span>
+              <div class="vat-amounts">
+                <span class="amount">KES {{ vatCalculation.inputVat.otherInputVat | number:'1.2-2' }}</span>
+                <span class="vat-value">VAT: KES {{ vatCalculation.inputVat.otherInputVatAmount | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <div class="vat-row total">
+              <span class="vat-label">Total Input VAT</span>
+              <span class="amount">KES {{ vatCalculation.inputVat.totalInput | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Net VAT Due Section -->
+        <div class="content-section">
+          <div class="net-vat-due">
+            <div class="due-amount">
+              <span class="label">Net VAT Due</span>
+              <span class="value">KES {{ vatCalculation.netVatDue | number:'1.2-2' }}</span>
+            </div>
+            <div class="due-date">
+              <small>Due Date: {{ vatCalculation.dueDate }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Compliance Verification -->
+      <div *ngIf="activeStep === 2" class="step-content" [formGroup]="complianceForm">
+        <div class="content-section">
+          <div class="section-header">
+            <mat-icon>verified</mat-icon>
+            <h3>Compliance Verification</h3>
+          </div>
+
+          <div class="compliance-checks">
+            <div *ngFor="let check of complianceChecks" class="compliance-check" [class]="check.status">
+              <div class="check-icon">
+                <mat-icon [class]="check.status">{{ getComplianceIcon(check.status) }}</mat-icon>
+              </div>
+              <div class="check-content">
+                <h4>{{ check.title }}</h4>
+                <p>{{ check.description }}</p>
+              </div>
+              <div class="check-status">
+                <span class="status-badge" [class]="check.status">
+                  {{ check.status === 'passed' ? 'Passed' : check.status === 'warning' ? 'Warning' : 'Failed' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Compliance Status Alert -->
+          <div class="compliance-status-alert">
+            <mat-icon>check_circle</mat-icon>
+            <div>
+              <h4>Compliance Status: {{ complianceStatus }}</h4>
+              <p>All required checks have passed. Your VAT return is ready to be submitted to KRA.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tax Period Information -->
+        <div class="content-section">
+          <h4 class="section-title">Tax Period Information</h4>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tax Period Start</label>
+              <input
+                type="date"
+                formControlName="taxPeriodStart"
+                readonly
+              />
+            </div>
+            <div class="form-group">
+              <label>Tax Period End</label>
+              <input
+                type="date"
+                formControlName="taxPeriodEnd"
+                readonly
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Declaration & Submit -->
+      <div *ngIf="activeStep === 3" class="step-content" [formGroup]="declarationForm">
+        <div class="content-section">
+          <div class="section-header">
+            <mat-icon>description</mat-icon>
+            <h3>Declaration & Submission</h3>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Authorized Person <span class="required">*</span></label>
+              <input
+                type="text"
+                placeholder="Full name of authorized person"
+                formControlName="authorizedPerson"
+              />
+            </div>
+            <div class="form-group">
+              <label>Position/Title <span class="required">*</span></label>
+              <input
+                type="text"
+                placeholder="e.g., Managing Director, Accountant"
+                formControlName="positionTitle"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Contact Number <span class="required">*</span></label>
+            <input
+              type="tel"
+              placeholder="+254-XXX-XXXXXX"
+              formControlName="contactNumber"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Additional Comments (Optional)</label>
+            <textarea
+              placeholder="Any additional information or explanations..."
+              formControlName="additionalComments"
+              rows="4"
+            ></textarea>
+          </div>
+
+          <!-- Declaration Confirmation -->
+          <div class="declaration-section">
+            <div class="checkbox-label">
+              <input
+                type="checkbox"
+                id="declarationConfirmed"
+                formControlName="declarationConfirmed"
+              />
+              <label for="declarationConfirmed">
+                <strong>Declaration Confirmation</strong>
+              </label>
+            </div>
+            <p class="declaration-text">
+              I declare that the information provided in this VAT return is true, complete, and accurate to the best of my knowledge. I understand that providing false information may result in penalties under the Tax Procedures Act.
+            </p>
+          </div>
+
+          <!-- Submission Summary -->
+          <div class="content-section">
+            <h4 class="section-title">Submission Summary</h4>
+
+            <div class="summary-grid">
+              <div class="summary-item">
+                <label>Tax Period:</label>
+                <span class="value">{{ vatCalculation.taxPeriod }}</span>
+              </div>
+              <div class="summary-item">
+                <label>Net VAT Due:</label>
+                <span class="value">KES {{ vatCalculation.netVatDue | number:'1.2-2' }}</span>
+              </div>
+              <div class="summary-item">
+                <label>Submission Date:</label>
+                <span class="value">{{ complianceForm.get('taxPeriodStart')?.value | date:'M/d/yyyy' }}</span>
+              </div>
+              <div class="summary-item">
+                <label>PIN:</label>
+                <span class="value">{{ vatCalculation.pinNumber }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="goBack()" *ngIf="activeStep > 1">
+        Previous
+      </button>
+      <button
+        class="btn-secondary"
+        (click)="closeDialog()"
+        *ngIf="activeStep === 1"
+      >
+        Cancel
+      </button>
+
+      <div class="footer-actions">
+        <button
+          class="btn-primary"
+          (click)="proceedToStep2()"
+          *ngIf="activeStep === 1"
+          [disabled]="!canProceedToStep(2)"
+        >
+          Next
+        </button>
+        <button
+          class="btn-primary"
+          (click)="proceedToStep3()"
+          *ngIf="activeStep === 2"
+          [disabled]="!canProceedToStep(3)"
+        >
+          Next
+        </button>
+        <button
+          class="btn-primary btn-submit"
+          (click)="submitVatReturn()"
+          *ngIf="activeStep === 3"
+          [disabled]="!declarationForm.valid"
+        >
+          <mat-icon>send</mat-icon>
+          Submit to KRA
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

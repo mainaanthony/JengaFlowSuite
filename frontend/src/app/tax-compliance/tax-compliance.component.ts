@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { CardComponent } from '../shared/card/card.component';
 import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SubmitVatModalComponent } from './submit-vat-modal/submit-vat-modal.component';
 
 interface TaxReturn {
   period: string;
@@ -45,13 +47,16 @@ interface MonthlyVATTrend {
     ButtonSolidComponent,
     CardComponent,
     MatIconModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatDialogModule
   ],
   templateUrl: './tax-compliance.component.html',
   styleUrls: ['./tax-compliance.component.scss']
 })
 export class TaxComplianceComponent implements OnInit {
   activeTab: 'vat-management' | 'tax-returns' | 'compliance' = 'vat-management';
+
+  constructor(private dialog: MatDialog) {}
 
   stats = {
     currentVATDue: 'KES 156,250',
@@ -153,7 +158,19 @@ export class TaxComplianceComponent implements OnInit {
   }
 
   submitVATReturn() {
-    console.log('Submit VAT return');
+    const dialogRef = this.dialog.open(SubmitVatModalComponent, {
+      width: '900px',
+      maxHeight: '90vh',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('VAT return submitted:', result);
+        // Handle the VAT submission (e.g., save to backend, update UI)
+        // In a real scenario, this would call a backend service to submit to KRA
+      }
+    });
   }
 
   previewReturn() {

@@ -1,0 +1,268 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="header-content">
+        <mat-icon>person_add</mat-icon>
+        <h2>Add New User</h2>
+      </div>
+      <button class="btn-close" (click)="closeDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+      <div class="step" [class.active]="isStepActive(1)" [class.completed]="isStepCompleted(1)">
+        <div class="step-number">1</div>
+      </div>
+      <div class="step-line" [class.active]="isStepCompleted(1)"></div>
+      <div class="step" [class.active]="isStepActive(2)" [class.completed]="isStepCompleted(2)">
+        <div class="step-number">2</div>
+      </div>
+      <div class="step-line" [class.active]="isStepCompleted(2)"></div>
+      <div class="step" [class.active]="isStepActive(3)" [class.completed]="isStepCompleted(3)">
+        <div class="step-number">3</div>
+      </div>
+      <div class="step-line" [class.active]="isStepCompleted(3)"></div>
+      <div class="step" [class.active]="isStepActive(4)">
+        <div class="step-number">4</div>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button
+        class="tab-button"
+        [class.active]="isStepActive(1)"
+        (click)="setStep(1)">
+        Basic Info
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="isStepActive(2)"
+        [disabled]="!canProceedToStep(2)"
+        (click)="setStep(2)">
+        Employment
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="isStepActive(3)"
+        [disabled]="!canProceedToStep(3)"
+        (click)="setStep(3)">
+        Permissions
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="isStepActive(4)"
+        [disabled]="!canProceedToStep(4)"
+        (click)="setStep(4)">
+        Additional
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <!-- Tab 1: Basic Info -->
+      <div *ngIf="isStepActive(1)" class="tab-content" [formGroup]="basicInfoForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name <span class="required">*</span></label>
+            <input
+              type="text"
+              placeholder="Enter first name"
+              formControlName="firstName"
+            />
+          </div>
+          <div class="form-group">
+            <label>Last Name <span class="required">*</span></label>
+            <input
+              type="text"
+              placeholder="Enter last name"
+              formControlName="lastName"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email Address <span class="required">*</span></label>
+            <input
+              type="email"
+              placeholder="Enter email address"
+              formControlName="emailAddress"
+            />
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input
+              type="tel"
+              placeholder="Enter phone number"
+              formControlName="phoneNumber"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Employee ID</label>
+          <input
+            type="text"
+            placeholder="Auto-generated or enter custom ID"
+            formControlName="employeeId"
+          />
+        </div>
+      </div>
+
+      <!-- Tab 2: Employment -->
+      <div *ngIf="isStepActive(2)" class="tab-content" [formGroup]="employmentForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Role <span class="required">*</span></label>
+            <select formControlName="role">
+              <option value="">Select role</option>
+              <option *ngFor="let role of roles" [value]="role.id">
+                {{ role.name }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <select formControlName="department">
+              <option value="">Select department</option>
+              <option *ngFor="let dept of departments" [value]="dept.id">
+                {{ dept.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Branch Assignment</label>
+            <select formControlName="branchAssignment">
+              <option value="">Select branch</option>
+              <option *ngFor="let branch of branches" [value]="branch.id">
+                {{ branch.name }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Start Date</label>
+            <input
+              type="date"
+              formControlName="startDate"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Permissions -->
+      <div *ngIf="isStepActive(3)" class="tab-content">
+        <div class="permissions-section">
+          <div class="section-header">
+            <mat-icon>shield</mat-icon>
+            <h3>System Permissions</h3>
+          </div>
+
+          <div class="permissions-container">
+            <!-- Core Modules -->
+            <div class="permission-column">
+              <h5>Core Modules</h5>
+              <div class="permission-list">
+                <div
+                  *ngFor="let perm of getPermissionsByCategory('core')"
+                  class="permission-checkbox-item">
+                  <input
+                    type="checkbox"
+                    [id]="perm.id"
+                    [checked]="isPermissionSelected(perm.id)"
+                    (change)="togglePermission(perm.id)"
+                  />
+                  <label [for]="perm.id">{{ perm.name }}</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Administration -->
+            <div class="permission-column">
+              <h5>Administration</h5>
+              <div class="permission-list">
+                <div
+                  *ngFor="let perm of getPermissionsByCategory('admin')"
+                  class="permission-checkbox-item">
+                  <input
+                    type="checkbox"
+                    [id]="perm.id"
+                    [checked]="isPermissionSelected(perm.id)"
+                    (change)="togglePermission(perm.id)"
+                  />
+                  <label [for]="perm.id">{{ perm.name }}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Additional -->
+      <div *ngIf="isStepActive(4)" class="tab-content" [formGroup]="additionalForm">
+        <div class="form-group">
+          <label>Profile Picture URL</label>
+          <input
+            type="text"
+            placeholder="Enter profile picture URL"
+            formControlName="profilePictureUrl"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Additional Notes</label>
+          <textarea
+            placeholder="Any additional information about the user"
+            formControlName="additionalNotes"
+            rows="4"
+          ></textarea>
+        </div>
+
+        <div class="checkbox-group">
+          <input
+            type="checkbox"
+            id="accountActive"
+            formControlName="accountActive"
+          />
+          <label for="accountActive">Account is active</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeDialog()">
+        Cancel
+      </button>
+
+      <div class="footer-actions">
+        <button
+          class="btn-secondary"
+          *ngIf="currentStep > 1"
+          (click)="previousStep()">
+          Previous
+        </button>
+        <button
+          class="btn-primary"
+          *ngIf="currentStep < 4"
+          (click)="nextStep()"
+          [disabled]="!canProceedToStep(currentStep + 1)">
+          Next
+        </button>
+        <button
+          class="btn-primary"
+          *ngIf="currentStep === 4"
+          (click)="addUser()"
+          [disabled]="!basicInfoForm.valid || !employmentForm.valid || !additionalForm.valid">
+          Add User
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

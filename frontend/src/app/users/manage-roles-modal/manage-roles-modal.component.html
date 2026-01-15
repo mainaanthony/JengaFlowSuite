@@ -1,0 +1,167 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div>
+        <h2>Manage Roles & Permissions</h2>
+      </div>
+      <button class="btn-close" (click)="closeDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'existing'"
+        (click)="setTab('existing')">
+        Existing Roles
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab === 'create'"
+        (click)="setTab('create')">
+        Create New Role
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <!-- Tab 1: Existing Roles -->
+      <div *ngIf="activeTab === 'existing'" class="tab-content">
+        <div class="roles-list">
+          <div *ngFor="let role of roles" class="role-card">
+            <div class="role-header">
+              <div class="role-info">
+                <h3>{{ role.name }}</h3>
+                <span class="user-count">👥 {{ role.userCount }}</span>
+              </div>
+              <div class="role-actions">
+                <button class="btn-icon" (click)="editRole(role)" title="Edit">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button class="btn-icon delete" (click)="deleteRole(role)" title="Delete">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <p class="role-description">{{ role.description }}</p>
+
+            <div class="permissions-section">
+              <h4>Permissions:</h4>
+              <div class="permissions-grid">
+                <div *ngFor="let perm of getPermissionsByCategory('core')" class="permission-item">
+                  <span
+                    class="permission-checkbox"
+                    [class.checked]="isPermissionSelected(perm.id) || role.permissions.includes(perm.id)">
+                    <mat-icon *ngIf="role.permissions.includes(perm.id)">check</mat-icon>
+                  </span>
+                  <span class="permission-name">{{ perm.name }}</span>
+                </div>
+              </div>
+
+              <div class="permissions-grid">
+                <div *ngFor="let perm of getPermissionsByCategory('admin')" class="permission-item">
+                  <span
+                    class="permission-checkbox"
+                    [class.checked]="isPermissionSelected(perm.id) || role.permissions.includes(perm.id)">
+                    <mat-icon *ngIf="role.permissions.includes(perm.id)">check</mat-icon>
+                  </span>
+                  <span class="permission-name">{{ perm.name }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Create New Role -->
+      <div *ngIf="activeTab === 'create'" class="tab-content" [formGroup]="createRoleForm">
+        <div class="create-role-section">
+          <h3>
+            <mat-icon>add_circle</mat-icon>
+            Create New Role
+          </h3>
+
+          <div class="form-group">
+            <label>Role Name <span class="required">*</span></label>
+            <input
+              type="text"
+              placeholder="Enter role name"
+              formControlName="roleName"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Description <span class="required">*</span></label>
+            <textarea
+              placeholder="Describe the role's purpose"
+              formControlName="description"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <!-- Role Permissions -->
+          <div class="permissions-header">
+            <mat-icon>shield</mat-icon>
+            <h4>Role Permissions</h4>
+          </div>
+
+          <div class="permissions-container">
+            <!-- Core Modules Column -->
+            <div class="permission-column">
+              <h5>Core Modules</h5>
+              <div class="permission-list">
+                <div
+                  *ngFor="let perm of getPermissionsByCategory('core')"
+                  class="permission-checkbox-item">
+                  <input
+                    type="checkbox"
+                    [id]="perm.id"
+                    [checked]="isPermissionSelected(perm.id)"
+                    (change)="togglePermission(perm.id)"
+                  />
+                  <label [for]="perm.id">{{ perm.name }}</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Administration Column -->
+            <div class="permission-column">
+              <h5>Administration</h5>
+              <div class="permission-list">
+                <div
+                  *ngFor="let perm of getPermissionsByCategory('admin')"
+                  class="permission-checkbox-item">
+                  <input
+                    type="checkbox"
+                    [id]="perm.id"
+                    [checked]="isPermissionSelected(perm.id)"
+                    (change)="togglePermission(perm.id)"
+                  />
+                  <label [for]="perm.id">{{ perm.name }}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeDialog()">
+        Cancel
+      </button>
+      <button
+        class="btn-primary"
+        (click)="createRole()"
+        *ngIf="activeTab === 'create'"
+        [disabled]="!createRoleForm.valid || selectedPermissions.size === 0">
+        Create Role
+      </button>
+    </div>
+  </div>
+</div>

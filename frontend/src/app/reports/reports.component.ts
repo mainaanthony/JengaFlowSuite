@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { CardComponent } from '../shared/card/card.component';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
+import { GenerateReportModalComponent } from '../shared/modals/generate-report-modal.component';
 
 // Data Models
 interface ReportMetric {
@@ -63,6 +65,7 @@ interface StockMovement {
   imports: [
     CommonModule,
     MatIconModule,
+    MatDialogModule,
     FormsModule,
     ReactiveFormsModule,
     CardComponent,
@@ -141,7 +144,7 @@ export class ReportsComponent implements OnInit {
   // Custom Reports Tab
   isCustomReportOpen: boolean = false;
 
-  constructor() {}
+  constructor(private dialog: MatDialog) {}
 
   ngOnInit() {
     // Component initialized
@@ -163,8 +166,18 @@ export class ReportsComponent implements OnInit {
   }
 
   generateReport() {
-    console.log('Generating comprehensive report...');
-    // Implementation for report generation
+    const dialogRef = this.dialog.open(GenerateReportModalComponent, {
+      width: '900px',
+      maxWidth: '90vw',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Report generated with data:', result);
+        alert(`Report "${result.title}" generated successfully!`);
+      }
+    });
   }
 
   downloadReport() {

@@ -1,12 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormsModule, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
 
 import { CardComponent } from '../shared/card/card.component';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
+import { ManageRolesModalComponent } from './manage-roles-modal/manage-roles-modal.component';
+import { AddUserModalComponent } from './add-user-modal/add-user-modal.component';
 
 // Data Models
 interface User {
@@ -51,11 +54,14 @@ interface UserStat {
   imports: [
     CommonModule,
     MatIconModule,
+    MatDialogModule,
     FormsModule,
     ReactiveFormsModule,
     CardComponent,
     StatCardComponent,
-    ButtonSolidComponent
+    ButtonSolidComponent,
+    AddUserModalComponent,
+    ManageRolesModalComponent
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss'
@@ -217,7 +223,7 @@ export class UsersComponent implements OnInit {
     }
   ];
 
-  constructor() {}
+  constructor(private dialog: MatDialog) {}
 
   ngOnInit() {
     this.filteredUsers = [...this.users];
@@ -255,7 +261,37 @@ export class UsersComponent implements OnInit {
 
   // User management
   addUser() {
-    console.log('Adding new user...');
+    const dialogRef = this.dialog.open(AddUserModalComponent, {
+      width: '900px',
+      maxHeight: '90vh',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Generate a new user ID
+        const newUserId = `USR-${String(this.users.length + 1).padStart(3, '0')}`;
+        
+        // Create new user object from modal result
+        const newUser: User = {
+          id: newUserId,
+          initials: result.firstName.charAt(0) + result.lastName.charAt(0),
+          name: `${result.firstName} ${result.lastName}`,
+          role: result.role,
+          branch: result.branchAssignment,
+          email: result.emailAddress,
+          phone: result.phoneNumber,
+          status: result.accountActive ? 'active' : 'inactive',
+          lastLogin: 'Never'
+        };
+
+        // Add the new user to the list
+        this.users.unshift(newUser);
+        this.filterUsers(this.searchControl.value || '');
+        console.log('New user added:', newUser.name);
+        // TODO: Save to backend API
+      }
+    });
   }
 
   editUser(user: User) {
@@ -275,7 +311,18 @@ export class UsersComponent implements OnInit {
 
   // Role management
   manageRoles() {
-    console.log('Managing roles...');
+    const dialogRef = this.dialog.open(ManageRolesModalComponent, {
+      width: '1000px',
+      maxHeight: '90vh',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('New role created:', result);
+        // Handle the new role creation (e.g., save to backend, update UI)
+      }
+    });
   }
 
   editRole(role: Role) {

@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { debounceTime } from 'rxjs/operators';
+import { StockTransferModalComponent } from './stock-transfer-modal/stock-transfer-modal.component';
+import { AddBranchModalComponent } from './add-branch-modal/add-branch-modal.component';
 
 // Interfaces
 interface BranchStat {
@@ -52,7 +55,7 @@ interface InventoryItem {
 @Component({
   selector: 'app-branches',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatDialogModule, StockTransferModalComponent, AddBranchModalComponent],
   templateUrl: './branches.component.html',
   styleUrls: ['./branches.component.scss']
 })
@@ -63,6 +66,8 @@ export class BranchesComponent implements OnInit {
   // Search and filter
   searchControl = new FormControl('');
   activeTab: 'allBranches' | 'performance' | 'inventory' = 'allBranches';
+
+  constructor(private dialog: MatDialog) {}
 
   // Stats
   stats: BranchStat[] = [];
@@ -304,8 +309,35 @@ export class BranchesComponent implements OnInit {
 
   // Actions
   addBranch(): void {
-    // TODO: Implement add branch modal
-    console.log('Add branch clicked');
+    const dialogRef = this.dialog.open(AddBranchModalComponent, {
+      width: '900px',
+      maxHeight: '90vh',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Branch created:', result);
+        // TODO: Save to backend API
+        // Add new branch to the list
+        const newBranch: Branch = {
+          id: `BR-${(this.branches.length + 1).toString().padStart(3, '0')}`,
+          code: result.branchCode,
+          name: result.branchName,
+          location: `📍 ${result.locationForm.get('city')?.value}, ${result.locationForm.get('county')?.value}`,
+          phone: result.phoneNumber,
+          email: result.emailAddress,
+          manager: result.managerName,
+          staff: 0,
+          revenue: 'KES 0',
+          products: 0,
+          customers: 0,
+          status: 'Active'
+        };
+        this.branches.push(newBranch);
+        this.filteredBranches = [...this.branches];
+      }
+    });
   }
 
   editBranch(branch: Branch): void {
@@ -321,8 +353,33 @@ export class BranchesComponent implements OnInit {
   }
 
   stockTransfer(): void {
-    // TODO: Implement stock transfer modal
-    console.log('Stock transfer clicked');
+    const dialogRef = this.dialog.open(StockTransferModalComponent, {
+      width: '1100px',
+      maxHeight: '90vh',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Stock transfer submitted:', result);
+        // TODO: Save to backend API
+        // Example result structure:
+        // {
+        //   fromBranch: 'BR-001',
+        //   toBranch: 'BR-002',
+        //   transferType: 'Inter-Branch Transfer',
+        //   priorityLevel: 'Normal Priority',
+        //   requestedBy: 'John Doe',
+        //   expectedDate: '2024-01-20',
+        //   reason: 'Stock replenishment',
+        //   additionalNotes: 'Fragile items',
+        //   selectedProducts: [
+        //     { product: {...}, quantity: 5 },
+        //     { product: {...}, quantity: 2 }
+        //   ]
+        // }
+      }
+    });
   }
 
   getDeltaClass(delta: number): string {
