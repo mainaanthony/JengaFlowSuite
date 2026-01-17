@@ -53,7 +53,8 @@ export class SidebarComponent {
       items: [
         { title: 'Users', icon: 'group', link: '/users' },
         { title: 'Branches', icon: 'location_on', link: '/branches' },
-        { title: 'Settings', icon: 'settings', link: '/settings' }
+        { title: 'Settings', icon: 'settings', link: '/settings' },
+        { title: 'Test Pages', icon: 'bug_report', link: '/test-pages' }
       ]
     }
   ];

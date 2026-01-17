@@ -1,0 +1,105 @@
+<div class="app-table-container">
+  <!-- Header with Search and Filter -->
+  <div class="table-header" *ngIf="showSearch || showFilter">
+    <div class="search-section" *ngIf="showSearch">
+      <mat-icon>search</mat-icon>
+      <input
+        type="text"
+        [placeholder]="searchPlaceholder"
+        [(ngModel)]="searchTerm"
+        (input)="onSearch(searchTerm)"
+        class="search-input"
+      />
+    </div>
+    <button class="filter-btn" *ngIf="showFilter" (click)="onFilter()">
+      <mat-icon>tune</mat-icon>
+      Filter
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table class="app-table">
+      <!-- Header Row -->
+      <thead>
+        <tr>
+          <th *ngFor="let column of columns" [style.width]="getColumnWidth(column)">
+            {{ column.label }}
+          </th>
+          <th *ngIf="actions.length > 0" class="actions-column">Actions</th>
+        </tr>
+      </thead>
+
+      <!-- Body Rows -->
+      <tbody>
+        <tr *ngFor="let row of rows" class="table-row">
+          <!-- Data Cells -->
+          <td *ngFor="let column of columns" [style.width]="getColumnWidth(column)">
+            <div *ngIf="column.type === 'enum'; else normalCell" class="enum-cell">
+              <span
+                class="badge"
+                [style.backgroundColor]="getEnumColor(getValue(row, column), column)"
+              >
+                {{ getFormattedValue(row, column) }}
+              </span>
+            </div>
+
+            <ng-template #normalCell>
+              <div class="cell-content">
+                <div class="main-value">
+                  {{ getFormattedValue(row, column) }}
+                </div>
+                <div class="sub-value" *ngIf="column.subText && getSubText(row, column)">
+                  {{ getSubText(row, column) }}
+                </div>
+              </div>
+            </ng-template>
+          </td>
+
+          <!-- Actions Cell -->
+          <td *ngIf="actions.length > 0" class="actions-column">
+            <div class="actions-menu">
+              <button
+                class="action-trigger"
+                (click)="toggleActionMenu(row.id || row)"
+              >
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <div class="action-dropdown" *ngIf="isActionMenuOpen(row.id || row)">
+                <button
+                  *ngFor="let action of actions"
+                  class="action-item"
+                  [class.warn]="action.color === 'warn'"
+                  (click)="onAction(action, row)"
+                >
+                  <mat-icon>{{ action.icon }}</mat-icon>
+                  <span>{{ action.label }}</span>
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- No Data Row -->
+        <tr *ngIf="rows.length === 0 && !loading" class="no-data-row">
+          <td [attr.colspan]="columns.length + (actions.length > 0 ? 1 : 0)" class="no-data-cell">
+            <div class="no-data-content">
+              <mat-icon>inbox</mat-icon>
+              <p>No data available</p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Loading Row -->
+        <tr *ngIf="loading" class="loading-row">
+          <td [attr.colspan]="columns.length + (actions.length > 0 ? 1 : 0)" class="loading-cell">
+            <div class="loading-spinner">
+              <div class="spinner"></div>
+              <p>Loading...</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

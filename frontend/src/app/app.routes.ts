@@ -14,5 +14,6 @@ export const APP_ROUTES: Routes = [
     {path: 'users', loadComponent: () => import('./users/users.component').then(m => m.UsersComponent)},
     {path: 'branches', loadComponent: () => import('./branches/branches.component').then(m => m.BranchesComponent)},
     {path: 'settings', loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent)},
+    {path: 'test-pages', loadComponent: () => import('./test-pages/test-pages-page.component').then(m => m.TestPagesPageComponent)},
     { path: '**', redirectTo: '' }
 ]

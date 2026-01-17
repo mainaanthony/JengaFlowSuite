@@ -1,0 +1,30 @@
+<div class="test-pages">
+  <div class="page-header">
+    <h1>Test Pages</h1>
+    <p>Component showcase and testing environment</p>
+  </div>
+
+  <!-- AppTable Component Demo -->
+  <div class="demo-section">
+    <div class="section-header">
+      <h2>App Table Component</h2>
+      <p>Reusable table with dynamic columns, enums, and actions</p>
+    </div>
+
+    <app-table
+      [columns]="columns"
+      [rows]="products"
+      [actions]="tableActions"
+      [showSearch]="true"
+      [showFilter]="true"
+      searchPlaceholder="Search products..."
+      (actionTriggered)="onTableAction($event)"
+      (searchChanged)="onSearch($event)"
+      (filterClicked)="onFilter()"
+    ></app-table>
+
+    <div class="action-log">
+      <strong>Last Action:</strong> {{ lastAction || 'None' }}
+    </div>
+  </div>
+</div>
