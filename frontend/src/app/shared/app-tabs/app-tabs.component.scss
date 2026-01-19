@@ -1,0 +1,58 @@
+.app-tabs-container {
+  width: 100%;
+  background-color: white;
+  padding: 0;
+}
+
+.tabs-wrapper {
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px;
+  margin: 0;
+  overflow-x: auto;
+  background-color: #e8e8e8;
+  border-radius: 6px;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+
+    &:hover {
+      background: #999;
+    }
+  }
+}
+
+.tab-button {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #777;
+  transition: all 0.3s ease;
+  position: relative;
+  white-space: nowrap;
+  border-radius: 4px;
+
+  &:hover {
+    color: #555;
+  }
+
+  &.active {
+    background-color: white;
+    color: #1a1a1a;
+    border: 1px solid #d0d0d0;
+  }
+}
+

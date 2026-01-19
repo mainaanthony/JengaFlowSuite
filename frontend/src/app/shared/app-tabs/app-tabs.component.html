@@ -1,0 +1,12 @@
+<div class="app-tabs-container">
+  <div class="tabs-wrapper">
+    <button
+      *ngFor="let tab of tabs"
+      class="tab-button"
+      [class.active]="isActive(tab.id)"
+      (click)="selectTab(tab.id)"
+    >
+      {{ tab.label }}
+    </button>
+  </div>
+</div>

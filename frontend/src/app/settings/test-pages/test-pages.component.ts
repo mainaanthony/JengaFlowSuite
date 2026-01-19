@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../../shared/app-table/app-table.component';
+import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component';
 
 interface Product {
   id: string;
@@ -21,7 +22,7 @@ interface Product {
 @Component({
   selector: 'app-test-pages',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent],
+  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent],
   templateUrl: './test-pages.component.html',
   styleUrls: ['./test-pages.component.scss']
 })
@@ -173,10 +174,23 @@ export class TestPagesComponent implements OnInit {
     }
   ];
 
+  dashboardTabs: Tab[] = [
+    { id: 'today-sales', label: 'Today\'s Sales' },
+    { id: 'pending-orders', label: 'Pending Orders' },
+    { id: 'customers', label: 'Customers' }
+  ];
+
+  activeTab = 'today-sales';
   lastAction = '';
 
   ngOnInit(): void {
     console.log('Test Pages initialized');
+  }
+
+  onTabChange(tabId: string): void {
+    this.activeTab = tabId;
+    console.log('Tab changed to:', tabId);
+    this.lastAction = `Switched to ${this.dashboardTabs.find(t => t.id === tabId)?.label}`;
   }
 
   onTableAction(event: TableActionEvent): void {

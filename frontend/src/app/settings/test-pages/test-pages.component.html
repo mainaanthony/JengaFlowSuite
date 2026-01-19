@@ -4,6 +4,39 @@
     <p>Component showcase and testing environment</p>
   </div>
 
+  <!-- AppTabs Component Demo -->
+  <div class="demo-section">
+    <div class="section-header">
+      <h2>App Tabs Component</h2>
+      <p>Reusable tab navigation with dynamic content</p>
+    </div>
+
+    <app-tabs
+      [tabs]="dashboardTabs"
+      [activeTabId]="activeTab"
+      (tabChanged)="onTabChange($event)"
+    ></app-tabs>
+
+    <div class="tab-content">
+      <div *ngIf="activeTab === 'today-sales'" class="tab-panel">
+        <h3>Today's Sales</h3>
+        <p>Sales content for today would go here</p>
+      </div>
+      <div *ngIf="activeTab === 'pending-orders'" class="tab-panel">
+        <h3>Pending Orders</h3>
+        <p>Pending orders content would go here</p>
+      </div>
+      <div *ngIf="activeTab === 'customers'" class="tab-panel">
+        <h3>Customers</h3>
+        <p>Customers data would go here</p>
+      </div>
+    </div>
+
+    <div class="action-log">
+      <strong>Last Action:</strong> {{ lastAction || 'None' }}
+    </div>
+  </div>
+
   <!-- AppTable Component Demo -->
   <div class="demo-section">
     <div class="section-header">
@@ -28,3 +61,4 @@
     </div>
   </div>
 </div>
+
