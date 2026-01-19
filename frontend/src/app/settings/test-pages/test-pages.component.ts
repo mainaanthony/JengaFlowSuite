@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../../shared/app-table/app-table.component';
 import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component';
+import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
 
 interface Product {
   id: string;
@@ -22,7 +23,7 @@ interface Product {
 @Component({
   selector: 'app-test-pages',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent],
+  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent, InputDropdownComponent],
   templateUrl: './test-pages.component.html',
   styleUrls: ['./test-pages.component.scss']
 })
@@ -174,6 +175,89 @@ export class TestPagesComponent implements OnInit {
     }
   ];
 
+  // Dropdown Examples
+  suppliers: DropdownOption[] = [
+    {
+      id: 1,
+      label: 'Metro Building Supplies',
+      value: 'metro',
+      details: {
+        email: 'procurement@metro.co.ke',
+        phone: '+254 712 345 678',
+        terms: 'Terms: Net 15',
+        description: 'Leading building supplies distributor'
+      }
+    },
+    {
+      id: 2,
+      label: 'ABC Hardware Suppliers',
+      value: 'abc',
+      details: {
+        email: 'sales@abchardware.com',
+        phone: '+254 722 456 789',
+        terms: 'Terms: Net 30',
+        description: 'Premium hardware solutions'
+      }
+    },
+    {
+      id: 3,
+      label: 'Prime Tools Ltd',
+      value: 'prime',
+      details: {
+        email: 'orders@primetools.co.ke',
+        phone: '+254 733 567 890',
+        terms: 'Terms: Net 7',
+        description: 'Specialized tools and equipment'
+      }
+    }
+  ];
+
+  categories: DropdownOption[] = [
+    { id: 1, label: 'Plumbing', value: 'plumbing' },
+    { id: 2, label: 'Electrical', value: 'electrical' },
+    { id: 3, label: 'Hardware', value: 'hardware' },
+    { id: 4, label: 'Building Materials', value: 'materials' },
+    { id: 5, label: 'Painting Supplies', value: 'painting' }
+  ];
+
+  paymentMethods: DropdownOption[] = [
+    { id: 1, label: 'Cash', value: 'cash' },
+    { id: 2, label: 'Credit Card', value: 'card' },
+    { id: 3, label: 'Bank Transfer', value: 'transfer' },
+    { id: 4, label: 'Check', value: 'check' },
+    { id: 5, label: 'Mobile Money', value: 'mobile' }
+  ];
+
+  supplierConfig: DropdownConfig = {
+    placeholder: 'Select supplier...',
+    searchable: true,
+    multiSelect: false,
+    clearable: true,
+    showDetailsCard: true,
+    detailsTitle: 'Supplier Details',
+    detailsFields: ['email', 'terms']
+  };
+
+  categoryConfig: DropdownConfig = {
+    placeholder: 'Select category...',
+    searchable: true,
+    multiSelect: false,
+    clearable: true,
+    showDetailsCard: false
+  };
+
+  paymentConfig: DropdownConfig = {
+    placeholder: 'Select payment method...',
+    searchable: true,
+    multiSelect: true,
+    clearable: true,
+    showDetailsCard: false
+  };
+
+  selectedSupplier: DropdownOption | null = null;
+  selectedCategory: DropdownOption | null = null;
+  selectedPayments: DropdownOption[] = [];
+
   dashboardTabs: Tab[] = [
     { id: 'today-sales', label: 'Today\'s Sales' },
     { id: 'pending-orders', label: 'Pending Orders' },
@@ -191,6 +275,25 @@ export class TestPagesComponent implements OnInit {
     this.activeTab = tabId;
     console.log('Tab changed to:', tabId);
     this.lastAction = `Switched to ${this.dashboardTabs.find(t => t.id === tabId)?.label}`;
+  }
+
+  onSupplierChange(supplier: DropdownOption | DropdownOption[] | null): void {
+    this.selectedSupplier = supplier as DropdownOption | null;
+    console.log('Supplier selected:', supplier);
+    this.lastAction = supplier ? `Supplier: ${(supplier as DropdownOption).label}` : 'Supplier cleared';
+  }
+
+  onCategoryChange(category: DropdownOption | DropdownOption[] | null): void {
+    this.selectedCategory = category as DropdownOption | null;
+    console.log('Category selected:', category);
+    this.lastAction = category ? `Category: ${(category as DropdownOption).label}` : 'Category cleared';
+  }
+
+  onPaymentChange(payments: DropdownOption | DropdownOption[] | null): void {
+    this.selectedPayments = Array.isArray(payments) ? payments : (payments ? [payments as DropdownOption] : []);
+    console.log('Payments selected:', payments);
+    const labels = this.selectedPayments.map(p => p.label).join(', ');
+    this.lastAction = labels ? `Payments: ${labels}` : 'Payments cleared';
   }
 
   onTableAction(event: TableActionEvent): void {

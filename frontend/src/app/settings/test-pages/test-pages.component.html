@@ -4,6 +4,50 @@
     <p>Component showcase and testing environment</p>
   </div>
 
+  <!-- AppInputDropdown Component Demo -->
+  <div class="demo-section">
+    <div class="section-header">
+      <h2>App Input Dropdown Component</h2>
+      <p>Reusable dropdown with search, multi-select, and details card</p>
+    </div>
+
+    <div class="dropdown-examples">
+      <!-- Single Select with Details Card -->
+      <div class="example-group">
+        <span class="example-label">Single Select (With Details Card)</span>
+        <app-input-dropdown
+          [options]="suppliers"
+          [config]="supplierConfig"
+          (selectionChanged)="onSupplierChange($event)"
+        ></app-input-dropdown>
+      </div>
+
+      <!-- Single Select without Details -->
+      <div class="example-group">
+        <span class="example-label">Single Select (Categories)</span>
+        <app-input-dropdown
+          [options]="categories"
+          [config]="categoryConfig"
+          (selectionChanged)="onCategoryChange($event)"
+        ></app-input-dropdown>
+      </div>
+
+      <!-- Multi Select -->
+      <div class="example-group">
+        <span class="example-label">Multi Select (Payment Methods)</span>
+        <app-input-dropdown
+          [options]="paymentMethods"
+          [config]="paymentConfig"
+          (selectionChanged)="onPaymentChange($event)"
+        ></app-input-dropdown>
+      </div>
+    </div>
+
+    <div class="action-log">
+      <strong>Last Action:</strong> {{ lastAction || 'None' }}
+    </div>
+  </div>
+
   <!-- AppTabs Component Demo -->
   <div class="demo-section">
     <div class="section-header">

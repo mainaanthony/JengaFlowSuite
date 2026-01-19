@@ -1,0 +1,94 @@
+<div class="input-dropdown-container">
+  <!-- Main Input Field -->
+  <div class="dropdown-trigger" [class.open]="isOpen" (click)="toggleDropdown()" [class.has-chips]="config.multiSelect && selectedOptions.length > 0">
+    <!-- Selected Chips (for multi-select) -->
+    <div *ngIf="config.multiSelect && selectedOptions.length > 0" class="selected-chips">
+      <div *ngFor="let option of selectedOptions" class="chip">
+        <span class="chip-label">{{ option.label }}</span>
+        <button
+          type="button"
+          class="chip-remove"
+          (click)="removeSelectedOption(option.id, $event)"
+          aria-label="Remove {{ option.label }}"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Single Select Label -->
+    <span *ngIf="!config.multiSelect || selectedOptions.length === 0" class="selected-label">{{ selectedLabels }}</span>
+
+    <div class="dropdown-icons">
+      <button
+        *ngIf="config.clearable && selectedOptions.length > 0"
+        class="clear-btn"
+        type="button"
+        (click)="clearSelection(); $event.stopPropagation()"
+        aria-label="Clear selection"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-icon class="dropdown-arrow" [class.rotated]="isOpen">expand_more</mat-icon>
+    </div>
+  </div>
+
+  <!-- Dropdown Menu -->
+  <div class="dropdown-menu" *ngIf="isOpen">
+    <!-- Search Input -->
+    <div *ngIf="config.searchable" class="search-container">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search..."
+        [value]="searchTerm"
+        (input)="onSearchChange($event.target.value)"
+        (click)="$event.stopPropagation()"
+      />
+    </div>
+
+    <!-- Options List -->
+    <div class="options-list">
+      <button
+        *ngFor="let option of filteredOptions"
+        type="button"
+        class="option-item"
+        [class.selected]="isSelected(option)"
+        [class.disabled]="option.disabled"
+        [class.hovered]="hoveredOptionId === option.id"
+        (click)="selectOption(option)"
+        (mouseenter)="setHoveredOption(option.id)"
+        (mouseleave)="setHoveredOption(null)"
+      >
+        <mat-icon *ngIf="config.multiSelect" class="checkbox-icon">
+          {{ isSelected(option) ? 'check_box' : 'check_box_outline_blank' }}
+        </mat-icon>
+        <mat-icon *ngIf="!config.multiSelect && isSelected(option)" class="checkmark-icon">
+          done
+        </mat-icon>
+        <span class="option-label">{{ option.label }}</span>
+      </button>
+
+      <!-- No Results -->
+      <div *ngIf="filteredOptions.length === 0" class="no-results">
+        No options found
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Card (shown when option is selected and showDetailsCard is true) -->
+  <div *ngIf="config.showDetailsCard && selectedOption" class="details-card">
+    <div class="details-header">
+      <span class="details-title">{{ config.detailsTitle }}</span>
+    </div>
+    <div class="details-content">
+      <div class="option-name">{{ selectedOption.label }}</div>
+      <div *ngIf="selectedOption.details" class="details-fields">
+        <div *ngFor="let field of config.detailsFields" class="detail-field">
+          <span class="detail-value">{{ getDetailsValue(field, selectedOption.details) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
