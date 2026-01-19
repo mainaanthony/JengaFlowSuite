@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../../shared/app-table/app-table.component';
 import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component';
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
+import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
 
 interface Product {
   id: string;
@@ -23,7 +24,7 @@ interface Product {
 @Component({
   selector: 'app-test-pages',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent, InputDropdownComponent],
+  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent, InputDropdownComponent, InputTextComponent],
   templateUrl: './test-pages.component.html',
   styleUrls: ['./test-pages.component.scss']
 })
@@ -267,6 +268,47 @@ export class TestPagesComponent implements OnInit {
   activeTab = 'today-sales';
   lastAction = '';
 
+  // Text Input Examples
+  productName = '';
+  supplierEmail = '';
+  contactPhone = '';
+  productDescription = '';
+
+  productNameConfig: InputTextConfig = {
+    placeholder: 'Enter product name',
+    label: 'Product Name',
+    required: true,
+    clearable: true,
+    minLength: 3,
+    maxLength: 50,
+    helperText: 'Product name must be 3-50 characters'
+  };
+
+  emailConfig: InputTextConfig = {
+    placeholder: 'Enter email address',
+    label: 'Email Address',
+    type: 'email',
+    required: true,
+    clearable: true,
+    helperText: 'Valid email format required'
+  };
+
+  phoneConfig: InputTextConfig = {
+    placeholder: 'Enter phone number',
+    label: 'Phone Number',
+    type: 'tel',
+    clearable: true,
+    helperText: 'Include country code (optional)'
+  };
+
+  descriptionConfig: InputTextConfig = {
+    placeholder: 'Enter product description',
+    label: 'Description',
+    maxLength: 200,
+    clearable: true,
+    helperText: 'Brief description of the product'
+  };
+
   ngOnInit(): void {
     console.log('Test Pages initialized');
   }
@@ -321,5 +363,29 @@ export class TestPagesComponent implements OnInit {
 
   onFilter(): void {
     console.log('Filter clicked');
+  }
+
+  onProductNameChange(value: string): void {
+    this.productName = value;
+    console.log('Product name:', value);
+    this.lastAction = `Product Name: ${value}`;
+  }
+
+  onEmailChange(value: string): void {
+    this.supplierEmail = value;
+    console.log('Email:', value);
+    this.lastAction = `Email: ${value}`;
+  }
+
+  onPhoneChange(value: string): void {
+    this.contactPhone = value;
+    console.log('Phone:', value);
+    this.lastAction = `Phone: ${value}`;
+  }
+
+  onDescriptionChange(value: string): void {
+    this.productDescription = value;
+    console.log('Description:', value);
+    this.lastAction = `Description updated (${value.length} chars)`;
   }
 }

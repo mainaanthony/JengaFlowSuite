@@ -1,0 +1,174 @@
+.input-text-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+/* Label */
+.input-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  .asterisk {
+    color: #ff8c00;
+    font-weight: 700;
+  }
+}
+
+/* Input Wrapper */
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.65rem;
+  border: 1.5px solid #ccc;
+  border-radius: 5px;
+  background-color: white;
+  transition: all 0.3s ease;
+  min-height: 28px;
+  position: relative;
+
+  &:hover {
+    border-color: #999;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  &.focused {
+    border-color: #1976d2;
+    box-shadow: 0 2px 6px rgba(25, 118, 210, 0.12);
+
+    .input-field {
+      color: #1976d2;
+    }
+  }
+
+  &.error {
+    border-color: #f44336;
+    background-color: #fff5f5;
+
+    &:hover {
+      border-color: #e53935;
+    }
+
+    .input-field {
+      color: #f44336;
+
+      &::placeholder {
+        color: #ffb3b3;
+      }
+    }
+  }
+
+  &.has-value {
+    .input-field {
+      font-weight: 500;
+      color: #333;
+    }
+  }
+}
+
+/* Input Field */
+.input-field {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 13px;
+  color: #333;
+  font-family: inherit;
+  transition: color 0.2s ease;
+
+  &::placeholder {
+    color: #bbb;
+  }
+
+  &:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+
+    &::placeholder {
+      color: #ddd;
+    }
+  }
+}
+
+/* Clear Button */
+.clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin-left: 0.4rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #999;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #ff8c00;
+    transform: scale(1.1);
+  }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Error Message */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 11px;
+  color: #f44336;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+}
+
+/* Helper Text */
+.helper-text {
+  font-size: 11px;
+  color: #999;
+  font-weight: 500;
+}
+
+/* Character Count */
+.char-count {
+  font-size: 11px;
+  color: #bbb;
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .input-label {
+    font-size: 12px;
+  }
+
+  .input-wrapper {
+    padding: 0.35rem 0.5rem;
+    min-height: 32px;
+  }
+
+  .input-field {
+    font-size: 12px;
+  }
+}

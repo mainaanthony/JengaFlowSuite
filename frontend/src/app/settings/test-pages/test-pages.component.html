@@ -4,6 +4,56 @@
     <p>Component showcase and testing environment</p>
   </div>
 
+  <!-- AppInputText Component Demo -->
+  <div class="demo-section">
+    <div class="section-header">
+      <h2>App Input Text Component</h2>
+      <p>Reusable text input with validation, clearing, and configuration</p>
+    </div>
+
+    <div class="input-examples">
+      <!-- Required Text Input -->
+      <div class="example-group">
+        <app-input-text
+          [config]="productNameConfig"
+          [(ngModel)]="productName"
+          (valueChanged)="onProductNameChange($event)"
+        ></app-input-text>
+      </div>
+
+      <!-- Email Input with Validation -->
+      <div class="example-group">
+        <app-input-text
+          [config]="emailConfig"
+          [(ngModel)]="supplierEmail"
+          (valueChanged)="onEmailChange($event)"
+        ></app-input-text>
+      </div>
+
+      <!-- Phone Input Optional -->
+      <div class="example-group">
+        <app-input-text
+          [config]="phoneConfig"
+          [(ngModel)]="contactPhone"
+          (valueChanged)="onPhoneChange($event)"
+        ></app-input-text>
+      </div>
+
+      <!-- Description with Character Counter -->
+      <div class="example-group">
+        <app-input-text
+          [config]="descriptionConfig"
+          [(ngModel)]="productDescription"
+          (valueChanged)="onDescriptionChange($event)"
+        ></app-input-text>
+      </div>
+    </div>
+
+    <div class="action-log">
+      <strong>Last Action:</strong> {{ lastAction || 'None' }}
+    </div>
+  </div>
+
   <!-- AppInputDropdown Component Demo -->
   <div class="demo-section">
     <div class="section-header">

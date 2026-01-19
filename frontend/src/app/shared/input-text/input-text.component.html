@@ -1,0 +1,48 @@
+<div class="input-text-container">
+  <!-- Label -->
+  <label *ngIf="config.label" class="input-label" [class.required]="config.required">
+    {{ config.label }}
+    <span *ngIf="config.required" class="asterisk">*</span>
+  </label>
+
+  <!-- Input Field -->
+  <div class="input-wrapper" [class.focused]="isFocused" [class.error]="showError" [class.has-value]="value.length > 0">
+    <input
+      type="{{ config.type }}"
+      class="input-field"
+      [placeholder]="config.placeholder"
+      [value]="value"
+      [disabled]="config.disabled"
+      [attr.minlength]="config.minLength"
+      [attr.maxlength]="config.maxLength"
+      (input)="onInputChange($event)"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+    />
+
+    <!-- Clear Button -->
+    <button
+      *ngIf="config.clearable && value.length > 0"
+      type="button"
+      class="clear-btn"
+      (click)="clearValue()"
+      aria-label="Clear input"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Helper Text or Error Message -->
+  <div *ngIf="config.errorMessage && showError" class="error-message">
+    <mat-icon>error</mat-icon>
+    <span>{{ config.errorMessage }}</span>
+  </div>
+  <div *ngIf="config.helperText && !showError" class="helper-text">
+    {{ config.helperText }}
+  </div>
+
+  <!-- Character Count (if maxLength is set) -->
+  <div *ngIf="config.maxLength" class="char-count">
+    {{ value.length }}/{{ config.maxLength }}
+  </div>
+</div>
