@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,6 +9,7 @@ import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../sh
 import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
 import { StepIndicatorComponent, Step } from '../../shared/step-indicator/step-indicator.component';
 import { CheckoutModalComponent } from '../../shared/modals/checkout-modal.component';
+import { GenericModalComponent } from '../../shared/modals/generic-modal.component';
 
 interface Product {
   id: string;
@@ -27,11 +28,15 @@ interface Product {
 @Component({
   selector: 'app-test-pages',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent, InputDropdownComponent, InputTextComponent, StepIndicatorComponent, CheckoutModalComponent],
+  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent, InputDropdownComponent, InputTextComponent, StepIndicatorComponent, CheckoutModalComponent, GenericModalComponent],
   templateUrl: './test-pages.component.html',
   styleUrls: ['./test-pages.component.scss']
 })
 export class TestPagesComponent implements OnInit {
+  @ViewChild('confirmDeleteTemplate') confirmDeleteTemplate!: TemplateRef<any>;
+  @ViewChild('formContentTemplate') formContentTemplate!: TemplateRef<any>;
+  @ViewChild('successTemplate') successTemplate!: TemplateRef<any>;
+
   constructor(private readonly dialog: MatDialog) {}
   columns: ColumnConfig[] = [
     {
@@ -507,5 +512,98 @@ export class TestPagesComponent implements OnInit {
       disableClose: false,
       panelClass: 'custom-modal-container'
     });
+  }
+
+  // Test Modal: Confirmation Dialog
+  openConfirmDeleteModal(): void {
+    const dialogRef = this.dialog.open(GenericModalComponent, {
+      disableClose: false,
+      panelClass: 'custom-modal-container'
+    });
+
+    const instance = dialogRef.componentInstance;
+    instance.config = {
+      title: 'Delete Product',
+      description: 'Are you sure you want to delete this product? This action cannot be undone.',
+      subtitle: 'This will permanently remove the product from inventory'
+    };
+    instance.leftButtons = [
+      { label: 'Cancel', action: 'cancel', color: 'default' }
+    ];
+    instance.rightButtons = [
+      { label: 'Delete', action: 'delete', color: 'accent', icon: 'delete' }
+    ];
+
+    instance.buttonClicked.subscribe((action: string) => {
+      if (action === 'delete') {
+        const deleteBtn = instance.rightButtons.find(b => b.action === 'delete');
+        if (deleteBtn) deleteBtn.loading = true;
+        setTimeout(() => {
+          instance.showSuccessMessage = true;
+          instance.successMessage = 'Product deleted successfully!';
+          setTimeout(() => {
+            dialogRef.close();
+          }, 2000);
+        }, 1000);
+      }
+    });
+  }
+
+  // Test Modal: Form Dialog with Input
+  openFormModal(): void {
+    const dialogRef = this.dialog.open(GenericModalComponent, {
+      disableClose: false,
+      panelClass: 'custom-modal-container'
+    });
+
+    const instance = dialogRef.componentInstance;
+    instance.config = {
+      title: 'Add New Supplier',
+      description: 'Fill in the supplier information below',
+      subtitle: 'All fields marked with * are required'
+    };
+    instance.leftButtons = [
+      { label: 'Cancel', action: 'cancel', color: 'default' }
+    ];
+    instance.rightButtons = [
+      { label: 'Save', action: 'save', color: 'primary', icon: 'save' }
+    ];
+
+    let isSaving = false;
+    instance.saveCompleted.subscribe(() => {
+      if (!isSaving) {
+        isSaving = true;
+        const saveBtn = instance.rightButtons.find(b => b.action === 'save');
+        if (saveBtn) saveBtn.loading = true;
+
+        setTimeout(() => {
+          instance.showSuccessMessage = true;
+          instance.successMessage = 'Supplier added successfully!';
+          if (saveBtn) saveBtn.loading = false;
+          setTimeout(() => {
+            dialogRef.close();
+          }, 2000);
+        }, 1500);
+      }
+    });
+  }
+
+  // Test Modal: Simple Info Dialog
+  openInfoModal(): void {
+    const dialogRef = this.dialog.open(GenericModalComponent, {
+      disableClose: false,
+      panelClass: 'custom-modal-container'
+    });
+
+    const instance = dialogRef.componentInstance;
+    instance.config = {
+      title: 'System Notification',
+      description: 'Your inventory sync is complete.',
+      subtitle: 'All changes have been saved to the database'
+    };
+    instance.leftButtons = [];
+    instance.rightButtons = [
+      { label: 'Got it', action: 'close', color: 'primary' }
+    ];
   }
 }

@@ -1,0 +1,67 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="header-content">
+        <h2 class="modal-title">{{ config.title }}</h2>
+        <p *ngIf="config.subtitle" class="modal-subtitle">{{ config.subtitle }}</p>
+      </div>
+      <button class="btn-close" (click)="closeModal()" title="Close" [disabled]="config.disableClose">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Description -->
+    <div *ngIf="config.description" class="modal-description">
+      {{ config.description }}
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="showSuccessMessage && successMessage" class="message success-message">
+      <mat-icon>check_circle</mat-icon>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="showErrorMessage && errorMessage" class="message error-message">
+      <mat-icon>error</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- Content Area -->
+    <div class="modal-content">
+      <ng-container *ngIf="contentTemplate">
+        <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
+      </ng-container>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <div class="footer-left">
+        <button
+          *ngFor="let button of leftButtons"
+          [ngClass]="getButtonClass(button)"
+          (click)="onButtonClick(button)"
+          [disabled]="button.disabled || button.loading"
+        >
+          <mat-icon *ngIf="button.icon && !button.loading">{{ button.icon }}</mat-icon>
+          <span *ngIf="!button.loading">{{ button.label }}</span>
+          <span *ngIf="button.loading" class="spinner"></span>
+        </button>
+      </div>
+
+      <div class="footer-right">
+        <button
+          *ngFor="let button of rightButtons"
+          [ngClass]="getButtonClass(button)"
+          (click)="onButtonClick(button)"
+          [disabled]="button.disabled || button.loading"
+        >
+          <mat-icon *ngIf="button.icon && !button.loading">{{ button.icon }}</mat-icon>
+          <span *ngIf="!button.loading">{{ button.label }}</span>
+          <span *ngIf="button.loading" class="spinner"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

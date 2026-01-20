@@ -237,5 +237,42 @@
       </div>
     </div>
   </div>
+
+  <!-- Generic Modal Component Demo -->
+  <div class="demo-section">
+    <div class="section-header">
+      <h2>Generic Modal Component</h2>
+      <p>Reusable modal with customizable buttons, messages, and content</p>
+    </div>
+
+    <div class="modal-demo-buttons">
+      <button class="demo-modal-btn" (click)="openConfirmDeleteModal()">
+        <mat-icon>delete</mat-icon>
+        Confirmation Modal
+      </button>
+      <button class="demo-modal-btn" (click)="openFormModal()">
+        <mat-icon>person_add</mat-icon>
+        Form Modal
+      </button>
+      <button class="demo-modal-btn" (click)="openInfoModal()">
+        <mat-icon>info</mat-icon>
+        Info Modal
+      </button>
+    </div>
+
+    <div class="modal-description">
+      <h4>Features:</h4>
+      <ul>
+        <li>✓ Centered modal with backdrop blur</li>
+        <li>✓ Customizable title, description, and subtitle</li>
+        <li>✓ Left and right button groups with flexible configurations</li>
+        <li>✓ Success and error messages support</li>
+        <li>✓ Loading states for buttons</li>
+        <li>✓ Primary (blue), Accent (orange), and Default (white) button colors</li>
+        <li>✓ Fully responsive design</li>
+      </ul>
+    </div>
+  </div>
 </div>
+
 
