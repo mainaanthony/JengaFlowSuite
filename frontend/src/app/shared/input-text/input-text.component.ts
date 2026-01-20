@@ -12,8 +12,10 @@ export interface InputTextConfig {
   clearable?: boolean;
   errorMessage?: string;
   helperText?: string;
+  description?: boolean;
   minLength?: number;
   maxLength?: number;
+  rows?: number;
 }
 
 @Component({

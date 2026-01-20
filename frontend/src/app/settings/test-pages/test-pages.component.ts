@@ -308,6 +308,8 @@ export class TestPagesComponent implements OnInit {
   descriptionConfig: InputTextConfig = {
     placeholder: 'Enter product description',
     label: 'Description',
+    description: true,
+    rows: 4,
     maxLength: 200,
     clearable: true,
     helperText: 'Brief description of the product'

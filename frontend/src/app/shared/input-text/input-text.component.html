@@ -6,8 +6,22 @@
   </label>
 
   <!-- Input Field -->
-  <div class="input-wrapper" [class.focused]="isFocused" [class.error]="showError" [class.has-value]="value.length > 0">
+  <div class="input-wrapper" [class.focused]="isFocused" [class.error]="showError" [class.has-value]="value.length > 0" [class.description]="config.description">
+    <textarea
+      *ngIf="config.description"
+      class="input-field textarea"
+      [placeholder]="config.placeholder"
+      [value]="value"
+      [disabled]="config.disabled"
+      [attr.minlength]="config.minLength"
+      [attr.maxlength]="config.maxLength"
+      [rows]="config.rows || 4"
+      (input)="onInputChange($event)"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+    ></textarea>
     <input
+      *ngIf="!config.description"
       type="{{ config.type }}"
       class="input-field"
       [placeholder]="config.placeholder"
@@ -22,7 +36,7 @@
 
     <!-- Clear Button -->
     <button
-      *ngIf="config.clearable && value.length > 0"
+      *ngIf="config.clearable && value.length > 0 && !config.description"
       type="button"
       class="clear-btn"
       (click)="clearValue()"
