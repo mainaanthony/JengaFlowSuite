@@ -2,10 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../../shared/app-table/app-table.component';
 import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component';
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
 import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
+import { StepIndicatorComponent, Step } from '../../shared/step-indicator/step-indicator.component';
+import { CheckoutModalComponent } from '../../shared/modals/checkout-modal.component';
 
 interface Product {
   id: string;
@@ -24,11 +27,12 @@ interface Product {
 @Component({
   selector: 'app-test-pages',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent, InputDropdownComponent, InputTextComponent],
+  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent, InputDropdownComponent, InputTextComponent, StepIndicatorComponent, CheckoutModalComponent],
   templateUrl: './test-pages.component.html',
   styleUrls: ['./test-pages.component.scss']
 })
 export class TestPagesComponent implements OnInit {
+  constructor(private readonly dialog: MatDialog) {}
   columns: ColumnConfig[] = [
     {
       key: 'name',
@@ -387,5 +391,119 @@ export class TestPagesComponent implements OnInit {
     this.productDescription = value;
     console.log('Description:', value);
     this.lastAction = `Description updated (${value.length} chars)`;
+  }
+
+  // Step Indicator Demo Properties
+  checkoutSteps: Step[] = [
+    { id: 1, label: 'Customer', icon: 'person' },
+    { id: 2, label: 'Products', icon: 'shopping_cart' },
+    { id: 3, label: 'Checkout', icon: 'payment' }
+  ];
+
+  branchSteps: Step[] = [
+    { id: 1, label: 'Basic Info', icon: 'info' },
+    { id: 2, label: 'Location', icon: 'location_on' },
+    { id: 3, label: 'Operations', icon: 'schedule' },
+    { id: 4, label: 'Settings', icon: 'settings' }
+  ];
+
+  transferSteps: Step[] = [
+    { id: 1, label: 'Source & Dest', icon: 'local_shipping' },
+    { id: 2, label: 'Products', icon: 'inventory_2' },
+    { id: 3, label: 'Quantities', icon: 'numbers' },
+    { id: 4, label: 'Review', icon: 'assignment' },
+    { id: 5, label: 'Confirm', icon: 'check_circle' }
+  ];
+
+  activeCheckoutStep = 1;
+  completedCheckoutSteps: number[] = [];
+  disabledCheckoutSteps: number[] = [];
+
+  activeBranchStep = 1;
+  completedBranchSteps: number[] = [];
+  disabledBranchSteps: number[] = [];
+
+  activeTransferStep = 1;
+  completedTransferSteps: number[] = [];
+  disabledTransferSteps: number[] = [3, 4, 5];
+
+  // Step Indicator Methods
+  onCheckoutStepChange(step: number): void {
+    if (!this.disabledCheckoutSteps.includes(step)) {
+      this.activeCheckoutStep = step;
+      this.lastAction = `Checkout Step Changed to: ${step}`;
+      console.log('Checkout step changed to:', step);
+    }
+  }
+
+  markCheckoutStepComplete(): void {
+    if (!this.completedCheckoutSteps.includes(this.activeCheckoutStep)) {
+      this.completedCheckoutSteps.push(this.activeCheckoutStep);
+      this.lastAction = `Checkout Step ${this.activeCheckoutStep} Completed`;
+      console.log('Completed steps:', this.completedCheckoutSteps);
+    }
+  }
+
+  resetCheckoutFlow(): void {
+    this.activeCheckoutStep = 1;
+    this.completedCheckoutSteps = [];
+    this.lastAction = 'Checkout flow reset';
+  }
+
+  onBranchStepChange(step: number): void {
+    if (!this.disabledBranchSteps.includes(step)) {
+      this.activeBranchStep = step;
+      this.lastAction = `Branch Setup Step Changed to: ${step}`;
+      console.log('Branch step changed to:', step);
+    }
+  }
+
+  completeBranchStep(step: number): void {
+    if (!this.completedBranchSteps.includes(step)) {
+      this.completedBranchSteps.push(step);
+      this.lastAction = `Branch Step ${step} Completed`;
+      console.log('Completed steps:', this.completedBranchSteps);
+    }
+  }
+
+  resetBranchFlow(): void {
+    this.activeBranchStep = 1;
+    this.completedBranchSteps = [];
+    this.lastAction = 'Branch setup flow reset';
+  }
+
+  onTransferStepChange(step: number): void {
+    if (!this.disabledTransferSteps.includes(step)) {
+      this.activeTransferStep = step;
+      this.lastAction = `Transfer Step Changed to: ${step}`;
+      console.log('Transfer step changed to:', step);
+    }
+  }
+
+  completeTransferStep(step: number): void {
+    if (!this.completedTransferSteps.includes(step) && !this.disabledTransferSteps.includes(step)) {
+      this.completedTransferSteps.push(step);
+      // Enable next step when current is completed
+      if (this.disabledTransferSteps.includes(step + 1)) {
+        this.disabledTransferSteps = this.disabledTransferSteps.filter(s => s !== step + 1);
+      }
+      this.lastAction = `Transfer Step ${step} Completed`;
+      console.log('Completed steps:', this.completedTransferSteps);
+    }
+  }
+
+  resetTransferFlow(): void {
+    this.activeTransferStep = 1;
+    this.completedTransferSteps = [];
+    this.disabledTransferSteps = [3, 4, 5];
+    this.lastAction = 'Transfer flow reset';
+  }
+
+  // Open Checkout Modal with Step Indicator
+  openCheckoutModal(): void {
+    this.dialog.open(CheckoutModalComponent, {
+      disableClose: false,
+      panelClass: 'custom-modal-container'
+    });
   }
 }

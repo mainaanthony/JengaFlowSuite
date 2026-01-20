@@ -1,0 +1,40 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div>
+        <h2>Checkout Process</h2>
+        <p>Complete your purchase in 3 easy steps</p>
+      </div>
+      <button class="btn-close" (click)="closeModal()" title="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator-section">
+      <app-step-indicator
+        [steps]="steps"
+        [activeStep]="activeStep"
+        [completedSteps]="completedSteps"
+        (stepChange)="onStepChange($event)"
+      ></app-step-indicator>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <p>{{ getStepContent() }}</p>
+    </div>
+
+    <!-- Modal Actions -->
+    <div class="modal-footer">
+      <button mat-raised-button (click)="closeModal()">Close</button>
+      <button mat-raised-button color="primary" (click)="nextStep()" *ngIf="activeStep < steps.length">
+        Next Step
+      </button>
+      <button mat-raised-button color="accent" (click)="closeModal()" *ngIf="activeStep === steps.length">
+        Complete
+      </button>
+    </div>
+  </div>
+</div>

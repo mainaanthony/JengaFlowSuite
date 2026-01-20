@@ -1,0 +1,29 @@
+<div class="step-indicator-container">
+  <div class="steps-wrapper">
+    <ng-container *ngFor="let step of steps; let i = index">
+      <!-- Step Circle -->
+      <button
+        class="step"
+        [class.active]="isStepActive(step.id)"
+        [class.completed]="isStepCompleted(step.id)"
+        [class.disabled]="isStepDisabled(step.id)"
+        (click)="onStepClick(step.id)"
+        [disabled]="isStepDisabled(step.id)"
+        type="button">
+        <div class="step-content">
+          <mat-icon *ngIf="step.icon && !isStepCompleted(step.id)">{{ step.icon }}</mat-icon>
+          <mat-icon *ngIf="isStepCompleted(step.id)">check</mat-icon>
+          <span *ngIf="!step.icon && !isStepCompleted(step.id)" class="step-number">{{ step.id }}</span>
+        </div>
+        <div class="step-label">{{ step.label }}</div>
+      </button>
+
+      <!-- Connector Line -->
+      <div
+        *ngIf="i < steps.length - 1"
+        class="step-line"
+        [class.active]="isLineActive(i)">
+      </div>
+    </ng-container>
+  </div>
+</div>

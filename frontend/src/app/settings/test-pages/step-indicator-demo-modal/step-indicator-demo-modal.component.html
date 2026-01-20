@@ -1,0 +1,61 @@
+<div class="modal-container">
+  <div class="modal-header">
+    <h2>Step Indicator Demo Modal</h2>
+    <button mat-icon-button (click)="closeModal()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="modal-content">
+    <!-- Step Indicator -->
+    <div class="step-section">
+      <app-step-indicator
+        [steps]="steps"
+        [activeStep]="activeStep"
+        [completedSteps]="completedSteps"
+        (stepChange)="onStepChange($event)"
+      ></app-step-indicator>
+    </div>
+
+    <!-- Step Content -->
+    <div class="content-section">
+      <div class="step-header">
+        <h3>{{ steps[activeStep - 1].label }}</h3>
+      </div>
+      <div class="step-content">
+        <p>{{ getStepContent() }}</p>
+        <div class="placeholder-content">
+          <!-- Placeholder for form content -->
+          <div class="form-input">
+            <label>Sample Input Field:</label>
+            <input type="text" placeholder="Enter some data here...">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Footer -->
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="previousStep()" [disabled]="activeStep === 1">
+      <mat-icon>arrow_back</mat-icon>
+      Previous
+    </button>
+    <button class="btn btn-primary" (click)="markStepComplete()" *ngIf="!completedSteps.includes(activeStep)">
+      <mat-icon>check</mat-icon>
+      Mark Complete
+    </button>
+    <button class="btn btn-primary" (click)="nextStep()" [disabled]="activeStep === steps.length">
+      <mat-icon>arrow_forward</mat-icon>
+      Next
+    </button>
+    <button class="btn btn-secondary" (click)="resetFlow()">
+      <mat-icon>refresh</mat-icon>
+      Reset
+    </button>
+    <button class="btn btn-secondary ml-auto" (click)="closeModal()">
+      <mat-icon>close</mat-icon>
+      Close
+    </button>
+  </div>
+</div>
