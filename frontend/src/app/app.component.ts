@@ -27,8 +27,13 @@ export class AppComponent {
   userInitials = 'JK';
   currentBranch = 'Main Branch';
   profileMenuOpen = false;
+  sidebarCollapsed = false;
 
   constructor(private router: Router) {}
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
 
   toggleProfileMenu(): void {
     this.profileMenuOpen = !this.profileMenuOpen;

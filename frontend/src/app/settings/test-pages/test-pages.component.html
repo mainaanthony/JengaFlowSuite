@@ -273,6 +273,41 @@
       </ul>
     </div>
   </div>
+
+  <!-- Item Selector Component Demo -->
+  <div class="demo-section">
+    <div class="section-header">
+      <h2>Item Selector Component</h2>
+      <p>Reusable dual-list component with drag-and-drop support - works for products, tools, services, etc.</p>
+    </div>
+
+    <div class="item-selector-wrapper">
+      <app-item-selector
+        [config]="itemSelectorConfig"
+        [availableItems]="availableProducts"
+        [selectedItems]="selectedProducts"
+        (itemSelected)="onItemSelected($event)"
+        (itemRemoved)="onItemRemoved($event)"
+        (itemMoved)="onItemMoved($event)"
+        (selectedItemsChanged)="onSelectedItemsChanged($event)"
+      ></app-item-selector>
+    </div>
+
+    <div class="item-selector-description">
+      <h4>Features:</h4>
+      <ul>
+        <li>✓ Two-column layout: Available items (left) & Selected items (right)</li>
+        <li>✓ Drag-and-drop between lists and within lists for reordering</li>
+        <li>✓ Customizable action icon (shopping_cart, build, add_circle, etc.)</li>
+        <li>✓ Dynamic configuration: show/hide price, stock, quantity</li>
+        <li>✓ Stock status indicators (in-stock, low-stock, out-of-stock)</li>
+        <li>✓ Selection summary with total items and total price</li>
+        <li>✓ Fully responsive design (works on mobile, tablet, desktop)</li>
+        <li>✓ Reusable for products, tools, services, and any items</li>
+        <li>✓ Event emitters for selection tracking</li>
+      </ul>
+    </div>
+  </div>
 </div>
 
 

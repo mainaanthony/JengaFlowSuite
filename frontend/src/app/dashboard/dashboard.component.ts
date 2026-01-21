@@ -6,6 +6,7 @@ import { ButtonSolidComponent } from '../shared/button-solid/button-solid.compon
 import { CardComponent } from '../shared/card/card.component';
 import { MatIconModule } from '@angular/material/icon';
 import { GenerateReportModalComponent } from '../shared/modals/generate-report-modal.component';
+import { NewSaleModalComponent } from '../sales/new-sale-modal/new-sale-modal.component';
 
 interface PurchaseOrder {
   id: string;
@@ -85,7 +86,18 @@ export class DashboardComponent implements OnInit {
   }
 
   newSale() {
-    console.log('New Sale clicked');
+    const dialogRef = this.dialog.open(NewSaleModalComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Sale completed:', result);
+        alert(`Sale completed for ${result.customerName}! Total: KES ${result.total.toFixed(2)}`);
+      }
+    });
   }
 
   addProduct() {

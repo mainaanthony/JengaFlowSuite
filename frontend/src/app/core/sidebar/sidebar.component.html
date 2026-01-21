@@ -1,8 +1,8 @@
-<nav class="sidebar">
+<nav class="sidebar" [class.collapsed]="collapsed">
   <!-- Sidebar Header -->
   <div class="sidebar-header">
     <div class="logo">J</div>
-    <div class="name">
+    <div class="name" *ngIf="!collapsed">
       <div class="company-name">JengaFlow</div>
       <div class="company-desc">Hardware Management</div>
     </div>
@@ -11,12 +11,12 @@
   <!-- Navigation Sections -->
   <div class="nav-sections">
     <div *ngFor="let section of sections" class="nav-section">
-      <div class="section-label">{{ section.label }}</div>
+      <div class="section-label" *ngIf="!collapsed">{{ section.label }}</div>
       <ul class="nav-list">
         <li *ngFor="let item of section.items">
-          <a [routerLink]="item.link" class="nav-item">
+          <a [routerLink]="item.link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item" [title]="collapsed ? item.title : ''">
             <mat-icon *ngIf="item.icon" class="nav-icon">{{ item.icon }}</mat-icon>
-            <span class="nav-title">{{ item.title }}</span>
+            <span class="nav-title" *ngIf="!collapsed">{{ item.title }}</span>
           </a>
         </li>
       </ul>

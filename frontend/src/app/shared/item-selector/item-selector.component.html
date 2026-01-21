@@ -1,0 +1,146 @@
+<div class="item-selector-container">
+  <!-- Available Items Section -->
+  <div class="selector-section available-section">
+    <h3 class="section-title">{{ config.availableTitle }}</h3>
+
+    <div
+      cdkDropList
+      #availableList="cdkDropList"
+      [cdkDropListData]="availableItems"
+      [cdkDropListDisabled]="!config.allowDragDrop"
+      [cdkDropListConnectedTo]="[selectedList]"
+      (cdkDropListDropped)="drop($event)"
+      class="items-list"
+    >
+      <div
+        *ngFor="let item of availableItems"
+        cdkDrag
+        [cdkDragDisabled]="!config.allowDragDrop"
+        class="item-card"
+        [attr.data-item-id]="item.id"
+      >
+        <div class="card-content">
+          <div class="item-info">
+            <h4 class="item-title">{{ item.title }}</h4>
+            <p *ngIf="item.subtitle" class="item-subtitle">{{ item.subtitle }}</p>
+          </div>
+
+          <div class="card-details">
+            <div *ngIf="config.showPrice && item.price" class="detail-row">
+              <span class="detail-label">Price:</span>
+              <span class="detail-value price">{{ formatPrice(item.price) }}</span>
+            </div>
+
+            <div *ngIf="config.showStock && item.stock !== undefined" class="detail-row">
+              <span class="detail-label">
+                Stock:
+                <span
+                  class="stock-badge"
+                  [style.color]="getStockStatusColor(item.stockStatus)"
+                >
+                  {{ getStockStatusText(item.stock, item.stockStatus) }}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <button
+          mat-icon-button
+          (click)="onActionClick(item, 'available')"
+          [matTooltip]="config.actionTooltip || 'Add to ' + config.selectedTitle"
+          class="action-button"
+        >
+          <mat-icon>{{ config.actionIcon }}</mat-icon>
+        </button>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="availableItems.length === 0" class="empty-state">
+        <mat-icon>inbox</mat-icon>
+        <p>No items available</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider"></div>
+
+  <!-- Selected Items Section -->
+  <div class="selector-section selected-section">
+    <h3 class="section-title">{{ config.selectedTitle }}</h3>
+
+    <div
+      cdkDropList
+      #selectedList="cdkDropList"
+      [cdkDropListData]="selectedItems"
+      [cdkDropListDisabled]="!config.allowDragDrop"
+      [cdkDropListConnectedTo]="[availableList]"
+      (cdkDropListDropped)="drop($event)"
+      class="items-list selected-list"
+    >
+      <div
+        *ngFor="let item of selectedItems"
+        cdkDrag
+        [cdkDragDisabled]="!config.allowDragDrop"
+        class="item-card selected-card"
+        [attr.data-item-id]="item.id"
+      >
+        <div class="card-content">
+          <div class="item-info">
+            <h4 class="item-title">{{ item.title }}</h4>
+            <p *ngIf="item.subtitle" class="item-subtitle">{{ item.subtitle }}</p>
+          </div>
+
+          <div class="card-details">
+            <div *ngIf="config.showPrice && item.price" class="detail-row">
+              <span class="detail-label">Price:</span>
+              <span class="detail-value price">{{ formatPrice(item.price) }}</span>
+            </div>
+
+            <div *ngIf="config.showQuantity && item.quantity" class="detail-row">
+              <span class="detail-label">Qty:</span>
+              <span class="detail-value">{{ item.quantity }}</span>
+            </div>
+
+            <div *ngIf="config.showStock && item.stock !== undefined" class="detail-row">
+              <span class="detail-label">
+                Stock:
+                <span
+                  class="stock-badge"
+                  [style.color]="getStockStatusColor(item.stockStatus)"
+                >
+                  {{ getStockStatusText(item.stock, item.stockStatus) }}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <button
+          mat-icon-button
+          (click)="onActionClick(item, 'selected')"
+          [matTooltip]="'Remove from ' + config.selectedTitle"
+          class="action-button remove"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="selectedItems.length === 0" class="empty-state">
+        <mat-icon>shopping_cart</mat-icon>
+        <p>Nothing selected yet</p>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div *ngIf="selectedItems.length > 0" class="selection-summary">
+      <span class="summary-label">Total Items:</span>
+      <span class="summary-value">{{ selectedItems.length }}</span>
+      <span *ngIf="config.showPrice" class="summary-total">
+        Total: {{ formatPrice(calculateTotalPrice()) }}
+      </span>
+    </div>
+  </div>
+</div>

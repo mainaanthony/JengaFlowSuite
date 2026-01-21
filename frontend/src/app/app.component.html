@@ -1,12 +1,15 @@
 <div class="app-container">
   <!-- Sidebar -->
-  <app-sidebar></app-sidebar>
+  <app-sidebar [collapsed]="sidebarCollapsed"></app-sidebar>
 
   <!-- Main Content -->
   <div class="main-content">
     <!-- Top Header -->
     <header class="header">
       <div class="header-left">
+        <button class="sidebar-toggle" (click)="toggleSidebar()" title="Toggle Sidebar">
+          <mat-icon>menu</mat-icon>
+        </button>
         <input type="text" class="search-input" placeholder="Search products, orders...">
       </div>
       <div class="header-right">

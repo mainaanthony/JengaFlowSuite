@@ -506,25 +506,34 @@
   color: #bdbdbd;
 
   &.centered {
-    padding: 4rem 2rem;
+    padding: 4rem 3rem;
 
     h3 {
-      font-size: 18px;
-      font-weight: 600;
+      font-size: 20px;
+      font-weight: 700;
       color: #212121;
-      margin: 1rem 0 0.5rem 0;
+      margin: 1.5rem 0 0.75rem 0;
+      letter-spacing: 0.3px;
     }
 
     p {
       font-size: 14px;
-      color: #757575;
-      margin: 0 0 1.5rem 0;
+      color: #666;
+      margin: 0 0 2rem 0;
       max-width: 400px;
       text-align: center;
+      line-height: 1.6;
+      font-weight: 500;
     }
 
     app-button-solid {
       display: inline-block;
+    }
+
+    mat-icon {
+      font-size: 18px !important;
+      width: 18px !important;
+      height: 18px !important;
     }
   }
 

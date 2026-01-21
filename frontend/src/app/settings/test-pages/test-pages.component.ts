@@ -10,6 +10,7 @@ import { InputTextComponent, InputTextConfig } from '../../shared/input-text/inp
 import { StepIndicatorComponent, Step } from '../../shared/step-indicator/step-indicator.component';
 import { CheckoutModalComponent } from '../../shared/modals/checkout-modal.component';
 import { AppModalComponent } from '../../shared/modals/app-modal.component';
+import { ItemSelectorComponent, SelectorItem, ItemSelectorConfig } from '../../shared/item-selector/item-selector.component';
 
 interface Product {
   id: string;
@@ -28,7 +29,7 @@ interface Product {
 @Component({
   selector: 'app-test-pages',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent, InputDropdownComponent, InputTextComponent, StepIndicatorComponent, CheckoutModalComponent, AppModalComponent],
+  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent, InputDropdownComponent, InputTextComponent, StepIndicatorComponent, CheckoutModalComponent, AppModalComponent, ItemSelectorComponent],
   templateUrl: './test-pages.component.html',
   styleUrls: ['./test-pages.component.scss']
 })
@@ -320,6 +321,88 @@ export class TestPagesComponent implements OnInit {
     helperText: 'Brief description of the product'
   };
 
+  // Item Selector Demo
+  itemSelectorConfig: ItemSelectorConfig = {
+    availableTitle: 'Available Products',
+    selectedTitle: 'Shopping Cart (1)',
+    actionIcon: 'shopping_cart',
+    actionTooltip: 'Add to cart',
+    showPrice: true,
+    showStock: true,
+    showQuantity: true,
+    currencySymbol: 'KES',
+    allowDragDrop: true
+  };
+
+  availableProducts: SelectorItem[] = [
+    {
+      id: 'prod-1',
+      title: 'Samsung Galaxy A15',
+      subtitle: 'SKU: SAM-A15-001',
+      price: 18500,
+      stock: 15,
+      stockStatus: 'in-stock',
+      quantity: 1
+    },
+    {
+      id: 'prod-2',
+      title: 'iPhone 15 Pro',
+      subtitle: 'SKU: APP-IP15P-001',
+      price: 125000,
+      stock: 8,
+      stockStatus: 'in-stock',
+      quantity: 1
+    },
+    {
+      id: 'prod-3',
+      title: 'Sony WH-1000XM5 Headphones',
+      subtitle: 'SKU: SON-WH-001',
+      price: 32000,
+      stock: 12,
+      stockStatus: 'in-stock',
+      quantity: 1
+    },
+    {
+      id: 'prod-4',
+      title: 'iPad Air 11-inch',
+      subtitle: 'SKU: APP-IPAD-AIR-11',
+      price: 89900,
+      stock: 3,
+      stockStatus: 'low-stock',
+      quantity: 1
+    },
+    {
+      id: 'prod-5',
+      title: 'Samsung Galaxy Buds2 Pro',
+      subtitle: 'SKU: SAM-BUDS-PRO',
+      price: 16500,
+      stock: 0,
+      stockStatus: 'out-of-stock',
+      quantity: 1
+    },
+    {
+      id: 'prod-6',
+      title: 'OnePlus 12',
+      subtitle: 'SKU: ONE-12-001',
+      price: 54900,
+      stock: 20,
+      stockStatus: 'in-stock',
+      quantity: 1
+    }
+  ];
+
+  selectedProducts: SelectorItem[] = [
+    {
+      id: 'prod-1',
+      title: 'Samsung Galaxy A15',
+      subtitle: 'SKU: SAM-A15-001',
+      price: 18500,
+      stock: 15,
+      stockStatus: 'in-stock',
+      quantity: 1
+    }
+  ];
+
   ngOnInit(): void {
     console.log('Test Pages initialized');
   }
@@ -605,5 +688,26 @@ export class TestPagesComponent implements OnInit {
     instance.rightButtons = [
       { label: 'Got it', action: 'close', color: 'primary' }
     ];
+  }
+
+  // Item Selector Event Handlers
+  onItemSelected(item: SelectorItem): void {
+    console.log('Item added to cart:', item);
+    this.itemSelectorConfig.selectedTitle = `Shopping Cart (${this.selectedProducts.length})`;
+  }
+
+  onItemRemoved(item: SelectorItem): void {
+    console.log('Item removed from cart:', item);
+    this.itemSelectorConfig.selectedTitle = `Shopping Cart (${this.selectedProducts.length})`;
+  }
+
+  onItemMoved(event: { item: SelectorItem; from: 'available' | 'selected'; to: 'available' | 'selected' }): void {
+    console.log('Item moved:', event);
+  }
+
+  onSelectedItemsChanged(items: SelectorItem[]): void {
+    this.selectedProducts = items;
+    this.itemSelectorConfig.selectedTitle = `Shopping Cart (${items.length})`;
+    console.log('Selected items updated:', items);
   }
 }

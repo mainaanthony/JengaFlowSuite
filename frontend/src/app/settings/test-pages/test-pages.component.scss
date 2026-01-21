@@ -203,3 +203,39 @@
     }
   }
 }
+
+.item-selector-wrapper {
+  width: 100%;
+  min-height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.item-selector-description {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 6px;
+  border-left: 4px solid #1976d2;
+  margin-top: 1rem;
+
+  h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    list-style: none;
+
+    li {
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+      color: #666;
+      line-height: 1.5;
+    }
+  }
+}
