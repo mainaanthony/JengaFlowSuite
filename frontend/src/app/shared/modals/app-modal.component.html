@@ -1,4 +1,16 @@
 <div class="modal-overlay">
+  <!-- Success Message -->
+  <div *ngIf="showSuccessMessage && successMessage" class="message success-message">
+    <mat-icon>check_circle</mat-icon>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="showErrorMessage && errorMessage" class="message error-message">
+    <mat-icon>error</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+
   <div class="modal-container">
     <!-- Modal Header -->
     <div class="modal-header">
@@ -14,18 +26,6 @@
     <!-- Description -->
     <div *ngIf="config.description" class="modal-description">
       {{ config.description }}
-    </div>
-
-    <!-- Success Message -->
-    <div *ngIf="showSuccessMessage && successMessage" class="message success-message">
-      <mat-icon>check_circle</mat-icon>
-      <span>{{ successMessage }}</span>
-    </div>
-
-    <!-- Error Message -->
-    <div *ngIf="showErrorMessage && errorMessage" class="message error-message">
-      <mat-icon>error</mat-icon>
-      <span>{{ errorMessage }}</span>
     </div>
 
     <!-- Content Area -->

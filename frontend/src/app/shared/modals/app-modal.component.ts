@@ -15,7 +15,7 @@ export interface ModalButton {
   icon?: string;
 }
 
-export interface GenericModalConfig {
+export interface AppModalConfig {
   title: string;
   description?: string;
   subtitle?: string;
@@ -24,14 +24,14 @@ export interface GenericModalConfig {
 }
 
 @Component({
-  selector: 'app-generic-modal',
+  selector: 'app-modal',
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
-  templateUrl: './generic-modal.component.html',
-  styleUrls: ['./generic-modal.component.scss']
+  templateUrl: './app-modal.component.html',
+  styleUrls: ['./app-modal.component.scss']
 })
-export class GenericModalComponent {
-  @Input() config: GenericModalConfig = { title: 'Modal' };
+export class AppModalComponent {
+  @Input() config: AppModalConfig = { title: 'Modal' };
   @Input() contentTemplate: TemplateRef<any> | null = null;
   @Input() leftButtons: ModalButton[] = [];
   @Input() rightButtons: ModalButton[] = [];
@@ -44,7 +44,7 @@ export class GenericModalComponent {
   @Output() saveCompleted = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
 
-  constructor(public dialogRef: MatDialogRef<GenericModalComponent>) {}
+  constructor(public dialogRef: MatDialogRef<AppModalComponent>) {}
 
   onButtonClick(button: ModalButton): void {
     if (button.disabled || button.loading) return;

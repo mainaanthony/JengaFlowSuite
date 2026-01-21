@@ -9,7 +9,7 @@ import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../sh
 import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
 import { StepIndicatorComponent, Step } from '../../shared/step-indicator/step-indicator.component';
 import { CheckoutModalComponent } from '../../shared/modals/checkout-modal.component';
-import { GenericModalComponent } from '../../shared/modals/generic-modal.component';
+import { AppModalComponent } from '../../shared/modals/app-modal.component';
 
 interface Product {
   id: string;
@@ -28,7 +28,7 @@ interface Product {
 @Component({
   selector: 'app-test-pages',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent, InputDropdownComponent, InputTextComponent, StepIndicatorComponent, CheckoutModalComponent, GenericModalComponent],
+  imports: [CommonModule, FormsModule, MatIconModule, AppTableComponent, AppTabsComponent, InputDropdownComponent, InputTextComponent, StepIndicatorComponent, CheckoutModalComponent, AppModalComponent],
   templateUrl: './test-pages.component.html',
   styleUrls: ['./test-pages.component.scss']
 })
@@ -516,7 +516,7 @@ export class TestPagesComponent implements OnInit {
 
   // Test Modal: Confirmation Dialog
   openConfirmDeleteModal(): void {
-    const dialogRef = this.dialog.open(GenericModalComponent, {
+    const dialogRef = this.dialog.open(AppModalComponent, {
       disableClose: false,
       panelClass: 'custom-modal-container'
     });
@@ -551,7 +551,7 @@ export class TestPagesComponent implements OnInit {
 
   // Test Modal: Form Dialog with Input
   openFormModal(): void {
-    const dialogRef = this.dialog.open(GenericModalComponent, {
+    const dialogRef = this.dialog.open(AppModalComponent, {
       disableClose: false,
       panelClass: 'custom-modal-container'
     });
@@ -590,7 +590,7 @@ export class TestPagesComponent implements OnInit {
 
   // Test Modal: Simple Info Dialog
   openInfoModal(): void {
-    const dialogRef = this.dialog.open(GenericModalComponent, {
+    const dialogRef = this.dialog.open(AppModalComponent, {
       disableClose: false,
       panelClass: 'custom-modal-container'
     });
