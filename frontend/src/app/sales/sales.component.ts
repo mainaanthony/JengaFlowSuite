@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
 import { NewSaleModalComponent } from './new-sale-modal/new-sale-modal.component';
+import { ModalService } from '../core/services/modal.service';
 
 interface Transaction {
   id: string;
@@ -48,7 +49,10 @@ export class SalesComponent implements OnInit {
   searchControl = new FormControl('');
   activeTab: 'today' | 'pending' | 'customers' = 'today';
 
-  constructor(private dialog: MatDialog) {}
+  constructor(
+    private dialog: MatDialog,
+    private modalService: ModalService
+  ) {}
 
   stats = {
     todaysSales: 'KES 156,400',
@@ -207,7 +211,15 @@ export class SalesComponent implements OnInit {
     console.log('Delete order:', order);
   }
 
-  addCustomer() {
-    console.log('Add new customer');
+  async addCustomer() {
+    const dialogRef = await this.modalService.openModal('add-customer');
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Customer added:', result);
+        alert(`Customer "${result.firstName} ${result.lastName}" added successfully!`);
+        // TODO: Save customer data to backend
+      }
+    });
   }
 }

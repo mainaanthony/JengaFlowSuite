@@ -1,0 +1,258 @@
+<div class="modal-container">
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="header-content">
+      <h2>Add New Customer</h2>
+      <p>Create a new customer profile with contact and account information</p>
+    </div>
+    <button class="close-btn" (click)="closeDialog()" title="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <app-tabs
+    [tabs]="tabs"
+    [activeTabId]="activeTab"
+    (tabChanged)="onTabChange($event)"
+  ></app-tabs>
+
+  <!-- Form Content -->
+  <form [formGroup]="customerForm" class="modal-content">
+    <!-- Tab 1: Personal Information -->
+    <div class="tab-panel" *ngIf="activeTab === 'personal-info'">
+      <div class="tab-header">
+        <mat-icon>person</mat-icon>
+        <h3>Personal Information</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- First Name -->
+        <div class="form-group">
+          <app-input-text
+            [config]="firstNameConfig"
+            formControlName="firstName"
+          ></app-input-text>
+        </div>
+
+        <!-- Last Name -->
+        <div class="form-group">
+          <app-input-text
+            [config]="lastNameConfig"
+            formControlName="lastName"
+          ></app-input-text>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <app-input-text
+            [config]="emailConfig"
+            formControlName="email"
+          ></app-input-text>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <app-input-text
+            [config]="phoneConfig"
+            formControlName="phone"
+          ></app-input-text>
+        </div>
+
+        <!-- Date of Birth -->
+        <div class="form-group">
+          <app-input-text
+            [config]="dobConfig"
+            formControlName="dateOfBirth"
+          ></app-input-text>
+        </div>
+
+        <!-- Gender -->
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <app-input-dropdown
+            [options]="genderOptions"
+            [config]="genderConfig"
+            (selectionChanged)="onGenderChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- ID/Passport -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="idPassportConfig"
+            formControlName="idPassport"
+          ></app-input-text>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Address Information -->
+    <div class="tab-panel" *ngIf="activeTab === 'address'">
+      <div class="tab-header">
+        <mat-icon>location_on</mat-icon>
+        <h3>Address Information</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Street Address -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="streetAddressConfig"
+            formControlName="streetAddress"
+          ></app-input-text>
+        </div>
+
+        <!-- City/Town -->
+        <div class="form-group">
+          <app-input-text
+            [config]="cityConfig"
+            formControlName="city"
+          ></app-input-text>
+        </div>
+
+        <!-- County -->
+        <div class="form-group">
+          <label class="form-label">County</label>
+          <app-input-dropdown
+            [options]="countyOptions"
+            [config]="countyConfig"
+            (selectionChanged)="onCountyChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Postal Code -->
+        <div class="form-group">
+          <app-input-text
+            [config]="postalCodeConfig"
+            formControlName="postalCode"
+          ></app-input-text>
+        </div>
+
+        <!-- Country -->
+        <div class="form-group">
+          <label class="form-label">Country</label>
+          <input 
+            type="text" 
+            class="readonly-input" 
+            value="Kenya" 
+            disabled 
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Business Information -->
+    <div class="tab-panel" *ngIf="activeTab === 'business-info'">
+      <div class="tab-header">
+        <mat-icon>business</mat-icon>
+        <h3>Business Information</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Company Name -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="companyNameConfig"
+            formControlName="companyName"
+          ></app-input-text>
+        </div>
+
+        <!-- KRA PIN -->
+        <div class="form-group">
+          <app-input-text
+            [config]="kraPinConfig"
+            formControlName="kraPin"
+          ></app-input-text>
+        </div>
+
+        <!-- VAT Number -->
+        <div class="form-group">
+          <app-input-text
+            [config]="vatNumberConfig"
+            formControlName="vatNumber"
+          ></app-input-text>
+        </div>
+
+        <!-- Business Type -->
+        <div class="form-group full-width">
+          <label class="form-label">Business Type</label>
+          <app-input-dropdown
+            [options]="businessTypeOptions"
+            [config]="businessTypeConfig"
+            (selectionChanged)="onBusinessTypeChange($event)"
+          ></app-input-dropdown>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Account Settings -->
+    <div class="tab-panel" *ngIf="activeTab === 'account-settings'">
+      <div class="tab-header">
+        <mat-icon>settings</mat-icon>
+        <h3>Account Settings</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Customer Type -->
+        <div class="form-group">
+          <label class="form-label">Customer Type</label>
+          <app-input-dropdown
+            [options]="customerTypeOptions"
+            [config]="customerTypeConfig"
+            (selectionChanged)="onCustomerTypeChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Credit Limit -->
+        <div class="form-group">
+          <app-input-text
+            [config]="creditLimitConfig"
+            formControlName="creditLimit"
+          ></app-input-text>
+        </div>
+
+        <!-- Discount Rate -->
+        <div class="form-group">
+          <app-input-text
+            [config]="discountRateConfig"
+            formControlName="discountRate"
+          ></app-input-text>
+        </div>
+
+        <!-- Payment Terms -->
+        <div class="form-group">
+          <label class="form-label">Payment Terms</label>
+          <app-input-dropdown
+            [options]="paymentTermsOptions"
+            [config]="paymentTermsConfig"
+            (selectionChanged)="onPaymentTermsChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="notesConfig"
+            formControlName="notes"
+          ></app-input-text>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Footer -->
+  <div class="modal-footer">
+    <button class="btn-cancel" (click)="closeDialog()">
+      Cancel
+    </button>
+    <button 
+      class="btn-primary" 
+      (click)="saveCustomer()"
+      [disabled]="!canSave()"
+    >
+      <mat-icon>person_add</mat-icon>
+      Add Customer
+    </button>
+  </div>
+</div>
