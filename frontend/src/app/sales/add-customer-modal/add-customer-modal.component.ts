@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component';
 import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
+import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
 
 interface CustomerData {
   // Personal Info
@@ -50,7 +51,9 @@ interface CustomerData {
   templateUrl: './add-customer-modal.component.html',
   styleUrls: ['./add-customer-modal.component.scss']
 })
-export class AddCustomerModalComponent implements OnInit {
+export class AddCustomerModalComponent implements OnInit, AfterViewInit {
+  @ViewChild('customerFormTemplate') customerFormTemplate!: TemplateRef<any>;
+
   activeTab: string = 'personal-info';
   customerForm!: FormGroup;
 
@@ -225,11 +228,66 @@ export class AddCustomerModalComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private dialog: MatDialog,
     public dialogRef: MatDialogRef<AddCustomerModalComponent>
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
+  }
+
+  ngAfterViewInit(): void {
+    // Open the AppModalComponent with our template
+    setTimeout(() => {
+      this.openModal();
+      // Close this wrapper component immediately
+      this.dialogRef.close();
+    });
+  }
+
+  openModal(): void {
+    const dialogRef = this.dialog.open(AppModalComponent, {
+      disableClose: false,
+      panelClass: 'custom-modal-container',
+      width: '900px',
+      maxWidth: '95vw'
+    });
+
+    const instance = dialogRef.componentInstance;
+    instance.config = {
+      title: 'Add New Customer',
+      subtitle: 'Create a new customer profile with contact and account information'
+    };
+
+    instance.contentTemplate = this.customerFormTemplate;
+
+    instance.leftButtons = [
+      { label: 'Cancel', action: 'cancel', color: 'default' }
+    ];
+
+    instance.rightButtons = [
+      { 
+        label: 'Save Customer', 
+        action: 'save', 
+        color: 'primary', 
+        icon: 'person_add',
+        disabled: !this.canSave()
+      }
+    ];
+
+    // Monitor form changes to update button state
+    this.customerForm.valueChanges.subscribe(() => {
+      const saveBtn = instance.rightButtons.find(b => b.action === 'save');
+      if (saveBtn) {
+        saveBtn.disabled = !this.canSave();
+      }
+    });
+
+    instance.buttonClicked.subscribe((action: string) => {
+      if (action === 'save') {
+        this.saveCustomer(dialogRef, instance);
+      }
+    });
   }
 
   private initializeForm(): void {
@@ -321,17 +379,28 @@ export class AddCustomerModalComponent implements OnInit {
               phone?.valid && phone?.value);
   }
 
-  saveCustomer(): void {
+  saveCustomer(dialogRef: any, instance: AppModalComponent): void {
     if (!this.canSave()) {
-      alert('Please fill in required fields (First Name, Last Name, Phone)');
+      instance.showErrorMessage = true;
+      instance.errorMessage = 'Please fill in required fields (First Name, Last Name, Phone)';
+      setTimeout(() => {
+        instance.showErrorMessage = false;
+      }, 3000);
       return;
     }
 
-    const customerData: CustomerData = this.customerForm.value;
-    this.dialogRef.close(customerData);
-  }
+    const saveBtn = instance.rightButtons.find(b => b.action === 'save');
+    if (saveBtn) saveBtn.loading = true;
 
-  closeDialog(): void {
-    this.dialogRef.close();
+    // Simulate API call
+    setTimeout(() => {
+      const customerData: CustomerData = this.customerForm.value;
+      instance.showSuccessMessage = true;
+      instance.successMessage = 'Customer added successfully!';
+      
+      setTimeout(() => {
+        dialogRef.close(customerData);
+      }, 1500);
+    }, 800);
   }
 }

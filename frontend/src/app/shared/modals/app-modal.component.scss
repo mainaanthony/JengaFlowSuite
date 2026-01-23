@@ -1,3 +1,4 @@
+::ng-deep{
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -372,4 +373,5 @@
   .modal-button {
     flex: 1;
   }
+}
 }

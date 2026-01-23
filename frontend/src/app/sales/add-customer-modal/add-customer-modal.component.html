@@ -1,15 +1,4 @@
-<div class="modal-container">
-  <!-- Header -->
-  <div class="modal-header">
-    <div class="header-content">
-      <h2>Add New Customer</h2>
-      <p>Create a new customer profile with contact and account information</p>
-    </div>
-    <button class="close-btn" (click)="closeDialog()" title="Close">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
-
+<ng-template #customerFormTemplate>
   <!-- Tabs Navigation -->
   <app-tabs
     [tabs]="tabs"
@@ -18,7 +7,7 @@
   ></app-tabs>
 
   <!-- Form Content -->
-  <form [formGroup]="customerForm" class="modal-content">
+  <form [formGroup]="customerForm" class="customer-form-content">
     <!-- Tab 1: Personal Information -->
     <div class="tab-panel" *ngIf="activeTab === 'personal-info'">
       <div class="tab-header">
@@ -240,19 +229,4 @@
       </div>
     </div>
   </form>
-
-  <!-- Footer -->
-  <div class="modal-footer">
-    <button class="btn-cancel" (click)="closeDialog()">
-      Cancel
-    </button>
-    <button 
-      class="btn-primary" 
-      (click)="saveCustomer()"
-      [disabled]="!canSave()"
-    >
-      <mat-icon>person_add</mat-icon>
-      Add Customer
-    </button>
-  </div>
-</div>
+</ng-template>
