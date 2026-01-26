@@ -256,7 +256,8 @@ export class AddCustomerModalComponent implements OnInit, AfterViewInit {
     const instance = dialogRef.componentInstance;
     instance.config = {
       title: 'Add New Customer',
-      subtitle: 'Create a new customer profile with contact and account information'
+      subtitle: 'Create a new customer profile with contact and account information',
+      wide: true
     };
 
     instance.contentTemplate = this.customerFormTemplate;

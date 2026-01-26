@@ -21,6 +21,7 @@ export interface AppModalConfig {
   subtitle?: string;
   showBackdrop?: boolean;
   disableClose?: boolean;
+  wide?: boolean; // Set to true for larger modals like Add Customer, Create GRN, etc.
 }
 
 @Component({

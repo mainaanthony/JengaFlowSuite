@@ -11,7 +11,7 @@
     <span>{{ errorMessage }}</span>
   </div>
 
-  <div class="modal-container">
+  <div class="modal-container" [ngClass]="{ 'wide': config.wide }">
     <!-- Modal Header -->
     <div class="modal-header">
       <div class="header-content">

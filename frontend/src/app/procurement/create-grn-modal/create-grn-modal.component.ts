@@ -301,7 +301,8 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
     const instance = dialogRef.componentInstance;
     instance.config = {
       title: 'Create Goods Received Note (GRN)',
-      subtitle: 'Record and verify goods received from suppliers'
+      subtitle: 'Record and verify goods received from suppliers',
+      wide: true
     };
 
     instance.contentTemplate = this.grnFormTemplate;

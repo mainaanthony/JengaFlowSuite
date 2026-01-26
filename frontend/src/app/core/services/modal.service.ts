@@ -57,7 +57,7 @@ export class ModalService {
       case 'create-grn':
         const createGRN = await import('../../procurement/create-grn-modal/create-grn-modal.component');
         component = createGRN.CreateGrnModalComponent;
-        defaultConfig.width = defaultConfig.width || '1100px';
+        defaultConfig.width = defaultConfig.width || '1200px';
         defaultConfig.maxWidth = defaultConfig.maxWidth || '95vw';
         break;
 

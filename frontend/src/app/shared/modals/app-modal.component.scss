@@ -36,6 +36,11 @@
   overflow: hidden;
 }
 
+/* Wide modal variant for larger content */
+.modal-container.wide {
+  max-width: 1200px;
+}
+
 @keyframes slideUp {
   from {
     transform: translateY(30px);
