@@ -54,6 +54,13 @@ export class ModalService {
         defaultConfig.width = defaultConfig.width || '1000px';
         break;
 
+      case 'create-grn':
+        const createGRN = await import('../../procurement/create-grn-modal/create-grn-modal.component');
+        component = createGRN.CreateGrnModalComponent;
+        defaultConfig.width = defaultConfig.width || '1100px';
+        defaultConfig.maxWidth = defaultConfig.maxWidth || '95vw';
+        break;
+
       case 'add-driver':
         const addDriver = await import('../../delivery/add-driver-modal/add-driver-modal.component');
         component = addDriver.AddDriverModalComponent;

@@ -8,7 +8,7 @@ export interface InputTextConfig {
   label?: string;
   required?: boolean;
   disabled?: boolean;
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'date';
   clearable?: boolean;
   errorMessage?: string;
   helperText?: string;

@@ -1,0 +1,254 @@
+<ng-template #grnFormTemplate>
+  <!-- Step Indicator -->
+  <app-step-indicator 
+    [steps]="steps" 
+    [activeStep]="currentStep"
+    [completedSteps]="completedSteps"
+  ></app-step-indicator>
+
+  <!-- Form Content -->
+  <form [formGroup]="grnForm" class="grn-form-content">
+    <!-- Step 1: GRN Details -->
+    <div class="step-panel" *ngIf="currentStep === 1">
+      <div class="step-header">
+        <mat-icon>inventory_2</mat-icon>
+        <h3>GRN Information</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- GRN Number -->
+        <div class="form-group">
+          <app-input-text
+            [config]="grnNumberConfig"
+            formControlName="grnNumber"
+          ></app-input-text>
+        </div>
+
+        <!-- Received Date -->
+        <div class="form-group">
+          <app-input-text
+            [config]="receivedDateConfig"
+            formControlName="receivedDate"
+          ></app-input-text>
+        </div>
+
+        <!-- Purchase Order -->
+        <div class="form-group full-width">
+          <label class="form-label">Purchase Order <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="purchaseOrderOptions"
+            [config]="purchaseOrderConfig"
+            (selectionChanged)="onPurchaseOrderChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Supplier -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="supplierConfig"
+            formControlName="supplier"
+          ></app-input-text>
+        </div>
+
+        <!-- Received By -->
+        <div class="form-group">
+          <app-input-text
+            [config]="receivedByConfig"
+            formControlName="receivedBy"
+          ></app-input-text>
+        </div>
+
+        <!-- Warehouse Location -->
+        <div class="form-group">
+          <label class="form-label">Warehouse Location <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="warehouseOptions"
+            [config]="warehouseConfig"
+            (selectionChanged)="onWarehouseChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- General Notes -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="notesConfig"
+            formControlName="generalNotes"
+          ></app-input-text>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Items Verification -->
+    <div class="step-panel" *ngIf="currentStep === 2">
+      <div class="step-header">
+        <mat-icon>checklist</mat-icon>
+        <h3>Items Verification</h3>
+      </div>
+
+      <div class="items-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>SKU</th>
+              <th>Ordered</th>
+              <th>Received</th>
+              <th>Condition</th>
+              <th>Status</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of items">
+              <td>{{ item.product }}</td>
+              <td class="sku">{{ item.sku }}</td>
+              <td class="quantity">{{ item.ordered }}</td>
+              <td class="received-cell">
+                <div class="quantity-control">
+                  <button type="button" class="qty-btn" (click)="decrementReceived(item)">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <input 
+                    type="number" 
+                    class="qty-input" 
+                    [value]="item.received"
+                    (change)="updateReceivedValue(item, $event)"
+                    min="0"
+                    [max]="item.ordered"
+                  />
+                  <button type="button" class="qty-btn" (click)="incrementReceived(item)">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+              </td>
+              <td class="condition-cell">
+                <app-input-dropdown
+                  [options]="conditionOptions"
+                  [config]="conditionConfig"
+                  (selectionChanged)="onConditionChange(item, $event)"
+                ></app-input-dropdown>
+              </td>
+              <td>
+                <span class="status-badge" [ngClass]="item.status.toLowerCase()">
+                  {{ item.status }}
+                </span>
+              </td>
+              <td class="notes-cell">
+                <input 
+                  type="text" 
+                  class="notes-input" 
+                  placeholder="Notes..."
+                  [(ngModel)]="item.notes"
+                  [ngModelOptions]="{standalone: true}"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Verification Summary -->
+      <div class="verification-summary">
+        <h4>Verification Summary</h4>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-label">Total Ordered:</span>
+            <span class="summary-value">{{ getTotalOrdered() }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Received:</span>
+            <span class="summary-value">{{ getTotalReceived() }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Value:</span>
+            <span class="summary-value">KES {{ getTotalValue() | number }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Review & Create -->
+    <div class="step-panel" *ngIf="currentStep === 3">
+      <div class="step-header">
+        <mat-icon>description</mat-icon>
+        <h3>GRN Review</h3>
+      </div>
+
+      <div class="review-section">
+        <div class="review-grid">
+          <div class="review-item">
+            <span class="review-label">GRN Number:</span>
+            <span class="review-value">{{ grnForm.get('grnNumber')?.value }}</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">PO Number:</span>
+            <span class="review-value">{{ grnForm.get('purchaseOrder')?.value }}</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">Supplier:</span>
+            <span class="review-value">{{ grnForm.get('supplier')?.value }}</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">Received Date:</span>
+            <span class="review-value">{{ grnForm.get('receivedDate')?.value | date: 'MM/dd/yyyy' }}</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">Received By:</span>
+            <span class="review-value">{{ grnForm.get('receivedBy')?.value }}</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">Warehouse:</span>
+            <span class="review-value">{{ grnForm.get('warehouseLocation')?.value }}</span>
+          </div>
+        </div>
+
+        <div class="items-summary">
+          <h4>Items Summary</h4>
+          <div class="item-list">
+            <div class="item-row" *ngFor="let item of items">
+              <div class="item-info">
+                <strong>{{ item.product }}</strong>
+                <span class="item-sku">{{ item.sku }}</span>
+              </div>
+              <div class="item-quantity">
+                <span>{{ item.received }} / {{ item.ordered }}</span>
+                <span class="status-badge" [ngClass]="item.status.toLowerCase()">
+                  {{ item.status }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-totals">
+          <div class="total-row">
+            <span class="total-label">Total Items Received:</span>
+            <span class="total-value">{{ getTotalReceived() }} items</span>
+          </div>
+          <div class="total-row">
+            <span class="total-label">Total Value:</span>
+            <span class="total-value">KES {{ getTotalValue() | number }}</span>
+          </div>
+        </div>
+
+        <div class="notes-section" *ngIf="grnForm.get('generalNotes')?.value">
+          <h4>Notes</h4>
+          <p>{{ grnForm.get('generalNotes')?.value }}</p>
+        </div>
+
+        <div class="ready-banner">
+          <mat-icon>check_circle</mat-icon>
+          <div>
+            <strong>Ready for Creation</strong>
+            <p>The GRN is ready to be created. This will update inventory levels and match against the purchase order.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Footer -->
+  <div class="modal-footer">
+    <!-- Buttons are handled by AppModalComponent -->
+  </div>
+</form>
+</ng-template>

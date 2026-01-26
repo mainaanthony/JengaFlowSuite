@@ -9,6 +9,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
 import { AddSupplierModalComponent } from './add-supplier-modal/add-supplier-modal.component';
 import { CreatePOModalComponent } from './create-po-modal/create-po-modal.component';
+import { ModalService } from '../core/services/modal.service';
 
 interface PurchaseOrder {
   id: string;
@@ -58,7 +59,7 @@ export class ProcurementComponent implements OnInit {
   searchControl = new FormControl('');
   activeTab: 'purchase-orders' | 'suppliers' | 'goods-received' = 'purchase-orders';
 
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog, private modalService: ModalService) {}
 
   stats = {
     activePOs: 23,
@@ -235,8 +236,16 @@ export class ProcurementComponent implements OnInit {
     console.log('Delete supplier:', supplier);
   }
 
-  createGRN() {
-    console.log('Create GRN');
+  async createGRN() {
+    const dialogRef = await this.modalService.openModal('create-grn');
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('GRN created:', result);
+        alert(`GRN "${result.grnNumber}" created successfully!`);
+        // TODO: Save GRN data to backend
+      }
+    });
   }
 
   getStatusClass(status: string): string {
