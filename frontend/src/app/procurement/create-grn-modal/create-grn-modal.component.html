@@ -1,3 +1,10 @@
+<app-modal
+  [config]="modalConfig"
+  [contentTemplate]="grnFormTemplate"
+  [rightButtons]="rightButtons"
+  (buttonClicked)="onButtonClick($event)"
+></app-modal>
+
 <ng-template #grnFormTemplate>
   <!-- Step Indicator -->
   <app-step-indicator 
@@ -246,9 +253,5 @@
       </div>
     </div>
 
-  <!-- Footer -->
-  <div class="modal-footer">
-    <!-- Buttons are handled by AppModalComponent -->
-  </div>
-</form>
+  </form>
 </ng-template>

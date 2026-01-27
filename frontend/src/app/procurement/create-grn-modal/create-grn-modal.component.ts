@@ -54,6 +54,19 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
   items: GRNItem[] = [];
   completedSteps: number[] = [];
 
+  // Modal Configuration
+  modalConfig: AppModalConfig = {
+    title: 'Create Goods Receipt Note (GRN)',
+    subtitle: 'Add received goods to inventory',
+    wide: true,
+    disableClose: false
+  };
+
+  rightButtons: ModalButton[] = [
+    { label: 'Previous', action: 'previous', color: 'default', disabled: true },
+    { label: 'Next', action: 'next', color: 'primary' }
+  ];
+
   steps: Step[] = [
     { id: 1, label: 'GRN Details' },
     { id: 2, label: 'Items Verification' },
@@ -134,15 +147,78 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.initializeForm();
     this.loadMockItems();
+    
+    // Subscribe to form value changes to update button states
+    this.grnForm.valueChanges.subscribe(() => {
+      this.updateButtons();
+    });
   }
 
   ngAfterViewInit(): void {
-    // Open the AppModalComponent with our template
-    setTimeout(() => {
-      this.openModal();
-      // Close this wrapper component immediately
-      this.dialogRef.close();
-    });
+    // Component is now ready to be displayed through app-modal
+    this.updateButtons();
+  }
+
+  private updateButtons(): void {
+    this.rightButtons = [
+      {
+        label: this.currentStep > 1 ? 'Previous' : 'Cancel',
+        action: this.currentStep > 1 ? 'previous' : 'cancel',
+        color: this.currentStep > 1 ? 'default' : 'default'
+      },
+      {
+        label: this.currentStep === 3 ? 'Create GRN' : 'Next',
+        action: this.currentStep === 3 ? 'save' : 'next',
+        color: 'primary',
+        disabled: !this.isCurrentStepValid()
+      }
+    ];
+  }
+
+  onButtonClick(action: string): void {
+    switch (action) {
+      case 'next':
+        if (this.currentStep < 3) {
+          this.currentStep++;
+          this.updateButtons();
+        }
+        break;
+      case 'previous':
+        if (this.currentStep > 1) {
+          this.currentStep--;
+          this.updateButtons();
+        }
+        break;
+      case 'save':
+        this.saveGRN();
+        break;
+      case 'cancel':
+        this.dialogRef.close();
+        break;
+    }
+  }
+
+  private saveGRN(): void {
+    if (this.grnForm.valid) {
+      console.log('Creating GRN:', this.grnForm.value);
+      this.dialogRef.close(this.grnForm.value);
+    }
+  }
+
+  private isCurrentStepValid(): boolean {
+    switch (this.currentStep) {
+      case 1:
+        return !!(this.grnForm.get('receivedDate')?.valid &&
+               this.grnForm.get('purchaseOrder')?.valid &&
+               this.grnForm.get('receivedBy')?.valid &&
+               this.grnForm.get('warehouseLocation')?.valid);
+      case 2:
+        return this.items.length > 0 && this.getTotalReceived() > 0;
+      case 3:
+        return true;
+      default:
+        return false;
+    }
   }
 
   private initializeForm(): void {
@@ -288,103 +364,6 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
     };
 
     this.dialogRef.close(grnData);
-  }
-
-  openModal(): void {
-    const dialogRef = this.dialog.open(AppModalComponent, {
-      disableClose: false,
-      panelClass: 'custom-modal-container',
-      width: '1100px',
-      maxWidth: '95vw'
-    });
-
-    const instance = dialogRef.componentInstance;
-    instance.config = {
-      title: 'Create Goods Received Note (GRN)',
-      subtitle: 'Record and verify goods received from suppliers',
-      wide: true
-    };
-
-    instance.contentTemplate = this.grnFormTemplate;
-
-    instance.leftButtons = [
-      { label: 'Cancel', action: 'cancel', color: 'default' }
-    ];
-
-    // Initial buttons for step 1
-    this.updateButtonsForStep(instance);
-
-    // Monitor form changes to update button state
-    this.grnForm.valueChanges.subscribe(() => {
-      const nextBtn = instance.rightButtons.find(b => b.action === 'next');
-      if (nextBtn) {
-        nextBtn.disabled = !this.canProceed();
-      }
-    });
-
-    instance.buttonClicked.subscribe((action: string) => {
-      if (action === 'cancel') {
-        dialogRef.close();
-      } else if (action === 'previous') {
-        this.previousStep();
-        this.updateButtonsForStep(instance);
-      } else if (action === 'next') {
-        this.nextStep();
-        this.updateButtonsForStep(instance);
-      } else if (action === 'save') {
-        // 'save' is used for the final Create GRN button
-        this.submitGRN(dialogRef, instance);
-      }
-    });
-  }
-
-  private updateButtonsForStep(instance: AppModalComponent): void {
-    if (this.currentStep === 1) {
-      instance.rightButtons = [
-        { 
-          label: 'Next', 
-          action: 'next', 
-          color: 'primary',
-          disabled: !this.canProceed()
-        }
-      ];
-    } else if (this.currentStep === 2) {
-      instance.rightButtons = [
-        { label: 'Previous', action: 'previous', color: 'default' },
-        { 
-          label: 'Next', 
-          action: 'next', 
-          color: 'primary',
-          disabled: !this.canProceed()
-        }
-      ];
-    } else if (this.currentStep === 3) {
-      instance.rightButtons = [
-        { label: 'Previous', action: 'previous', color: 'default' },
-        { 
-          label: 'Create GRN', 
-          action: 'save', 
-          color: 'primary',
-          icon: 'check_circle'
-        }
-      ];
-    }
-  }
-
-  private submitGRN(dialogRef: any, instance: AppModalComponent): void {
-    const submitBtn = instance.rightButtons.find(b => b.action === 'save');
-    if (submitBtn) submitBtn.loading = true;
-
-    // Simulate API call
-    setTimeout(() => {
-      const grnData: GRNData = this.grnForm.value;
-      instance.showSuccessMessage = true;
-      instance.successMessage = 'GRN created successfully!';
-      
-      setTimeout(() => {
-        dialogRef.close(grnData);
-      }, 1500);
-    }, 800);
   }
 
   closeDialog(): void {
