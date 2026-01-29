@@ -97,7 +97,7 @@ export class AddCustomerModalComponent implements OnInit, AfterViewInit {
   dobConfig: InputTextConfig = {
     placeholder: 'mm/dd/yyyy',
     label: 'Date of Birth',
-    type: 'text',
+    type: 'date',
     clearable: true
   };
 
@@ -226,6 +226,19 @@ export class AddCustomerModalComponent implements OnInit, AfterViewInit {
     searchable: true
   };
 
+  countryOptions: DropdownOption[] = [
+    { id: 'kenya', label: 'Kenya', value: 'kenya' },
+    { id: 'uganda', label: 'Uganda', value: 'uganda' },
+    { id: 'tanzania', label: 'Tanzania', value: 'tanzania' },
+    { id: 'rwanda', label: 'Rwanda', value: 'rwanda' },
+    { id: 'ethiopia', label: 'Ethiopia', value: 'ethiopia' }
+  ];
+
+  countryConfig: DropdownConfig = {
+    placeholder: 'Select country',
+    searchable: true
+  };
+
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
@@ -306,7 +319,7 @@ export class AddCustomerModalComponent implements OnInit, AfterViewInit {
       city: [''],
       county: [''],
       postalCode: [''],
-      country: ['Kenya'],
+      country: ['kenya'],
       // Business Info
       companyName: [''],
       kraPin: [''],
@@ -352,6 +365,12 @@ export class AddCustomerModalComponent implements OnInit, AfterViewInit {
   onPaymentTermsChange(value: DropdownOption | DropdownOption[] | null): void {
     if (value && !Array.isArray(value)) {
       this.customerForm.patchValue({ paymentTerms: value.value });
+    }
+  }
+
+  onCountryChange(value: DropdownOption | DropdownOption[] | null): void {
+    if (value && !Array.isArray(value)) {
+      this.customerForm.patchValue({ country: value.value });
     }
   }
 

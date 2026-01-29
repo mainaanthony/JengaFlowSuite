@@ -3,6 +3,7 @@
   <app-tabs
     [tabs]="tabs"
     [activeTabId]="activeTab"
+    [stretch]="true"
     (tabChanged)="onTabChange($event)"
   ></app-tabs>
 
@@ -121,12 +122,11 @@
         <!-- Country -->
         <div class="form-group">
           <label class="form-label">Country</label>
-          <input 
-            type="text" 
-            class="readonly-input" 
-            value="Kenya" 
-            disabled 
-          />
+          <app-input-dropdown
+            [options]="countryOptions"
+            [config]="countryConfig"
+            (selectionChanged)="onCountryChange($event)"
+          ></app-input-dropdown>
         </div>
       </div>
     </div>
@@ -184,7 +184,7 @@
 
       <div class="form-grid">
         <!-- Customer Type -->
-        <div class="form-group">
+        <div class="form-group full-width">
           <label class="form-label">Customer Type</label>
           <app-input-dropdown
             [options]="customerTypeOptions"
@@ -210,7 +210,7 @@
         </div>
 
         <!-- Payment Terms -->
-        <div class="form-group">
+        <div class="form-group full-width">
           <label class="form-label">Payment Terms</label>
           <app-input-dropdown
             [options]="paymentTermsOptions"

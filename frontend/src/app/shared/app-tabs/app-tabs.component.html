@@ -1,9 +1,10 @@
-<div class="app-tabs-container">
-  <div class="tabs-wrapper">
+<div class="app-tabs-container" [class.stretch]="stretch">
+  <div class="tabs-wrapper" [class.stretch]="stretch">
     <button
       *ngFor="let tab of tabs"
       class="tab-button"
       [class.active]="isActive(tab.id)"
+      [class.stretch]="stretch"
       (click)="selectTab(tab.id)"
     >
       {{ tab.label }}

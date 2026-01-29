@@ -3,18 +3,37 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  overflow-y: auto;
+  max-height: calc(100vh - 280px);
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #bdbdbd;
+    border-radius: 4px;
+
+    &:hover {
+      background: #999;
+    }
+  }
 }
 
 /* ===== Tab Panels ===== */
 .tab-panel {
   animation: fadeIn 0.3s ease-in;
-  padding: 1.5rem;
+  padding: 2rem;
 
   .tab-header {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     padding-bottom: 1rem;
     border-bottom: 2px solid #f0f0f0;
 
@@ -62,9 +81,9 @@
   }
 
   .form-label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
-    color: #333;
+    color: #555;
     margin-bottom: 0.5rem;
     display: block;
 
@@ -75,6 +94,20 @@
   }
 }
 
+.readonly-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #999;
+  background: #f9f9f9;
+  cursor: not-allowed;
+
+  &:disabled {
+    opacity: 1;
+  }
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .form-grid {
@@ -82,16 +115,31 @@
   }
 
   .tab-panel {
-    padding: 1rem;
+    padding: 1.5rem;
+
+    .tab-header {
+      margin-bottom: 1.5rem;
+
+      h3 {
+        font-size: 16px;
+      }
+    }
   }
 }
 
 @media (max-width: 480px) {
   .tab-panel {
-    padding: 0.75rem;
+    padding: 1rem;
 
     .tab-header {
       margin-bottom: 1rem;
+      gap: 0.5rem;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
 
       h3 {
         font-size: 16px;
