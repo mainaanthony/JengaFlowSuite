@@ -407,27 +407,34 @@
     animation: fadeIn 0.3s ease-in;
   }
 
+  ::ng-deep .role-card .card {
+    height: 300px;
+  }
   .roles-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
     gap: 1.5rem;
     margin-top: 1.5rem;
+
+   
 
     .role-card {
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
-      min-height: 380px;
+      height: 100%;
+      background: #ffffff;
+      padding: 0; // Remove padding since app-card already has padding
 
       .role-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
         gap: 1rem;
+        margin-bottom: 0.9rem;
 
         h3 {
           margin: 0;
-          font-size: 1.15rem;
+          font-size: 1.05rem;
           font-weight: 600;
           color: #212121;
           line-height: 1.3;
@@ -435,45 +442,50 @@
         }
 
         .user-count {
-          background: #f0f7ff;
-          color: #1976d2;
-          padding: 0.4rem 0.85rem;
-          border-radius: 12px;
+          background: #f5f5f5;
+          color: #616161;
+          padding: 0.35rem 0.8rem;
+          border-radius: 6px;
           font-size: 0.8rem;
-          font-weight: 600;
+          font-weight: 500;
           white-space: nowrap;
           flex-shrink: 0;
         }
       }
 
       .role-description {
-        margin: 0;
+        margin: 0 0 1.25rem 0;
         color: #757575;
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         line-height: 1.5;
-        min-height: 45px;
+        min-height: 42px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .permissions-list {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.65rem;
         flex: 1;
+        margin-bottom: 1.25rem;
 
         .permissions-label {
-          font-size: 0.85rem;
+          font-size: 0.82rem;
           font-weight: 600;
           color: #212121;
-          margin: 0.25rem 0 0 0;
+          margin: 0 0 0.4rem 0;
         }
 
         .permission-item {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           gap: 0.65rem;
-          font-size: 0.88rem;
-          color: #757575;
-          line-height: 1.4;
+          font-size: 0.85rem;
+          color: #424242;
+          line-height: 1.5;
 
           mat-icon {
             font-size: 1.05rem;
@@ -481,37 +493,52 @@
             height: 1.05rem;
             color: #10b981;
             flex-shrink: 0;
-            margin-top: 0.1rem;
+            margin-top: 0.05rem;
+          }
+
+          span {
+            flex: 1;
           }
         }
       }
 
       .manage-btn {
-        background: none;
-        border: 1px solid #d0d0d0;
-        border-radius: 4px;
-        padding: 0.85rem;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 0.85rem 1rem;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.6rem;
-        color: #1976d2;
-        font-size: 0.92rem;
+        gap: 0.55rem;
+        color: #616161;
+        font-size: 0.88rem;
         font-weight: 500;
         transition: all 0.2s ease;
         margin-top: auto;
+        width: 100%;
 
         mat-icon {
-          font-size: 1.1rem;
-          width: 1.1rem;
-          height: 1.1rem;
+          font-size: 1.05rem;
+          width: 1.05rem;
+          height: 1.05rem;
         }
 
         &:hover {
-          background: #f0f7ff;
-          border-color: #1976d2;
-          box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+          background: #ff6b35;
+          border-color: #ff6b35;
+          color: #ffffff;
+          box-shadow: 0 2px 8px rgba(255, 107, 53, 0.25);
+          transform: translateY(-1px);
+
+          mat-icon {
+            color: #ffffff;
+          }
+        }
+
+        &:active {
+          transform: translateY(0);
         }
       }
     }
@@ -675,36 +702,54 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 1.25rem;
 
+      app-card.role-card {
+        height: 400px;
+      }
+
       .role-card {
-        min-height: 350px;
+        padding: 0;
 
         .role-header {
+          margin-bottom: 0.9rem;
+
           h3 {
-            font-size: 1.08rem;
+            font-size: 1.1rem;
           }
 
           .user-count {
-            padding: 0.35rem 0.75rem;
-            font-size: 0.78rem;
+            padding: 0.35rem 0.8rem;
+            font-size: 0.8rem;
           }
         }
 
         .role-description {
-          font-size: 0.88rem;
-          min-height: 40px;
+          font-size: 0.9rem;
+          min-height: 42px;
+          margin-bottom: 1.25rem;
         }
 
         .permissions-list {
-          gap: 0.68rem;
+          gap: 0.7rem;
+          margin-bottom: 1.25rem;
+
+          .permissions-label {
+            font-size: 0.85rem;
+          }
 
           .permission-item {
-            font-size: 0.86rem;
+            font-size: 0.88rem;
+
+            mat-icon {
+              font-size: 1.1rem;
+              width: 1.1rem;
+              height: 1.1rem;
+            }
           }
         }
 
         .manage-btn {
-          font-size: 0.89rem;
-          padding: 0.78rem;
+          font-size: 0.9rem;
+          padding: 0.8rem;
         }
       }
     }
@@ -826,58 +871,66 @@
       grid-template-columns: 1fr;
       gap: 1rem;
 
+      app-card.role-card {
+        height: auto;
+        min-height: 380px;
+      }
+
       .role-card {
-        min-height: auto;
+        padding: 0;
 
         .role-header {
           gap: 0.75rem;
+          margin-bottom: 0.85rem;
 
           h3 {
-            font-size: 1.05rem;
+            font-size: 1.08rem;
             line-height: 1.3;
           }
 
           .user-count {
-            padding: 0.35rem 0.7rem;
-            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.78rem;
           }
         }
 
         .role-description {
-          font-size: 0.88rem;
+          font-size: 0.9rem;
           line-height: 1.4;
-          min-height: 35px;
+          min-height: 40px;
+          margin-bottom: 1.2rem;
         }
 
         .permissions-list {
-          gap: 0.65rem;
+          gap: 0.7rem;
+          margin-bottom: 1.2rem;
 
           .permissions-label {
-            font-size: 0.8rem;
-            margin: 0.1rem 0 0 0;
+            font-size: 0.85rem;
+            margin: 0.1rem 0 0.4rem 0;
           }
 
           .permission-item {
-            font-size: 0.85rem;
-            gap: 0.55rem;
+            font-size: 0.88rem;
+            gap: 0.6rem;
 
             mat-icon {
-              font-size: 0.95rem;
-              width: 0.95rem;
-              height: 0.95rem;
+              font-size: 1.05rem;
+              width: 1.05rem;
+              height: 1.05rem;
             }
           }
         }
 
         .manage-btn {
-          font-size: 0.88rem;
-          padding: 0.75rem;
+          font-size: 0.9rem;
+          padding: 0.8rem;
           gap: 0.5rem;
 
           mat-icon {
-            font-size: 1rem;
-            width: 1rem;
-            height: 1rem;
+            font-size: 1.05rem;
+            width: 1.05rem;
+            height: 1.05rem;
           }
         }
       }

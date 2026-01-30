@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { debounceTime } from 'rxjs/operators';
+import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../shared/app-table/app-table.component';
 import { StockTransferModalComponent } from './stock-transfer-modal/stock-transfer-modal.component';
 import { AddBranchModalComponent } from './add-branch-modal/add-branch-modal.component';
 
@@ -55,7 +56,7 @@ interface InventoryItem {
 @Component({
   selector: 'app-branches',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatDialogModule, StockTransferModalComponent, AddBranchModalComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatDialogModule, AppTableComponent],
   templateUrl: './branches.component.html',
   styleUrls: ['./branches.component.scss']
 })
@@ -67,7 +68,13 @@ export class BranchesComponent implements OnInit {
   searchControl = new FormControl('');
   activeTab: 'allBranches' | 'performance' | 'inventory' = 'allBranches';
 
-  constructor(private dialog: MatDialog) {}
+  // Table configuration
+  branchColumns: ColumnConfig[] = [];
+  branchActions: TableAction[] = [];
+
+  constructor(private dialog: MatDialog) {
+    this.initializeTableConfig();
+  }
 
   // Stats
   stats: BranchStat[] = [];
@@ -92,6 +99,87 @@ export class BranchesComponent implements OnInit {
     this.initializeStaffAllocation();
     this.initializeInventoryData();
     this.setupSearch();
+  }
+
+  initializeTableConfig(): void {
+    // Define table columns
+    this.branchColumns = [
+      {
+        key: 'name',
+        label: 'Branch',
+        width: '200px',
+        type: 'text',
+        subText: 'code'
+      },
+      {
+        key: 'location',
+        label: 'Location',
+        width: '220px',
+        type: 'text',
+        subText: 'phone',
+        format: (value: string) => value.replace('📍 ', '')
+      },
+      {
+        key: 'manager',
+        label: 'Manager',
+        width: '150px',
+        type: 'text'
+      },
+      {
+        key: 'staff',
+        label: 'Staff',
+        width: '100px',
+        type: 'text',
+        format: (value: number) => `${value} staff`
+      },
+      {
+        key: 'revenue',
+        label: 'Revenue',
+        width: '180px',
+        type: 'text'
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '140px',
+        type: 'enum',
+        enumValues: [
+          { value: 'Active', label: 'Active', color: '#10b981' },
+          { value: 'Inactive', label: 'Inactive', color: '#ef4444' },
+          { value: 'Under Renovation', label: 'Under Renovation', color: '#f59e0b' }
+        ]
+      }
+    ];
+
+    // Define table actions
+    this.branchActions = [
+      { id: 'edit', label: 'Edit Branch', icon: 'edit', color: 'primary' },
+      { id: 'delete', label: 'Delete Branch', icon: 'delete', color: 'warn' },
+      { id: 'transfer', label: 'Stock Transfer', icon: 'compare_arrows', color: 'accent' }
+    ];
+  }
+
+  onTableAction(event: TableActionEvent): void {
+    const branch = event.row as Branch;
+    switch (event.action) {
+      case 'edit':
+        this.editBranch(branch);
+        break;
+      case 'delete':
+        this.deleteBranch(branch);
+        break;
+      case 'transfer':
+        this.stockTransfer();
+        break;
+    }
+  }
+
+  onTableSearch(searchTerm: string): void {
+    this.searchControl.setValue(searchTerm);
+  }
+
+  onFilter(): void {
+    console.log('Filter clicked');
   }
 
   initializeStats(): void {

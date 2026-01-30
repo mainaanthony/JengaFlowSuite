@@ -4,6 +4,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { CardComponent } from '../shared/card/card.component';
+import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../shared/app-table/app-table.component';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
@@ -38,6 +39,7 @@ interface PendingOrder {
     StatCardComponent,
     ButtonSolidComponent,
     CardComponent,
+    AppTableComponent,
     MatIconModule,
     MatDialogModule,
     ReactiveFormsModule
@@ -49,10 +51,18 @@ export class SalesComponent implements OnInit {
   searchControl = new FormControl('');
   activeTab: 'today' | 'pending' | 'customers' = 'today';
 
+  // Table configuration
+  transactionColumns: ColumnConfig[] = [];
+  transactionActions: TableAction[] = [];
+  orderColumns: ColumnConfig[] = [];
+  orderActions: TableAction[] = [];
+
   constructor(
     private dialog: MatDialog,
     private modalService: ModalService
-  ) {}
+  ) {
+    this.initializeTableConfig();
+  }
 
   stats = {
     todaysSales: 'KES 156,400',
@@ -124,6 +134,161 @@ export class SalesComponent implements OnInit {
     this.filteredTransactions = this.transactions;
     this.filteredOrders = this.pendingOrders;
     this.setupSearch();
+  }
+
+  initializeTableConfig(): void {
+    // Define transaction table columns
+    this.transactionColumns = [
+      {
+        key: 'id',
+        label: 'Sale ID',
+        width: '140px',
+        type: 'text'
+      },
+      {
+        key: 'customer',
+        label: 'Customer',
+        width: '180px',
+        type: 'text'
+      },
+      {
+        key: 'items',
+        label: 'Items',
+        width: '100px',
+        type: 'custom',
+        format: (value: number) => `${value} items`
+      },
+      {
+        key: 'total',
+        label: 'Total',
+        width: '130px',
+        type: 'currency'
+      },
+      {
+        key: 'paymentMethod',
+        label: 'Payment',
+        width: '120px',
+        type: 'enum',
+        enumValues: [
+          { value: 'Cash', label: 'Cash', color: '#10b981' },
+          { value: 'M-Pesa', label: 'M-Pesa', color: '#3b82f6' },
+          { value: 'Card', label: 'Card', color: '#8b5cf6' }
+        ]
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '130px',
+        type: 'enum',
+        enumValues: [
+          { value: 'Completed', label: 'Completed', color: '#10b981' },
+          { value: 'Processing', label: 'Processing', color: '#f59e0b' },
+          { value: 'Pending', label: 'Pending', color: '#6b7280' }
+        ]
+      },
+      {
+        key: 'time',
+        label: 'Time',
+        width: '100px',
+        type: 'text'
+      },
+      {
+        key: 'attendant',
+        label: 'Attendant',
+        width: '150px',
+        type: 'text'
+      }
+    ];
+
+    // Define transaction table actions
+    this.transactionActions = [
+      { id: 'edit', label: 'Edit Transaction', icon: 'edit', color: 'primary' },
+      { id: 'delete', label: 'Delete Transaction', icon: 'delete', color: 'warn' }
+    ];
+
+    // Define order table columns
+    this.orderColumns = [
+      {
+        key: 'id',
+        label: 'Order ID',
+        width: '140px',
+        type: 'text'
+      },
+      {
+        key: 'customer',
+        label: 'Customer',
+        width: '180px',
+        type: 'text'
+      },
+      {
+        key: 'items',
+        label: 'Items',
+        width: '100px',
+        type: 'custom',
+        format: (value: number) => `${value} items`
+      },
+      {
+        key: 'total',
+        label: 'Total',
+        width: '130px',
+        type: 'currency'
+      },
+      {
+        key: 'deadline',
+        label: 'Deadline',
+        width: '130px',
+        type: 'date'
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '180px',
+        type: 'enum',
+        enumValues: [
+          { value: 'Pending Confirmation', label: 'Pending Confirmation', color: '#f59e0b' },
+          { value: 'Ready for Pickup', label: 'Ready for Pickup', color: '#10b981' },
+          { value: 'On Hold', label: 'On Hold', color: '#ef4444' }
+        ]
+      }
+    ];
+
+    // Define order table actions
+    this.orderActions = [
+      { id: 'edit', label: 'Edit Order', icon: 'edit', color: 'primary' },
+      { id: 'delete', label: 'Delete Order', icon: 'delete', color: 'warn' }
+    ];
+  }
+
+  onTransactionTableAction(event: TableActionEvent): void {
+    const transaction = event.row as Transaction;
+    switch (event.action) {
+      case 'edit':
+        this.editTransaction(transaction);
+        break;
+      case 'delete':
+        this.deleteTransaction(transaction);
+        break;
+    }
+  }
+
+  onOrderTableAction(event: TableActionEvent): void {
+    const order = event.row as PendingOrder;
+    switch (event.action) {
+      case 'edit':
+        this.editOrder(order);
+        break;
+      case 'delete':
+        this.deleteOrder(order);
+        break;
+    }
+  }
+
+  onTableSearch(searchTerm: string): void {
+    this.searchControl.setValue(searchTerm);
+  }
+
+  onFilter(): void {
+    console.log('Filter clicked');
   }
 
   setupSearch() {

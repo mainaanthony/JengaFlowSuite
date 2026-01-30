@@ -45,8 +45,12 @@
             </div>
 
             <ng-template #normalCell>
-              <div class="cell-content">
-                <div class="main-value">
+              <div
+                class="cell-content"
+                [class.clickable]="isClickable(column)"
+                (click)="isClickable(column) ? onCellClick(column, row) : null"
+              >
+                <div class="main-value" [class.link-value]="column.type === 'link'">
                   {{ getFormattedValue(row, column) }}
                 </div>
                 <div class="sub-value" *ngIf="column.subText && getSubText(row, column)">

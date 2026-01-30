@@ -4,6 +4,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { CardComponent } from '../shared/card/card.component';
+import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../shared/app-table/app-table.component';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
@@ -48,6 +49,7 @@ interface GoodsReceivedNote {
     StatCardComponent,
     ButtonSolidComponent,
     CardComponent,
+    AppTableComponent,
     MatIconModule,
     MatDialogModule,
     ReactiveFormsModule
@@ -59,7 +61,15 @@ export class ProcurementComponent implements OnInit {
   searchControl = new FormControl('');
   activeTab: 'purchase-orders' | 'suppliers' | 'goods-received' = 'purchase-orders';
 
-  constructor(private dialog: MatDialog, private modalService: ModalService) {}
+  // Table configuration
+  poColumns: ColumnConfig[] = [];
+  poActions: TableAction[] = [];
+  supplierColumns: ColumnConfig[] = [];
+  supplierActions: TableAction[] = [];
+
+  constructor(private dialog: MatDialog, private modalService: ModalService) {
+    this.initializeTableConfig();
+  }
 
   stats = {
     activePOs: 23,
@@ -134,6 +144,157 @@ export class ProcurementComponent implements OnInit {
     this.filteredSuppliers = this.suppliers;
     this.filteredGRNs = this.goodsReceivedNotes;
     this.setupSearch();
+  }
+
+  initializeTableConfig(): void {
+    // Define purchase order table columns
+    this.poColumns = [
+      {
+        key: 'id',
+        label: 'PO Number',
+        width: '140px',
+        type: 'link'
+      },
+      {
+        key: 'supplier',
+        label: 'Supplier',
+        width: '200px',
+        type: 'text'
+      },
+      {
+        key: 'items',
+        label: 'Items',
+        width: '100px',
+        type: 'custom',
+        format: (value: number) => `${value} items`
+      },
+      {
+        key: 'total',
+        label: 'Total',
+        width: '130px',
+        type: 'currency'
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '160px',
+        type: 'enum',
+        enumValues: [
+          { value: 'Pending Approval', label: 'Pending Approval', color: '#f59e0b' },
+          { value: 'Approved', label: 'Approved', color: '#10b981' },
+          { value: 'Delivered', label: 'Delivered', color: '#3b82f6' }
+        ]
+      },
+      {
+        key: 'created',
+        label: 'Created',
+        width: '120px',
+        type: 'date'
+      },
+      {
+        key: 'expectedDelivery',
+        label: 'Expected Delivery',
+        width: '150px',
+        type: 'date'
+      }
+    ];
+
+    // Define PO table actions
+    this.poActions = [
+      { id: 'edit', label: 'Edit PO', icon: 'edit', color: 'primary' },
+      { id: 'delete', label: 'Delete PO', icon: 'delete', color: 'warn' }
+    ];
+
+    // Define supplier table columns
+    this.supplierColumns = [
+      {
+        key: 'id',
+        label: 'Supplier ID',
+        width: '130px',
+        type: 'text'
+      },
+      {
+        key: 'name',
+        label: 'Name',
+        width: '200px',
+        type: 'text',
+        subText: 'contact'
+      },
+      {
+        key: 'phone',
+        label: 'Phone',
+        width: '150px',
+        type: 'text'
+      },
+      {
+        key: 'category',
+        label: 'Category',
+        width: '160px',
+        type: 'text'
+      },
+      {
+        key: 'rating',
+        label: 'Rating',
+        width: '100px',
+        type: 'custom',
+        format: (value: number) => `⭐ ${value}`
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '120px',
+        type: 'enum',
+        enumValues: [
+          { value: 'Active', label: 'Active', color: '#10b981' },
+          { value: 'Inactive', label: 'Inactive', color: '#ef4444' }
+        ]
+      }
+    ];
+
+    // Define supplier table actions
+    this.supplierActions = [
+      { id: 'edit', label: 'Edit Supplier', icon: 'edit', color: 'primary' },
+      { id: 'delete', label: 'Delete Supplier', icon: 'delete', color: 'warn' }
+    ];
+  }
+
+  onPOTableAction(event: TableActionEvent): void {
+    const po = event.row as PurchaseOrder;
+    switch (event.action) {
+      case 'edit':
+        this.editPO(po);
+        break;
+      case 'delete':
+        this.deletePO(po);
+        break;
+    }
+  }
+
+  onSupplierTableAction(event: TableActionEvent): void {
+    const supplier = event.row as Supplier;
+    switch (event.action) {
+      case 'edit':
+        this.editSupplier(supplier);
+        break;
+      case 'delete':
+        this.deleteSupplier(supplier);
+        break;
+    }
+  }
+
+  onPOCellClick(event: { column: string; row: any; value: any }): void {
+    if (event.column === 'id') {
+      console.log('Navigate to PO:', event.value);
+      // TODO: Navigate to PO details page
+    }
+  }
+
+  onTableSearch(searchTerm: string): void {
+    this.searchControl.setValue(searchTerm);
+  }
+
+  onFilter(): void {
+    console.log('Filter clicked');
   }
 
   setupSearch() {

@@ -4,6 +4,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { CardComponent } from '../shared/card/card.component';
+import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../shared/app-table/app-table.component';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
@@ -40,6 +41,7 @@ interface Driver {
     StatCardComponent,
     ButtonSolidComponent,
     CardComponent,
+    AppTableComponent,
     MatIconModule,
     ReactiveFormsModule,
     MatDialogModule
@@ -51,6 +53,12 @@ export class DeliveryComponent implements OnInit {
   searchControl = new FormControl('');
   activeTab: 'active-deliveries' | 'drivers' | 'route-optimization' = 'active-deliveries';
 
+  // Table configuration
+  deliveryColumns: ColumnConfig[] = [];
+  deliveryActions: TableAction[] = [];
+  driverColumns: ColumnConfig[] = [];
+  driverActions: TableAction[] = [];
+
   stats = {
     activeDeliveries: 8,
     activeDeliveriesChange: 3,
@@ -61,6 +69,10 @@ export class DeliveryComponent implements OnInit {
     avgDeliveryTime: '2.3hrs',
     avgDeliveryTimeChange: -15
   };
+
+  constructor(private dialog: MatDialog) {
+    this.initializeTableConfig();
+  }
 
   deliveries: Delivery[] = [
     {
@@ -122,12 +134,177 @@ export class DeliveryComponent implements OnInit {
   filteredDeliveries: Delivery[] = [];
   filteredDrivers: Driver[] = [];
 
-  constructor(private dialog: MatDialog) {}
-
   ngOnInit() {
     this.filteredDeliveries = this.deliveries;
     this.filteredDrivers = this.drivers;
     this.setupSearch();
+  }
+
+  initializeTableConfig(): void {
+    // Define delivery table columns
+    this.deliveryColumns = [
+      {
+        key: 'id',
+        label: 'Delivery ID',
+        width: '140px',
+        type: 'text'
+      },
+      {
+        key: 'orderId',
+        label: 'Order ID',
+        width: '140px',
+        type: 'link'
+      },
+      {
+        key: 'customer',
+        label: 'Customer',
+        width: '180px',
+        type: 'text'
+      },
+      {
+        key: 'address',
+        label: 'Address',
+        width: '220px',
+        type: 'text'
+      },
+      {
+        key: 'driver',
+        label: 'Driver',
+        width: '160px',
+        type: 'text',
+        subText: 'driverVehicle'
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '130px',
+        type: 'enum',
+        enumValues: [
+          { value: 'In Transit', label: 'In Transit', color: '#3b82f6' },
+          { value: 'Delivered', label: 'Delivered', color: '#10b981' },
+          { value: 'Pending', label: 'Pending', color: '#f59e0b' }
+        ]
+      },
+      {
+        key: 'priority',
+        label: 'Priority',
+        width: '110px',
+        type: 'enum',
+        enumValues: [
+          { value: 'High', label: 'High', color: '#ef4444' },
+          { value: 'Normal', label: 'Normal', color: '#6b7280' },
+          { value: 'Low', label: 'Low', color: '#9ca3af' }
+        ]
+      },
+      {
+        key: 'scheduled',
+        label: 'Scheduled',
+        width: '160px',
+        type: 'text'
+      }
+    ];
+
+    // Define delivery table actions
+    this.deliveryActions = [
+      { id: 'edit', label: 'Edit Delivery', icon: 'edit', color: 'primary' },
+      { id: 'delete', label: 'Delete Delivery', icon: 'delete', color: 'warn' }
+    ];
+
+    // Define driver table columns
+    this.driverColumns = [
+      {
+        key: 'id',
+        label: 'Driver ID',
+        width: '130px',
+        type: 'text'
+      },
+      {
+        key: 'name',
+        label: 'Name',
+        width: '180px',
+        type: 'text'
+      },
+      {
+        key: 'phone',
+        label: 'Phone',
+        width: '150px',
+        type: 'text'
+      },
+      {
+        key: 'vehicle',
+        label: 'Vehicle',
+        width: '120px',
+        type: 'text'
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '130px',
+        type: 'enum',
+        enumValues: [
+          { value: 'Available', label: 'Available', color: '#10b981' },
+          { value: 'On Delivery', label: 'On Delivery', color: '#3b82f6' }
+        ]
+      },
+      {
+        key: 'activeDeliveries',
+        label: 'Active Deliveries',
+        width: '140px',
+        type: 'number'
+      },
+      {
+        key: 'rating',
+        label: 'Rating',
+        width: '100px',
+        type: 'custom',
+        format: (value: number) => `⭐ ${value}`
+      }
+    ];
+
+    // Define driver table actions
+    this.driverActions = [
+      { id: 'edit', label: 'Edit Driver', icon: 'edit', color: 'primary' },
+      { id: 'delete', label: 'Delete Driver', icon: 'delete', color: 'warn' }
+    ];
+  }
+
+  onTableAction(event: TableActionEvent): void {
+    const delivery = event.row as Delivery;
+    switch (event.action) {
+      case 'edit':
+        this.editDelivery(delivery);
+        break;
+      case 'delete':
+        this.deleteDelivery(delivery);
+        break;
+    }
+  }
+
+  onDriverTableAction(event: TableActionEvent): void {
+    const driver = event.row as Driver;
+    switch (event.action) {
+      case 'edit':
+        this.editDriver(driver);
+        break;
+      case 'delete':
+        this.deleteDriver(driver);
+        break;
+    }
+  }
+
+  onCellClick(event: { column: string; row: any; value: any }): void {
+    if (event.column === 'orderId') {
+      console.log('Navigate to order:', event.value);
+      // TODO: Navigate to order details page
+    }
+  }
+
+  onTableSearch(searchTerm: string): void {
+    this.searchControl.setValue(searchTerm);
+  }
+
+  onFilter(): void {
+    console.log('Filter clicked');
   }
 
   setupSearch() {

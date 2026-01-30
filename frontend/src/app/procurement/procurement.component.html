@@ -76,70 +76,19 @@
       </div>
     </div>
 
-    <!-- Search and Filter -->
-    <div class="table-header">
-      <div class="search-box">
-        <mat-icon>search</mat-icon>
-        <input
-          type="text"
-          placeholder="Search POs..."
-          [formControl]="searchControl"
-          class="search-input">
-      </div>
-      <button class="filter-btn">
-        <mat-icon>tune</mat-icon>
-        Filter
-      </button>
-    </div>
-
     <!-- POs Table -->
-    <div class="table-container">
-      <table class="pos-table">
-        <thead>
-          <tr>
-            <th>PO Number</th>
-            <th>Supplier</th>
-            <th>Items</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Expected Delivery</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let po of filteredPOs" class="po-row">
-            <td class="id-cell">
-              <a href="#" class="po-link">{{ po.id }}</a>
-            </td>
-            <td class="supplier-cell">{{ po.supplier }}</td>
-            <td class="items-cell">{{ po.items }} items</td>
-            <td class="total-cell">KES {{ po.total.toLocaleString() }}</td>
-            <td class="status-cell">
-              <span [class]="'status-badge ' + getStatusClass(po.status)">
-                {{ po.status }}
-              </span>
-            </td>
-            <td class="date-cell">{{ po.created }}</td>
-            <td class="date-cell">{{ po.expectedDelivery }}</td>
-            <td class="actions-cell">
-              <button class="action-btn" (click)="editPO(po)" title="Edit">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button class="action-btn delete" (click)="deletePO(po)" title="Delete">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="filteredPOs.length === 0" class="empty-state">
-      <mat-icon>inbox</mat-icon>
-      <p>No purchase orders found</p>
-    </div>
+    <app-table
+      [columns]="poColumns"
+      [rows]="filteredPOs"
+      [actions]="poActions"
+      [showSearch]="true"
+      [showFilter]="true"
+      searchPlaceholder="Search POs..."
+      (actionTriggered)="onPOTableAction($event)"
+      (cellClicked)="onPOCellClick($event)"
+      (searchChanged)="onTableSearch($event)"
+      (filterClicked)="onFilter()"
+    ></app-table>
   </app-card>
 
   <!-- Supplier Management Section -->
@@ -151,75 +100,18 @@
       </div>
     </div>
 
-    <!-- Search and Filter -->
-    <div class="table-header">
-      <div class="search-box">
-        <mat-icon>search</mat-icon>
-        <input
-          type="text"
-          placeholder="Search suppliers..."
-          [formControl]="searchControl"
-          class="search-input">
-      </div>
-      <button class="filter-btn">
-        <mat-icon>tune</mat-icon>
-        Filter
-      </button>
-    </div>
-
     <!-- Suppliers Table -->
-    <div class="table-container">
-      <table class="suppliers-table">
-        <thead>
-          <tr>
-            <th>Supplier ID</th>
-            <th>Name</th>
-            <th>Contact</th>
-            <th>Category</th>
-            <th>Rating</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let supplier of filteredSuppliers" class="supplier-row">
-            <td class="id-cell">{{ supplier.id }}</td>
-            <td class="name-cell">
-              <div class="supplier-info">
-                <div class="supplier-name">{{ supplier.name }}</div>
-                <div class="supplier-contact">{{ supplier.contact }}</div>
-              </div>
-            </td>
-            <td class="contact-cell">{{ supplier.phone }}</td>
-            <td class="category-cell">{{ supplier.category }}</td>
-            <td class="rating-cell">
-              <span class="rating">
-                ⭐ {{ supplier.rating }}
-              </span>
-            </td>
-            <td class="status-cell">
-              <span [class]="'status-badge ' + getStatusClass(supplier.status)">
-                {{ supplier.status }}
-              </span>
-            </td>
-            <td class="actions-cell">
-              <button class="action-btn" (click)="editSupplier(supplier)" title="Edit">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button class="action-btn delete" (click)="deleteSupplier(supplier)" title="Delete">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="filteredSuppliers.length === 0" class="empty-state">
-      <mat-icon>inbox</mat-icon>
-      <p>No suppliers found</p>
-    </div>
+    <app-table
+      [columns]="supplierColumns"
+      [rows]="filteredSuppliers"
+      [actions]="supplierActions"
+      [showSearch]="true"
+      [showFilter]="true"
+      searchPlaceholder="Search suppliers..."
+      (actionTriggered)="onSupplierTableAction($event)"
+      (searchChanged)="onTableSearch($event)"
+      (filterClicked)="onFilter()"
+    ></app-table>
   </app-card>
 
   <!-- Goods Received Notes Section -->

@@ -50,7 +50,7 @@
           <h2>Recent Purchase Orders</h2>
           <p>Latest procurement activities</p>
         </div>
-        <a href="#" class="view-all">View all →</a>
+        <button class="view-all-btn">View all <mat-icon>arrow_forward</mat-icon></button>
       </div>
       <div class="section-content">
         <div class="orders-list">
@@ -72,19 +72,21 @@
       <div class="section-header-top">
         <div>
           <h2>
-            ⚠️
+            <mat-icon class="warning-icon">warning</mat-icon>
             Low Stock Alerts
           </h2>
           <p>Items that need restocking</p>
         </div>
-        <a href="#" class="manage-link">Manage →</a>
+        <button class="manage-btn">Manage <mat-icon>arrow_forward</mat-icon></button>
       </div>
       <div class="section-content">
         <div class="alerts-list">
           <div *ngFor="let item of lowStockItems" class="alert-item">
-            <div class="alert-name">{{ item.name }}</div>
+            <div class="alert-info">
+              <div class="alert-name">{{ item.name }}</div>
+              <div class="alert-branch">{{ item.branch }}</div>
+            </div>
             <div class="alert-stock">{{ item.current }} / {{ item.total }}</div>
-            <div class="alert-branch">{{ item.branch }}</div>
             <button class="reorder-btn">Reorder</button>
           </div>
         </div>

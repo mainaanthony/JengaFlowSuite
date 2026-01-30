@@ -60,21 +60,6 @@
 
   <!-- TAB 1: All Branches -->
   <div class="tab-content" *ngIf="activeTab === 'allBranches'">
-    <!-- Search Bar -->
-    <div class="search-section">
-      <div class="search-box">
-        <span class="material-icons">search</span>
-        <input 
-          type="text" 
-          placeholder="Search branches..."
-          [formControl]="searchControl">
-      </div>
-      <button class="btn-filter">
-        <span class="material-icons">tune</span>
-        Filter
-      </button>
-    </div>
-
     <!-- Branch Directory Table -->
     <div class="section">
       <div class="section-header">
@@ -82,69 +67,17 @@
         <p>Manage all branch locations and details</p>
       </div>
 
-      <div class="table-wrapper">
-        <table class="branches-table">
-          <thead>
-            <tr>
-              <th>Branch</th>
-              <th>Location</th>
-              <th>Manager</th>
-              <th>Staff</th>
-              <th>Revenue</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let branch of filteredBranches">
-              <td class="branch-cell">
-                <div class="branch-info">
-                  <strong>{{ branch.name }}</strong>
-                  <span class="branch-id">{{ branch.code }}</span>
-                </div>
-              </td>
-              <td class="location-cell">
-                <div class="location-info">
-                  <span class="location">{{ branch.location }}</span>
-                  <span class="contact">{{ branch.phone }}</span>
-                  <span class="email">{{ branch.email }}</span>
-                </div>
-              </td>
-              <td class="manager-cell">
-                <div class="manager-info">
-                  <span class="material-icons">person</span>
-                  <span>{{ branch.manager }}</span>
-                </div>
-              </td>
-              <td class="staff-cell">
-                <div class="staff-badge">{{ branch.staff }} staff</div>
-              </td>
-              <td class="revenue-cell">
-                <div class="revenue">
-                  <strong>{{ branch.revenue }}</strong>
-                  <span class="products">{{ branch.products }} products • {{ branch.customers }} customers</span>
-                </div>
-              </td>
-              <td class="status-cell">
-                <span class="status-badge" [ngClass]="getStatusClass(branch.status)">
-                  {{ branch.status }}
-                </span>
-              </td>
-              <td class="actions-cell">
-                <button class="action-btn" (click)="editBranch(branch)" title="Edit">
-                  <span class="material-icons">edit</span>
-                </button>
-                <button class="action-btn" (click)="deleteBranch(branch)" title="Delete">
-                  <span class="material-icons">delete</span>
-                </button>
-                <button class="action-btn more" title="More options">
-                  <span class="material-icons">more_vert</span>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <app-table
+        [columns]="branchColumns"
+        [rows]="filteredBranches"
+        [actions]="branchActions"
+        [showSearch]="true"
+        [showFilter]="true"
+        searchPlaceholder="Search branches..."
+        (actionTriggered)="onTableAction($event)"
+        (searchChanged)="onTableSearch($event)"
+        (filterClicked)="onFilter()">
+      </app-table>
     </div>
   </div>
 

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { CardComponent } from '../shared/card/card.component';
+import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../shared/app-table/app-table.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -31,6 +32,7 @@ interface Product {
     StatCardComponent,
     ButtonSolidComponent,
     CardComponent,
+    AppTableComponent,
     MatIconModule,
     MatDialogModule,
     ReactiveFormsModule
@@ -41,7 +43,13 @@ interface Product {
 export class InventoryComponent implements OnInit {
   searchControl = new FormControl('');
 
-  constructor(private dialog: MatDialog) {}
+  // Table configuration
+  productColumns: ColumnConfig[] = [];
+  productActions: TableAction[] = [];
+
+  constructor(private dialog: MatDialog) {
+    this.initializeTableConfig();
+  }
 
   stats = {
     totalProducts: '1,247',
@@ -114,6 +122,98 @@ export class InventoryComponent implements OnInit {
   ngOnInit() {
     this.filteredProducts = this.products;
     this.setupSearch();
+  }
+
+  initializeTableConfig(): void {
+    // Define table columns
+    this.productColumns = [
+      {
+        key: 'name',
+        label: 'Product',
+        width: '220px',
+        type: 'text',
+        subText: 'brand'
+      },
+      {
+        key: 'sku',
+        label: 'SKU',
+        width: '140px',
+        type: 'text'
+      },
+      {
+        key: 'category',
+        label: 'Category',
+        width: '150px',
+        type: 'text'
+      },
+      {
+        key: 'status',
+        label: 'Stock Status',
+        width: '130px',
+        type: 'enum',
+        enumValues: [
+          { value: 'In Stock', label: 'In Stock', color: '#10b981' },
+          { value: 'Low Stock', label: 'Low Stock', color: '#f59e0b' },
+          { value: 'Out of Stock', label: 'Out of Stock', color: '#ef4444' }
+        ]
+      },
+      {
+        key: 'main',
+        label: 'Main',
+        width: '80px',
+        type: 'number'
+      },
+      {
+        key: 'westlands',
+        label: 'Westlands',
+        width: '100px',
+        type: 'number'
+      },
+      {
+        key: 'eastleigh',
+        label: 'Eastleigh',
+        width: '100px',
+        type: 'number'
+      },
+      {
+        key: 'total',
+        label: 'Total',
+        width: '80px',
+        type: 'number'
+      },
+      {
+        key: 'price',
+        label: 'Price',
+        width: '120px',
+        type: 'currency'
+      }
+    ];
+
+    // Define table actions
+    this.productActions = [
+      { id: 'edit', label: 'Edit Product', icon: 'edit', color: 'primary' },
+      { id: 'delete', label: 'Delete Product', icon: 'delete', color: 'warn' }
+    ];
+  }
+
+  onTableAction(event: TableActionEvent): void {
+    const product = event.row as Product;
+    switch (event.action) {
+      case 'edit':
+        this.editProduct(product);
+        break;
+      case 'delete':
+        this.deleteProduct(product);
+        break;
+    }
+  }
+
+  onTableSearch(searchTerm: string): void {
+    this.searchControl.setValue(searchTerm);
+  }
+
+  onFilter(): void {
+    console.log('Filter clicked');
   }
 
   setupSearch() {

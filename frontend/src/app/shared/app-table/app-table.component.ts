@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,10 +9,12 @@ export interface ColumnConfig {
   key: string;
   label: string;
   width?: string;
-  type?: 'text' | 'number' | 'enum' | 'currency' | 'date' | 'custom';
+  type?: 'text' | 'number' | 'enum' | 'currency' | 'date' | 'custom' | 'avatar' | 'contact' | 'link';
   enumValues?: { value: string; label: string; color: string }[];
   format?: (value: any) => string;
   subText?: string; // for secondary text below main value
+  customTemplate?: boolean;
+  clickable?: boolean; // for clickable columns
 }
 
 export interface TableAction {
@@ -29,7 +32,7 @@ export interface TableActionEvent {
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatMenuModule, MatButtonModule],
+  imports: [CommonModule, FormsModule, MatIconModule, MatMenuModule, MatButtonModule],
   templateUrl: './app-table.component.html',
   styleUrls: ['./app-table.component.scss']
 })
@@ -45,6 +48,7 @@ export class AppTableComponent {
   @Output() actionTriggered = new EventEmitter<TableActionEvent>();
   @Output() searchChanged = new EventEmitter<string>();
   @Output() filterClicked = new EventEmitter<void>();
+  @Output() cellClicked = new EventEmitter<{ column: string; row: any; value: any }>();
 
   searchTerm = '';
   activeMenuRowId: string | number | null = null;
@@ -128,5 +132,16 @@ export class AppTableComponent {
       return row[column.subText] || '';
     }
     return '';
+  }
+
+  onCellClick(column: ColumnConfig, row: any): void {
+    if (column.clickable || column.type === 'link') {
+      const value = this.getValue(row, column);
+      this.cellClicked.emit({ column: column.key, row, value });
+    }
+  }
+
+  isClickable(column: ColumnConfig): boolean {
+    return column.clickable === true || column.type === 'link';
   }
 }

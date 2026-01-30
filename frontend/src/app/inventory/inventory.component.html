@@ -54,71 +54,18 @@
       </div>
     </div>
 
-    <!-- Search and Filter -->
-    <div class="table-header">
-      <div class="search-box">
-        <mat-icon>search</mat-icon>
-        <input
-          type="text"
-          placeholder="Search products..."
-          [formControl]="searchControl"
-          class="search-input">
-      </div>
-      <button class="filter-btn">
-        <mat-icon>tune</mat-icon>
-        Filter
-      </button>
-    </div>
-
     <!-- Products Table -->
-    <div class="table-container">
-      <table class="products-table">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>SKU</th>
-            <th>Category</th>
-            <th>Stock Status</th>
-            <th class="branch-col">Main</th>
-            <th class="branch-col">Westlands</th>
-            <th class="branch-col">Eastleigh</th>
-            <th class="total-col">Total</th>
-            <th class="price-col">Price</th>
-            <th class="actions-col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let product of filteredProducts" class="product-row">
-            <td class="product-cell">
-              <div class="product-info">
-                <div class="product-name">{{ product.name }}</div>
-                <div class="product-brand">{{ product.brand }}</div>
-              </div>
-            </td>
-            <td class="sku-cell">{{ product.sku }}</td>
-            <td class="category-cell">{{ product.category }}</td>
-            <td class="status-cell">
-              <span [class]="'status-badge ' + getStatusClass(product.status)">
-                {{ product.status }}
-              </span>
-            </td>
-            <td class="branch-col number">{{ product.main }}</td>
-            <td class="branch-col number">{{ product.westlands }}</td>
-            <td class="branch-col number">{{ product.eastleigh }}</td>
-            <td class="total-col number">{{ product.total }}</td>
-            <td class="price-col">KES {{ product.price }}</td>
-            <td class="actions-col">
-              <button class="action-btn" (click)="editProduct(product)" title="Edit">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button class="action-btn delete" (click)="deleteProduct(product)" title="Delete">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <app-table
+      [columns]="productColumns"
+      [rows]="filteredProducts"
+      [actions]="productActions"
+      [showSearch]="true"
+      [showFilter]="true"
+      searchPlaceholder="Search products..."
+      (actionTriggered)="onTableAction($event)"
+      (searchChanged)="onTableSearch($event)"
+      (filterClicked)="onFilter()"
+    ></app-table>
 
     <!-- Empty State -->
     <div *ngIf="filteredProducts.length === 0" class="empty-state">

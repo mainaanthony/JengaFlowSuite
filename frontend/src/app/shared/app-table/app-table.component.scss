@@ -158,9 +158,29 @@
   flex-direction: column;
   gap: 0.25rem;
 
+  &.clickable {
+    cursor: pointer;
+
+    .link-value {
+      color: #1976d2;
+      text-decoration: none;
+      transition: color 0.2s;
+
+      &:hover {
+        color: #1565c0;
+        text-decoration: underline;
+      }
+    }
+  }
+
   .main-value {
     font-weight: 500;
     color: #333;
+  }
+
+  .link-value {
+    color: #1976d2;
+    font-weight: 500;
   }
 
   .sub-value {
@@ -171,6 +191,10 @@
 
 /* Enum Badge */
 .enum-cell {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
   .badge {
     display: inline-block;
     padding: 0.35rem 0.75rem;

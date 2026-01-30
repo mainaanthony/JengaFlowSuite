@@ -8,6 +8,7 @@ import { debounceTime } from 'rxjs';
 import { CardComponent } from '../shared/card/card.component';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
+import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../shared/app-table/app-table.component';
 import { ManageRolesModalComponent } from './manage-roles-modal/manage-roles-modal.component';
 import { AddUserModalComponent } from './add-user-modal/add-user-modal.component';
 
@@ -60,8 +61,7 @@ interface UserStat {
     CardComponent,
     StatCardComponent,
     ButtonSolidComponent,
-    AddUserModalComponent,
-    ManageRolesModalComponent
+    AppTableComponent
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss'
@@ -70,6 +70,11 @@ export class UsersComponent implements OnInit {
   // Active tab tracking
   activeTab: string = 'all-users';
   searchControl = new FormControl('');
+
+  // Table configuration
+  userColumns: ColumnConfig[] = [];
+  userActions: TableAction[] = [];
+  filteredUsers: User[] = [];
 
   // Stats
   stats: UserStat[] = [
@@ -137,8 +142,6 @@ export class UsersComponent implements OnInit {
       lastLogin: '2024-01-15 10:02'
     }
   ];
-
-  filteredUsers: User[] = [];
 
   // Roles
   roles: Role[] = [
@@ -223,11 +226,98 @@ export class UsersComponent implements OnInit {
     }
   ];
 
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog) {
+    this.initializeTableConfig();
+  }
 
   ngOnInit() {
     this.filteredUsers = [...this.users];
     this.setupSearch();
+  }
+
+  initializeTableConfig() {
+    // Define table columns
+    this.userColumns = [
+      {
+        key: 'name',
+        label: 'User',
+        width: '250px',
+        type: 'text',
+        subText: 'id'
+      },
+      {
+        key: 'role',
+        label: 'Role',
+        width: '140px',
+        type: 'enum',
+        enumValues: [
+          { value: 'Owner', label: 'Owner', color: '#7c3aed' },
+          { value: 'Branch Manager', label: 'Branch Manager', color: '#3b82f6' },
+          { value: 'Sales Agent', label: 'Sales Agent', color: '#f59e0b' },
+          { value: 'Accountant', label: 'Accountant', color: '#10b981' },
+          { value: 'Shop Attendant', label: 'Shop Attendant', color: '#06b6d4' }
+        ]
+      },
+      {
+        key: 'branch',
+        label: 'Branch',
+        width: '150px',
+        type: 'text'
+      },
+      {
+        key: 'email',
+        label: 'Contact',
+        width: '220px',
+        type: 'text',
+        subText: 'phone'
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '120px',
+        type: 'enum',
+        enumValues: [
+          { value: 'active', label: 'Active', color: '#10b981' },
+          { value: 'inactive', label: 'Inactive', color: '#ef4444' }
+        ]
+      },
+      {
+        key: 'lastLogin',
+        label: 'Last Login',
+        width: '180px',
+        type: 'text'
+      }
+    ];
+
+    // Define table actions
+    this.userActions = [
+      { id: 'edit', label: 'Edit User', icon: 'edit', color: 'primary' },
+      { id: 'toggle', label: 'Toggle Status', icon: 'swap_horiz', color: 'accent' },
+      { id: 'delete', label: 'Delete User', icon: 'delete', color: 'warn' }
+    ];
+  }
+
+  onTableAction(event: TableActionEvent) {
+    const user = event.row as User;
+    switch (event.action) {
+      case 'edit':
+        this.editUser(user);
+        break;
+      case 'toggle':
+        this.toggleUserStatus(user);
+        break;
+      case 'delete':
+        this.deleteUser(user);
+        break;
+    }
+  }
+
+  onTableSearch(searchTerm: string) {
+    this.searchControl.setValue(searchTerm);
+  }
+
+  onFilter() {
+    console.log('Filter clicked');
   }
 
   setupSearch() {

@@ -76,86 +76,19 @@
       </div>
     </div>
 
-    <!-- Search and Filter -->
-    <div class="table-header">
-      <div class="search-box">
-        <mat-icon>search</mat-icon>
-        <input
-          type="text"
-          placeholder="Search deliveries..."
-          [formControl]="searchControl"
-          class="search-input">
-      </div>
-      <button class="filter-btn">
-        <mat-icon>tune</mat-icon>
-        Filter
-      </button>
-    </div>
-
     <!-- Deliveries Table -->
-    <div class="table-container">
-      <table class="deliveries-table">
-        <thead>
-          <tr>
-            <th>Delivery ID</th>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Address</th>
-            <th>Driver</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Scheduled</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let delivery of filteredDeliveries" class="delivery-row">
-            <td class="id-cell">{{ delivery.id }}</td>
-            <td class="order-cell">
-              <a href="#" class="order-link">{{ delivery.orderId }}</a>
-            </td>
-            <td class="customer-cell">{{ delivery.customer }}</td>
-            <td class="address-cell">
-              <div class="address-info">
-                <mat-icon>location_on</mat-icon>
-                <span>{{ delivery.address }}</span>
-              </div>
-            </td>
-            <td class="driver-cell">
-              <div class="driver-info">
-                <div class="driver-name">{{ delivery.driver }}</div>
-                <div class="driver-vehicle">{{ delivery.driverVehicle }}</div>
-              </div>
-            </td>
-            <td class="status-cell">
-              <span [class]="'status-badge ' + getStatusClass(delivery.status)">
-                {{ delivery.status }}
-              </span>
-            </td>
-            <td class="priority-cell">
-              <span [class]="'priority-badge ' + getPriorityClass(delivery.priority)">
-                {{ delivery.priority }}
-              </span>
-            </td>
-            <td class="scheduled-cell">{{ delivery.scheduled }}</td>
-            <td class="actions-cell">
-              <button class="action-btn" (click)="editDelivery(delivery)" title="Edit">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button class="action-btn delete" (click)="deleteDelivery(delivery)" title="Delete">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="filteredDeliveries.length === 0" class="empty-state">
-      <mat-icon>inbox</mat-icon>
-      <p>No deliveries found</p>
-    </div>
+    <app-table
+      [columns]="deliveryColumns"
+      [rows]="filteredDeliveries"
+      [actions]="deliveryActions"
+      [showSearch]="true"
+      [showFilter]="true"
+      searchPlaceholder="Search deliveries..."
+      (actionTriggered)="onTableAction($event)"
+      (cellClicked)="onCellClick($event)"
+      (searchChanged)="onTableSearch($event)"
+      (filterClicked)="onFilter()"
+    ></app-table>
   </app-card>
 
   <!-- Drivers Section -->
@@ -167,72 +100,18 @@
       </div>
     </div>
 
-    <!-- Search and Filter -->
-    <div class="table-header">
-      <div class="search-box">
-        <mat-icon>search</mat-icon>
-        <input
-          type="text"
-          placeholder="Search drivers..."
-          [formControl]="searchControl"
-          class="search-input">
-      </div>
-      <button class="filter-btn">
-        <mat-icon>tune</mat-icon>
-        Filter
-      </button>
-    </div>
-
     <!-- Drivers Table -->
-    <div class="table-container">
-      <table class="drivers-table">
-        <thead>
-          <tr>
-            <th>Driver ID</th>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Vehicle</th>
-            <th>Status</th>
-            <th>Active Deliveries</th>
-            <th>Rating</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let driver of filteredDrivers" class="driver-row">
-            <td class="id-cell">{{ driver.id }}</td>
-            <td class="name-cell">{{ driver.name }}</td>
-            <td class="phone-cell">{{ driver.phone }}</td>
-            <td class="vehicle-cell">{{ driver.vehicle }}</td>
-            <td class="status-cell">
-              <span [class]="'status-badge ' + getStatusClass(driver.status)">
-                {{ driver.status }}
-              </span>
-            </td>
-            <td class="deliveries-cell">{{ driver.activeDeliveries }}</td>
-            <td class="rating-cell">
-              <span class="rating">
-                ⭐ {{ driver.rating }}
-              </span>
-            </td>
-            <td class="actions-cell">
-              <button class="action-btn" (click)="editDriver(driver)" title="Edit">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button class="action-btn delete" (click)="deleteDriver(driver)" title="Delete">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="filteredDrivers.length === 0" class="empty-state">
-      <mat-icon>inbox</mat-icon>
-      <p>No drivers found</p>
-    </div>
+    <app-table
+      [columns]="driverColumns"
+      [rows]="filteredDrivers"
+      [actions]="driverActions"
+      [showSearch]="true"
+      [showFilter]="true"
+      searchPlaceholder="Search drivers..."
+      (actionTriggered)="onDriverTableAction($event)"
+      (searchChanged)="onTableSearch($event)"
+      (filterClicked)="onFilter()"
+    ></app-table>
   </app-card>
 
   <!-- Route Optimization Section -->
