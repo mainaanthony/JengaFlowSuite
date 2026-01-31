@@ -3,6 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
+import { AppModalComponent, ModalButton, AppModalConfig } from '../../shared/modals/app-modal.component';
+import { StepIndicatorComponent, Step } from '../../shared/step-indicator/step-indicator.component';
+import { InputTextComponent } from '../../shared/input-text/input-text.component';
+import { InputDropdownComponent, DropdownOption } from '../../shared/input-dropdown/input-dropdown.component';
+import { ItemSelectorComponent, SelectorItem, ItemSelectorConfig } from '../../shared/item-selector/item-selector.component';
 
 interface Product {
   id: string;
@@ -12,32 +17,40 @@ interface Product {
   price: number;
 }
 
-interface Branch {
+interface TransferProductData {
   id: string;
   name: string;
-}
-
-interface SelectedProduct {
-  product: Product;
+  sku: string;
   quantity: number;
+  price: number;
 }
 
 interface TransferData {
-  fromBranch: string;
-  toBranch: string;
-  transferType: string;
-  priorityLevel: string;
+  fromBranch: DropdownOption | null;
+  toBranch: DropdownOption | null;
+  transferType: DropdownOption;
+  priorityLevel: DropdownOption;
   requestedBy: string;
   expectedDate: string;
   reason: string;
   additionalNotes: string;
-  selectedProducts: SelectedProduct[];
+  selectedProducts: TransferProductData[];
 }
 
 @Component({
   selector: 'app-stock-transfer-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatIconModule, FormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    MatIconModule,
+    AppModalComponent,
+    StepIndicatorComponent,
+    InputTextComponent,
+    InputDropdownComponent,
+    ItemSelectorComponent
+  ],
   templateUrl: './stock-transfer-modal.component.html',
   styleUrl: './stock-transfer-modal.component.scss'
 })
@@ -45,16 +58,61 @@ export class StockTransferModalComponent implements OnInit {
   currentStep: 1 | 2 | 3 = 1;
   completedSteps = new Set<number>();
   searchControl: string = '';
+  Array = Array; // Make Array available in template
+
+  // Modal configuration
+  modalConfig: AppModalConfig = {
+    title: 'Stock Transfer Request',
+    subtitle: 'Transfer inventory between branches',
+    wide: true
+  };
+
+  // Steps configuration
+  steps: Step[] = [
+    { id: 1, label: 'Transfer Details' },
+    { id: 2, label: 'Select Products' },
+    { id: 3, label: 'Review & Submit' }
+  ];
 
   transferDetailsForm!: FormGroup;
   reviewForm!: FormGroup;
 
+  // Item selector configuration
+  itemSelectorConfig: ItemSelectorConfig = {
+    availableTitle: 'Available Products',
+    selectedTitle: 'Selected Products',
+    actionIcon: 'add_shopping_cart',
+    actionTooltip: 'Add to transfer',
+    showPrice: true,
+    showStock: true,
+    showQuantity: true,
+    allowDragDrop: true,
+    currencySymbol: 'KES'
+  };
+
+  availableProducts: SelectorItem[] = [];
+  selectedProductItems: SelectorItem[] = [];
+
   // Mock data
-  branches: Branch[] = [
-    { id: 'BR-001', name: 'Main Branch' },
-    { id: 'BR-002', name: 'Westlands Branch' },
-    { id: 'BR-003', name: 'Eastleigh Branch' },
-    { id: 'BR-004', name: 'Industrial Area' }
+  branches: DropdownOption[] = [
+    { id: 'BR-001', label: 'Main Branch' },
+    { id: 'BR-002', label: 'Westlands Branch' },
+    { id: 'BR-003', label: 'Eastleigh Branch' },
+    { id: 'BR-004', label: 'Industrial Area' }
+  ];
+
+  transferTypes: DropdownOption[] = [
+    { id: 'inter-branch', label: 'Inter-Branch Transfer' },
+    { id: 'replenishment', label: 'Stock Replenishment' },
+    { id: 'emergency', label: 'Emergency Transfer' },
+    { id: 'return', label: 'Return Transfer' }
+  ];
+
+  priorityLevels: DropdownOption[] = [
+    { id: 'low', label: 'Low Priority' },
+    { id: 'normal', label: 'Normal Priority' },
+    { id: 'high', label: 'High Priority' },
+    { id: 'urgent', label: 'Urgent' }
   ];
 
   allProducts: Product[] = [
@@ -80,26 +138,82 @@ export class StockTransferModalComponent implements OnInit {
     { id: 'PRD-020', name: 'Canon EOS R6 Camera', sku: 'CN-R6-001', stock: 4, price: 280000 }
   ];
 
-  transferTypes = ['Inter-Branch Transfer', 'Stock Replenishment', 'Emergency Transfer', 'Return Transfer'];
-  priorityLevels = ['Low Priority', 'Normal Priority', 'High Priority', 'Urgent'];
-
-  selectedProducts: SelectedProduct[] = [];
-
   constructor(
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<StockTransferModalComponent>
   ) {
     this.initializeForms();
+    this.initializeProducts();
   }
 
   ngOnInit() {}
 
+  private initializeProducts() {
+    this.availableProducts = this.allProducts.map(p => ({
+      id: p.id,
+      title: p.name,
+      subtitle: p.sku,
+      price: p.price,
+      stock: p.stock,
+      quantity: 1,
+      stockStatus: this.getProductStockStatus(p.stock)
+    }));
+  }
+
+  private getProductStockStatus(stock: number): 'in-stock' | 'out-of-stock' | 'low-stock' {
+    if (stock === 0) return 'out-of-stock';
+    if (stock < 10) return 'low-stock';
+    return 'in-stock';
+  }
+
+  handleButtonClick(action: string): void {
+    if (action === 'cancel') {
+      this.closeDialog();
+    } else if (action === 'next') {
+      this.nextStep();
+    } else if (action === 'previous') {
+      this.previousStep();
+    } else if (action === 'save') {
+      this.submitTransfer();
+    }
+  }
+
+  getLeftButtons(): ModalButton[] {
+    return [{ label: 'Cancel', action: 'cancel', color: 'default' }];
+  }
+
+  getRightButtons(): ModalButton[] {
+    const buttons: ModalButton[] = [];
+
+    if (this.currentStep > 1) {
+      buttons.push({ label: 'Previous', action: 'previous', color: 'default' });
+    }
+
+    if (this.currentStep < 3) {
+      buttons.push({
+        label: 'Next',
+        action: 'next',
+        color: 'primary',
+        disabled: !this.canProceedToStep((this.currentStep + 1) as 1 | 2 | 3)
+      });
+    } else {
+      buttons.push({
+        label: 'Submit Transfer',
+        action: 'save',
+        color: 'primary',
+        disabled: !this.canProceedToStep(3)
+      });
+    }
+
+    return buttons;
+  }
+
   private initializeForms() {
     this.transferDetailsForm = this.formBuilder.group({
-      fromBranch: ['', Validators.required],
-      toBranch: ['', Validators.required],
-      transferType: ['Inter-Branch Transfer', Validators.required],
-      priorityLevel: ['Normal Priority', Validators.required],
+      fromBranch: [null, Validators.required],
+      toBranch: [null, Validators.required],
+      transferType: [{ id: 'inter-branch', label: 'Inter-Branch Transfer' }, Validators.required],
+      priorityLevel: [{ id: 'normal', label: 'Normal Priority' }, Validators.required],
       requestedBy: ['', Validators.required],
       expectedDate: ['', Validators.required],
       reason: ['', Validators.required],
@@ -116,12 +230,16 @@ export class StockTransferModalComponent implements OnInit {
   canProceedToStep(step: 1 | 2 | 3): boolean {
     if (step === 1) return true;
     if (step === 2) return this.transferDetailsForm.valid;
-    if (step === 3) return this.transferDetailsForm.valid && this.selectedProducts.length > 0;
+    if (step === 3) return this.transferDetailsForm.valid && this.selectedProductItems.length > 0;
     return false;
   }
 
   isStepActive(step: 1 | 2 | 3): boolean {
     return this.currentStep === step;
+  }
+
+  onSelectedItemsChanged(items: SelectorItem[]): void {
+    this.selectedProductItems = items;
   }
 
   isStepCompleted(step: 1 | 2 | 3): boolean {
@@ -141,52 +259,8 @@ export class StockTransferModalComponent implements OnInit {
     }
   }
 
-  getFilteredProducts(): Product[] {
-    if (!this.searchControl.trim()) {
-      return this.allProducts.filter(p => !this.selectedProducts.some(sp => sp.product.id === p.id));
-    }
-
-    const term = this.searchControl.toLowerCase();
-    return this.allProducts.filter(p => 
-      !this.selectedProducts.some(sp => sp.product.id === p.id) &&
-      (p.name.toLowerCase().includes(term) || p.sku.toLowerCase().includes(term))
-    );
-  }
-
-  addProduct(product: Product) {
-    if (!this.selectedProducts.some(sp => sp.product.id === product.id)) {
-      this.selectedProducts.push({ product, quantity: 1 });
-      this.searchControl = '';
-    }
-  }
-
-  removeProduct(productId: string) {
-    this.selectedProducts = this.selectedProducts.filter(sp => sp.product.id !== productId);
-  }
-
-  updateQuantity(productId: string, quantity: number) {
-    const selected = this.selectedProducts.find(sp => sp.product.id === productId);
-    if (selected && quantity > 0 && quantity <= selected.product.stock) {
-      selected.quantity = quantity;
-    }
-  }
-
-  increaseQuantity(productId: string) {
-    const selected = this.selectedProducts.find(sp => sp.product.id === productId);
-    if (selected && selected.quantity < selected.product.stock) {
-      selected.quantity++;
-    }
-  }
-
-  decreaseQuantity(productId: string) {
-    const selected = this.selectedProducts.find(sp => sp.product.id === productId);
-    if (selected && selected.quantity > 1) {
-      selected.quantity--;
-    }
-  }
-
   getTotalValue(): number {
-    return this.selectedProducts.reduce((sum, sp) => sum + (sp.product.price * sp.quantity), 0);
+    return this.selectedProductItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
   }
 
   formatCurrency(value: number): string {
@@ -204,7 +278,13 @@ export class StockTransferModalComponent implements OnInit {
         expectedDate: this.transferDetailsForm.get('expectedDate')?.value,
         reason: this.transferDetailsForm.get('reason')?.value,
         additionalNotes: this.transferDetailsForm.get('additionalNotes')?.value,
-        selectedProducts: this.selectedProducts
+        selectedProducts: this.selectedProductItems.map(item => ({
+          id: item.id,
+          name: item.title,
+          sku: item.subtitle || '',
+          quantity: item.quantity || 1,
+          price: item.price || 0
+        }))
       };
 
       this.dialogRef.close(transferData);
@@ -216,17 +296,27 @@ export class StockTransferModalComponent implements OnInit {
   }
 
   getFromBranchName(): string {
-    const branchId = this.transferDetailsForm.get('fromBranch')?.value;
-    return this.branches.find(b => b.id === branchId)?.name || '';
+    const branch = this.transferDetailsForm.get('fromBranch')?.value;
+    return branch?.label || '';
   }
 
   getToBranchName(): string {
-    const branchId = this.transferDetailsForm.get('toBranch')?.value;
-    return this.branches.find(b => b.id === branchId)?.name || '';
+    const branch = this.transferDetailsForm.get('toBranch')?.value;
+    return branch?.label || '';
   }
 
-  getPriorityBadgeClass(priority: string): string {
-    if (priority.includes('Low')) return 'priority-low';
-    if (priority.includes('High') || priority.includes('Urgent')) return 'priority-high';
+  getTransferTypeLabel(value: any): string {
+    return value?.label || value || '';
+  }
+
+  getPriorityLabel(value: any): string {
+    return value?.label || value || '';
+  }
+
+  getPriorityBadgeClass(priority: any): string {
+    const label = priority?.label || priority || '';
+    if (label.includes('Low')) return 'priority-low';
+    if (label.includes('High') || label.includes('Urgent')) return 'priority-high';
     return 'priority-normal';
-  }}
+  }
+}

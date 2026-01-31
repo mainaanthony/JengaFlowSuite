@@ -255,6 +255,19 @@
     }
   }
 
+  .field-label {
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-weight: 500;
+    font-size: 0.875rem;
+    display: block;
+
+    .required-asterisk {
+      color: #f44336;
+      margin-left: 0.25rem;
+    }
+  }
+
   input,
   select,
   textarea {

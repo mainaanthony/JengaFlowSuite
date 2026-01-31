@@ -1,193 +1,140 @@
-<div class="modal-overlay">
-  <div class="modal-container">
-    <!-- Modal Header -->
-    <div class="modal-header">
-      <div class="header-content">
-        <mat-icon>local_shipping</mat-icon>
-        <h2>Stock Transfer Request</h2>
-      </div>
-      <button class="btn-close" (click)="closeDialog()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
+<app-modal
+  [config]="modalConfig"
+  [contentTemplate]="transferFormTemplate"
+  [leftButtons]="getLeftButtons()"
+  [rightButtons]="getRightButtons()"
+  (buttonClicked)="handleButtonClick($event)">
+</app-modal>
 
+<ng-template #transferFormTemplate>
+  <div class="modal-content-wrapper">
     <!-- Step Indicator -->
-    <div class="step-indicator">
-      <div class="step" [class.active]="isStepActive(1)" [class.completed]="isStepCompleted(1)">
-        <span class="step-number">1</span>
-      </div>
-      <div class="step-line" [class.active]="isStepCompleted(1)"></div>
-      <div class="step" [class.active]="isStepActive(2)" [class.completed]="isStepCompleted(2)">
-        <span class="step-number">2</span>
-      </div>
-      <div class="step-line" [class.active]="isStepCompleted(2)"></div>
-      <div class="step" [class.active]="isStepActive(3)" [class.completed]="isStepCompleted(3)">
-        <span class="step-number">3</span>
-      </div>
-    </div>
+    <app-step-indicator 
+      [steps]="steps" 
+      [activeStep]="currentStep"
+      [completedSteps]="Array.from(completedSteps)">
+    </app-step-indicator>
 
-    <!-- Tab Navigation -->
-    <div class="tab-navigation">
-      <button
-        class="tab-button"
-        [class.active]="isStepActive(1)"
-        [disabled]="!canProceedToStep(1)"
-        (click)="setStep(1)">
-        Transfer Details
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="isStepActive(2)"
-        [disabled]="!canProceedToStep(2)"
-        (click)="setStep(2)">
-        Select Products
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="isStepActive(3)"
-        [disabled]="!canProceedToStep(3)"
-        (click)="setStep(3)">
-        Review & Submit
-      </button>
-    </div>
-
-    <!-- Modal Content -->
-    <div class="modal-content">
+    <!-- Step Content -->
+    <div class="step-content">
       <!-- Step 1: Transfer Details -->
       <div class="tab-content" *ngIf="isStepActive(1)">
-        <h3>Transfer Information</h3>
-
         <form [formGroup]="transferDetailsForm">
           <!-- From and To Branch -->
           <div class="form-row">
             <div class="form-group">
-              <label>From Branch <span class="required">*</span></label>
-              <select formControlName="fromBranch">
-                <option value="">Select source branch</option>
-                <option *ngFor="let branch of branches" [value]="branch.id">
-                  {{ branch.name }}
-                </option>
-              </select>
+              <label class="field-label">From Branch <span class="required-asterisk">*</span></label>
+              <app-input-dropdown
+                [options]="branches"
+                [config]="{
+                  placeholder: 'Select source branch',
+                  searchable: true
+                }"
+                (selectionChanged)="transferDetailsForm.patchValue({ fromBranch: $event })">
+              </app-input-dropdown>
             </div>
+
             <div class="form-group">
-              <label>To Branch <span class="required">*</span></label>
-              <select formControlName="toBranch">
-                <option value="">Select destination branch</option>
-                <option *ngFor="let branch of branches" [value]="branch.id">
-                  {{ branch.name }}
-                </option>
-              </select>
+              <label class="field-label">To Branch <span class="required-asterisk">*</span></label>
+              <app-input-dropdown
+                [options]="branches"
+                [config]="{
+                  placeholder: 'Select destination branch',
+                  searchable: true
+                }"
+                (selectionChanged)="transferDetailsForm.patchValue({ toBranch: $event })">
+              </app-input-dropdown>
             </div>
           </div>
 
           <!-- Transfer Type and Priority -->
           <div class="form-row">
             <div class="form-group">
-              <label>Transfer Type</label>
-              <select formControlName="transferType">
-                <option *ngFor="let type of transferTypes" [value]="type">
-                  {{ type }}
-                </option>
-              </select>
+              <label class="field-label">Transfer Type <span class="required-asterisk">*</span></label>
+              <app-input-dropdown
+                [options]="transferTypes"
+                [config]="{
+                  placeholder: 'Select transfer type',
+                  searchable: false
+                }"
+                (selectionChanged)="transferDetailsForm.patchValue({ transferType: $event })">
+              </app-input-dropdown>
             </div>
+
             <div class="form-group">
-              <label>Priority Level</label>
-              <select formControlName="priorityLevel">
-                <option *ngFor="let level of priorityLevels" [value]="level">
-                  {{ level }}
-                </option>
-              </select>
+              <label class="field-label">Priority Level <span class="required-asterisk">*</span></label>
+              <app-input-dropdown
+                [options]="priorityLevels"
+                [config]="{
+                  placeholder: 'Select priority',
+                  searchable: false
+                }"
+                (selectionChanged)="transferDetailsForm.patchValue({ priorityLevel: $event })">
+              </app-input-dropdown>
             </div>
           </div>
 
           <!-- Requested By and Date -->
           <div class="form-row">
-            <div class="form-group">
-              <label>Requested By <span class="required">*</span></label>
-              <input type="text" formControlName="requestedBy" placeholder="Name of requester" />
-            </div>
-            <div class="form-group">
-              <label>Expected Transfer Date <span class="required">*</span></label>
-              <input type="date" formControlName="expectedDate" />
-            </div>
+            <app-input-text
+              [config]="{
+                label: 'Requested By',
+                placeholder: 'Name of requester',
+                required: true,
+                type: 'text'
+              }"
+              [value]="transferDetailsForm.get('requestedBy')?.value"
+              (valueChanged)="transferDetailsForm.patchValue({ requestedBy: $event })">
+            </app-input-text>
+
+            <app-input-text
+              [config]="{
+                label: 'Expected Transfer Date',
+                required: true,
+                type: 'date'
+              }"
+              [value]="transferDetailsForm.get('expectedDate')?.value"
+              (valueChanged)="transferDetailsForm.patchValue({ expectedDate: $event })">
+            </app-input-text>
           </div>
 
           <!-- Reason for Transfer -->
-          <div class="form-group">
-            <label>Reason for Transfer <span class="required">*</span></label>
-            <textarea
-              formControlName="reason"
-              placeholder="Explain why this transfer is needed"
-              rows="4"></textarea>
-          </div>
+          <app-input-text
+            [config]="{
+              label: 'Reason for Transfer',
+              placeholder: 'Explain why this transfer is needed',
+              required: true,
+              type: 'text',
+              rows: 4,
+              description: true,
+              helperText: 'Provide a detailed explanation for this transfer request'
+            }"
+            [value]="transferDetailsForm.get('reason')?.value"
+            (valueChanged)="transferDetailsForm.patchValue({ reason: $event })">
+          </app-input-text>
 
           <!-- Additional Notes -->
-          <div class="form-group">
-            <label>Additional Notes</label>
-            <textarea
-              formControlName="additionalNotes"
-              placeholder="Any additional information"
-              rows="3"></textarea>
-          </div>
+          <app-input-text
+            [config]="{
+              label: 'Additional Notes',
+              placeholder: 'Optional additional information',
+              type: 'text',
+              rows: 3
+            }"
+            [value]="transferDetailsForm.get('additionalNotes')?.value"
+            (valueChanged)="transferDetailsForm.patchValue({ additionalNotes: $event })">
+          </app-input-text>
         </form>
       </div>
 
       <!-- Step 2: Select Products -->
       <div class="tab-content" *ngIf="isStepActive(2)">
-        <div class="products-grid">
-          <!-- Available Products (Left) -->
-          <div class="products-section">
-            <h3>Available Products</h3>
-            <div class="product-search">
-              <mat-icon>search</mat-icon>
-              <input
-                type="text"
-                placeholder="Search products..."
-                [(ngModel)]="searchControl"
-                class="search-input" />
-            </div>
-            <div class="products-list">
-              <div class="product-item" *ngFor="let product of getFilteredProducts()">
-                <div class="product-info">
-                  <div class="product-name">{{ product.name }}</div>
-                  <div class="product-sku">{{ product.sku }}</div>
-                  <div class="product-stock">Stock: {{ product.stock }} | {{ formatCurrency(product.price) }}</div>
-                </div>
-                <button class="btn-add-product" (click)="addProduct(product)">
-                  <mat-icon>add</mat-icon>
-                </button>
-              </div>
-              <div class="empty-message" *ngIf="getFilteredProducts().length === 0">
-                No products available
-              </div>
-            </div>
-          </div>
-
-          <!-- Selected Products (Right) -->
-          <div class="products-section">
-            <h3>Selected Products <span class="product-count">({{ selectedProducts.length }})</span></h3>
-            <div class="selected-list">
-              <div class="selected-item" *ngFor="let sp of selectedProducts">
-                <div class="selected-info">
-                  <div class="product-name">{{ sp.product.name }}</div>
-                  <div class="product-sku">{{ sp.product.sku }}</div>
-                  <div class="product-price">{{ formatCurrency(sp.product.price) }}</div>
-                </div>
-                <div class="qty-controls">
-                  <button class="qty-btn" (click)="decreaseQuantity(sp.product.id)" [disabled]="sp.quantity <= 1">−</button>
-                  <input type="number" [(ngModel)]="sp.quantity" min="1" [max]="sp.product.stock" class="qty-input" />
-                  <button class="qty-btn" (click)="increaseQuantity(sp.product.id)" [disabled]="sp.quantity >= sp.product.stock">+</button>
-                </div>
-                <button class="btn-remove-product" (click)="removeProduct(sp.product.id)">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
-              <div class="empty-message" *ngIf="selectedProducts.length === 0">
-                No products selected
-              </div>
-            </div>
-          </div>
-        </div>
+        <app-item-selector
+          [config]="itemSelectorConfig"
+          [availableItems]="availableProducts"
+          [selectedItems]="selectedProductItems"
+          (selectedItemsChanged)="onSelectedItemsChanged($event)">
+        </app-item-selector>
       </div>
 
       <!-- Step 3: Review & Submit -->
@@ -209,12 +156,12 @@
           <div class="summary-row">
             <div class="summary-col">
               <label>Transfer Type:</label>
-              <span>{{ transferDetailsForm.get('transferType')?.value }}</span>
+              <span>{{ getTransferTypeLabel(transferDetailsForm.get('transferType')?.value || '') }}</span>
             </div>
             <div class="summary-col">
               <label>Priority:</label>
               <span class="priority-badge" [class]="getPriorityBadgeClass(transferDetailsForm.get('priorityLevel')?.value || '')">
-                {{ transferDetailsForm.get('priorityLevel')?.value }}
+                {{ getPriorityLabel(transferDetailsForm.get('priorityLevel')?.value || '') }}
               </span>
             </div>
           </div>
@@ -234,12 +181,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let sp of selectedProducts">
-                <td>{{ sp.product.name }}</td>
-                <td>{{ sp.product.sku }}</td>
-                <td class="text-center">{{ sp.quantity }}</td>
-                <td class="text-right">{{ formatCurrency(sp.product.price) }}</td>
-                <td class="text-right">{{ formatCurrency(sp.product.price * sp.quantity) }}</td>
+              <tr *ngFor="let item of selectedProductItems">
+                <td>{{ item.title }}</td>
+                <td>{{ item.subtitle }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">{{ formatCurrency(item.price || 0) }}</td>
+                <td class="text-right">{{ formatCurrency((item.price || 0) * (item.quantity || 1)) }}</td>
               </tr>
             </tbody>
           </table>
@@ -251,16 +198,5 @@
         </div>
       </div>
     </div>
-
-    <!-- Modal Footer -->
-    <div class="modal-footer">
-      <button class="btn-cancel" (click)="closeDialog()">Cancel</button>
-
-      <div class="button-group">
-        <button class="btn-secondary" *ngIf="currentStep > 1" (click)="previousStep()">Previous</button>
-        <button class="btn-primary" *ngIf="currentStep < 3" (click)="nextStep()" [disabled]="!canProceedToStep(currentStep + 1)">Next</button>
-        <button class="btn-primary" *ngIf="currentStep === 3" (click)="submitTransfer()">Submit Transfer Request</button>
-      </div>
-    </div>
   </div>
-</div>
+</ng-template>
