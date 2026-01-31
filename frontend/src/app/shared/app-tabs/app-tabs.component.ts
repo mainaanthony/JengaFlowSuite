@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 export interface Tab {
   id: string;
   label: string;
+  disabled?: boolean;
 }
 
 @Component({
@@ -21,11 +22,19 @@ export class AppTabsComponent {
     @Output() tabChanged = new EventEmitter<string>();
 
     selectTab(tabId: string): void {
-        this.activeTabId = tabId;
-        this.tabChanged.emit(tabId);
+        const tab = this.tabs.find(t => t.id === tabId);
+        if (tab && !tab.disabled) {
+            this.activeTabId = tabId;
+            this.tabChanged.emit(tabId);
+        }
     }
 
     isActive(tabId: string): boolean {
         return this.activeTabId === tabId;
+    }
+
+    isDisabled(tabId: string): boolean {
+        const tab = this.tabs.find(t => t.id === tabId);
+        return tab?.disabled || false;
     }
 }

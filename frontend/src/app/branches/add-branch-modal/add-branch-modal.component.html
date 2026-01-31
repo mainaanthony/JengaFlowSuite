@@ -1,341 +1,292 @@
-<div class="modal-overlay">
-  <div class="modal-container">
-    <!-- Modal Header -->
-    <div class="modal-header">
-      <div>
-        <h2>Add New Branch</h2>
-      </div>
-      <button class="btn-close" (click)="closeDialog()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
+<app-modal
+  [config]="modalConfig"
+  [contentTemplate]="branchFormTemplate"
+  [leftButtons]="getLeftButtons()"
+  [rightButtons]="getRightButtons()"
+  (buttonClicked)="handleButtonClick($event)">
+</app-modal>
 
-    <!-- Tab Navigation -->
-    <div class="tab-navigation">
-      <button
-        class="tab-button"
-        [class.active]="isStepActive(1)"
-        [class.completed]="isStepCompleted(1)"
-        (click)="setStep(1)">
-        Basic Info
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="isStepActive(2)"
-        [class.completed]="isStepCompleted(2)"
-        [disabled]="!canProceedToStep(2)"
-        (click)="setStep(2)">
-        Location
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="isStepActive(3)"
-        [class.completed]="isStepCompleted(3)"
-        [disabled]="!canProceedToStep(3)"
-        (click)="setStep(3)">
-        Operations
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="isStepActive(4)"
-        [disabled]="!canProceedToStep(4)"
-        (click)="setStep(4)">
-        Settings
-      </button>
-    </div>
+<ng-template #branchFormTemplate>
+  <div class="modal-content-wrapper">
+    <!-- Tabs Navigation -->
+    <app-tabs
+      [tabs]="tabsWithState"
+      [activeTabId]="activeTabId"
+      [stretch]="true"
+      (tabChanged)="onTabChange($event)">
+    </app-tabs>
 
-    <!-- Modal Content -->
-    <div class="modal-content">
-      <!-- Tab 1: Basic Info -->
-      <div *ngIf="isStepActive(1)" class="tab-content" [formGroup]="basicInfoForm">
-        <h3>Basic Information</h3>
+    <!-- Tab 1: Basic Info -->
+    <div *ngIf="activeTabId === '1'" class="tab-content" [formGroup]="basicInfoForm">
+      <h3>Basic Information</h3>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>Branch Name <span class="required">*</span></label>
-            <input
-              type="text"
-              placeholder="Enter branch name"
-              formControlName="branchName"
-            />
-          </div>
-          <div class="form-group">
-            <label>Branch Code <span class="required">*</span></label>
-            <input
-              type="text"
-              placeholder="e.g., NRB-001"
-              formControlName="branchCode"
-            />
-          </div>
-        </div>
+      <div class="form-row">
+        <app-input-text
+          [config]="{
+            label: 'Branch Name',
+            placeholder: 'Enter branch name',
+            required: true
+          }"
+          formControlName="branchName">
+        </app-input-text>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>Branch Type <span class="required">*</span></label>
-            <select formControlName="branchType">
-              <option value="">Select branch type</option>
-              <option *ngFor="let type of branchTypes" [value]="type">
-                {{ type }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Phone Number</label>
-            <input
-              type="tel"
-              placeholder="Enter phone number"
-              formControlName="phoneNumber"
-            />
-          </div>
-          <div class="form-group">
-            <label>Email Address</label>
-            <input
-              type="email"
-              placeholder="Enter email address"
-              formControlName="emailAddress"
-            />
-          </div>
-        </div>
-
-        <!-- Branch Manager Details -->
-        <div class="section-header">
-          <mat-icon>person</mat-icon>
-          <h4>Branch Manager Details</h4>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Manager Name</label>
-            <input
-              type="text"
-              placeholder="Manager's full name"
-              formControlName="managerName"
-            />
-          </div>
-          <div class="form-group">
-            <label>Manager Phone</label>
-            <input
-              type="tel"
-              placeholder="Manager's phone"
-              formControlName="managerPhone"
-            />
-          </div>
-          <div class="form-group">
-            <label>Manager Email</label>
-            <input
-              type="email"
-              placeholder="Manager's email"
-              formControlName="managerEmail"
-            />
-          </div>
-        </div>
+        <app-input-text
+          [config]="{
+            label: 'Branch Code',
+            placeholder: 'e.g., NRB-001',
+            required: true
+          }"
+          formControlName="branchCode">
+        </app-input-text>
       </div>
 
-      <!-- Tab 2: Location -->
-      <div *ngIf="isStepActive(2)" class="tab-content" [formGroup]="locationForm">
-        <div class="section-header">
-          <mat-icon>location_on</mat-icon>
-          <h4>Address Information</h4>
-        </div>
+      <div class="form-row">
+        <app-input-dropdown
+          [options]="branchTypes"
+          [config]="{
+            placeholder: 'Select branch type',
+            searchable: true
+          }"
+          (selectionChanged)="basicInfoForm.patchValue({ branchType: $event })">
+        </app-input-dropdown>
+      </div>
+
+      <div class="form-row">
+        <app-input-text
+          [config]="{
+            label: 'Phone Number',
+            placeholder: 'Enter phone number',
+            type: 'tel'
+          }"
+          formControlName="phoneNumber">
+        </app-input-text>
+
+        <app-input-text
+          [config]="{
+            label: 'Email Address',
+            placeholder: 'Enter email address',
+            type: 'email'
+          }"
+          formControlName="emailAddress">
+        </app-input-text>
+      </div>
+
+      <!-- Branch Manager Details -->
+      <div class="section-header">
+        <mat-icon>person</mat-icon>
+        <h4>Branch Manager Details</h4>
+      </div>
+
+      <div class="form-row">
+        <app-input-text
+          [config]="{
+            label: 'Manager Name',
+            placeholder: 'Manager\'s full name'
+          }"
+          formControlName="managerName">
+        </app-input-text>
+
+        <app-input-text
+          [config]="{
+            label: 'Manager Phone',
+            placeholder: 'Manager\'s phone',
+            type: 'tel'
+          }"
+          formControlName="managerPhone">
+        </app-input-text>
+
+        <app-input-text
+          [config]="{
+            label: 'Manager Email',
+            placeholder: 'Manager\'s email',
+            type: 'email'
+          }"
+          formControlName="managerEmail">
+        </app-input-text>
+      </div>
+    </div>
+
+    <!-- Tab 2: Location -->
+    <div *ngIf="activeTabId === '2'" class="tab-content" [formGroup]="locationForm">
+      <div class="section-header">
+        <mat-icon>location_on</mat-icon>
+        <h4>Address Information</h4>
+      </div>
+
+      <div class="form-group">
+        <app-input-text
+          [config]="{
+            label: 'Street Address',
+            placeholder: 'Enter complete street address',
+            required: true,
+            rows: 3
+          }"
+          formControlName="streetAddress">
+        </app-input-text>
+      </div>
+
+      <div class="form-row">
+        <app-input-text
+          [config]="{
+            label: 'City',
+            placeholder: 'Enter city'
+          }"
+          formControlName="city">
+        </app-input-text>
 
         <div class="form-group">
-          <label>Street Address <span class="required">*</span></label>
-          <textarea
-            placeholder="Enter complete street address"
-            formControlName="streetAddress"
-            rows="3"
-          ></textarea>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>City</label>
-            <input
-              type="text"
-              placeholder="Enter city"
-              formControlName="city"
-            />
-          </div>
-          <div class="form-group">
-            <label>County</label>
-            <select formControlName="county">
-              <option value="">Select county</option>
-              <option *ngFor="let county of counties" [value]="county">
-                {{ county }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Postal Code</label>
-            <input
-              type="text"
-              placeholder="Enter postal code"
-              formControlName="postalCode"
-            />
-          </div>
-          <div class="form-group">
-            <label>Country</label>
-            <input
-              type="text"
-              [value]="locationForm.get('country')?.value"
-              readonly
-            />
-          </div>
-        </div>
-
-        <!-- GPS Coordinates -->
-        <div class="section-header">
-          <mat-icon>map</mat-icon>
-          <h4>GPS Coordinates (Optional)</h4>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Latitude</label>
-            <input
-              type="text"
-              placeholder="e.g., -1.286389"
-              formControlName="latitude"
-            />
-          </div>
-          <div class="form-group">
-            <label>Longitude</label>
-            <input
-              type="text"
-              placeholder="e.g., 36.817223"
-              formControlName="longitude"
-            />
-          </div>
+          <label class="form-label">County</label>
+          <app-input-dropdown
+            [options]="counties"
+            [config]="{
+              placeholder: 'Select county',
+              searchable: true
+            }"
+            (selectionChanged)="locationForm.patchValue({ county: $event?.label })">
+          </app-input-dropdown>
         </div>
       </div>
 
-      <!-- Tab 3: Operations -->
-      <div *ngIf="isStepActive(3)" class="tab-content" [formGroup]="operationsForm">
-        <div class="section-header">
-          <mat-icon>schedule</mat-icon>
-          <h4>Operating Hours</h4>
-        </div>
+      <div class="form-row">
+        <app-input-text
+          [config]="{
+            label: 'Postal Code',
+            placeholder: 'Enter postal code'
+          }"
+          formControlName="postalCode">
+        </app-input-text>
 
-        <div class="operating-hours">
-          <div class="hours-row" *ngFor="let hours of operatingHours; let i = index">
-            <div class="day-label">{{ hours.day }}</div>
-            <div class="open-toggle">
-              <input
-                type="checkbox"
-                [id]="'day-' + i"
-                [checked]="hours.open"
-                (change)="toggleDay(i)"
-              />
-              <label [for]="'day-' + i">Open</label>
-            </div>
-            <div class="time-inputs" *ngIf="hours.open">
-              <input type="time" [(ngModel)]="hours.startTime" />
-              <span class="to-label">to</span>
-              <input type="time" [(ngModel)]="hours.endTime" />
-            </div>
-          </div>
+        <div class="form-group">
+          <label class="form-label">Country <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="countries"
+            [config]="{
+              placeholder: 'Select country',
+              searchable: true
+            }"
+            (selectionChanged)="locationForm.patchValue({ country: $event })">
+          </app-input-dropdown>
         </div>
+      </div>
 
-        <!-- Services Offered -->
-        <div class="section-header">
-          <mat-icon>local_offer</mat-icon>
-          <h4>Services Offered</h4>
-        </div>
+      <!-- GPS Coordinates -->
+      <div class="section-header">
+        <mat-icon>map</mat-icon>
+        <h4>GPS Coordinates (Optional)</h4>
+      </div>
 
-        <div class="services-grid">
-          <div class="service-item" *ngFor="let service of services">
+      <div class="form-row">
+        <app-input-text
+          [config]="{
+            label: 'Latitude',
+            placeholder: 'e.g., -1.286389'
+          }"
+          formControlName="latitude">
+        </app-input-text>
+
+        <app-input-text
+          [config]="{
+            label: 'Longitude',
+            placeholder: 'e.g., 36.817223'
+          }"
+          formControlName="longitude">
+        </app-input-text>
+      </div>
+    </div>
+
+    <!-- Tab 3: Operations -->
+    <div *ngIf="activeTabId === '3'" class="tab-content" [formGroup]="operationsForm">
+      <div class="section-header">
+        <mat-icon>schedule</mat-icon>
+        <h4>Operating Hours</h4>
+      </div>
+
+      <div class="operating-hours">
+        <div class="hours-row" *ngFor="let hours of operatingHours; let i = index">
+          <div class="day-label">{{ hours.day }}</div>
+          <div class="open-toggle">
             <input
               type="checkbox"
-              [id]="service.id"
-              [checked]="service.checked"
-              (change)="toggleService(service.id)"
+              [id]="'day-' + i"
+              [checked]="hours.open"
+              (change)="toggleDay(i)"
             />
-            <label [for]="service.id">{{ service.label }}</label>
+            <label [for]="'day-' + i">Open</label>
+          </div>
+          <div class="time-inputs" *ngIf="hours.open">
+            <input type="time" [(ngModel)]="hours.startTime" [ngModelOptions]="{standalone: true}" />
+            <span class="to-label">to</span>
+            <input type="time" [(ngModel)]="hours.endTime" [ngModelOptions]="{standalone: true}" />
           </div>
         </div>
       </div>
 
-      <!-- Tab 4: Settings -->
-      <div *ngIf="isStepActive(4)" class="tab-content" [formGroup]="settingsForm">
-        <div class="section-header">
-          <mat-icon>settings</mat-icon>
-          <h4>Branch Settings</h4>
-        </div>
+      <!-- Services Offered -->
+      <div class="section-header">
+        <mat-icon>local_offer</mat-icon>
+        <h4>Services Offered</h4>
+      </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>Initial Staff Count</label>
-            <input
-              type="number"
-              placeholder="Number of initial staff"
-              formControlName="initialStaffCount"
-            />
-          </div>
-          <div class="form-group">
-            <label>Monthly Revenue Target (KSH)</label>
-            <input
-              type="number"
-              placeholder="Target monthly revenue"
-              formControlName="monthlyRevenueTarget"
-            />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Expected Opening Date</label>
-            <input
-              type="date"
-              formControlName="expectedOpeningDate"
-            />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Additional Notes</label>
-          <textarea
-            placeholder="Any additional information about the branch"
-            rows="4"
-            formControlName="additionalNotes"
-          ></textarea>
+      <div class="services-grid">
+        <div class="service-item" *ngFor="let service of services">
+          <input
+            type="checkbox"
+            [id]="service.id"
+            [checked]="service.checked"
+            (change)="toggleService(service.id)"
+          />
+          <label [for]="service.id">{{ service.label }}</label>
         </div>
       </div>
     </div>
 
-    <!-- Modal Footer -->
-    <div class="modal-footer">
-      <button class="btn-secondary" (click)="closeDialog()">
-        Cancel
-      </button>
+    <!-- Tab 4: Settings -->
+    <div *ngIf="activeTabId === '4'" class="tab-content" [formGroup]="settingsForm">
+      <div class="section-header">
+        <mat-icon>settings</mat-icon>
+        <h4>Branch Settings</h4>
+      </div>
 
-      <div class="footer-actions">
-        <button
-          class="btn-secondary"
-          *ngIf="currentStep > 1"
-          (click)="previousStep()">
-          Previous
-        </button>
-        <button
-          class="btn-primary"
-          *ngIf="currentStep < 4"
-          (click)="nextStep()"
-          [disabled]="!canProceedNext()">
-          Next
-        </button>
-        <button
-          class="btn-primary"
-          *ngIf="currentStep === 4"
-          (click)="addBranch()"
-          [disabled]="!basicInfoForm.valid || !locationForm.valid">
-          Add Branch
-        </button>
+      <div class="form-row">
+        <app-input-text
+          [config]="{
+            label: 'Initial Staff Count',
+            placeholder: 'Number of initial staff',
+            type: 'number'
+          }"
+          formControlName="initialStaffCount">
+        </app-input-text>
+
+        <app-input-text
+          [config]="{
+            label: 'Monthly Revenue Target (KSH)',
+            placeholder: 'Target monthly revenue',
+            type: 'number'
+          }"
+          formControlName="monthlyRevenueTarget">
+        </app-input-text>
+      </div>
+
+      <div class="form-row">
+        <app-input-text
+          [config]="{
+            label: 'Expected Opening Date',
+            type: 'date'
+          }"
+          formControlName="expectedOpeningDate">
+        </app-input-text>
+      </div>
+
+      <div class="form-group">
+        <app-input-text
+          [config]="{
+            label: 'Additional Notes',
+            placeholder: 'Any additional information about the branch',
+            rows: 4
+          }"
+          formControlName="additionalNotes">
+        </app-input-text>
       </div>
     </div>
   </div>
-</div>
+</ng-template>

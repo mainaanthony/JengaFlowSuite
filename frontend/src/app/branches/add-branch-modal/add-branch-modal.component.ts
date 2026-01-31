@@ -1,8 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { AppModalComponent, ModalButton, AppModalConfig } from '../../shared/modals/app-modal.component';
+import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component';
+import { InputTextComponent } from '../../shared/input-text/input-text.component';
+import { InputDropdownComponent, DropdownOption } from '../../shared/input-dropdown/input-dropdown.component';
 
 interface OperatingHours {
   day: string;
@@ -37,13 +41,40 @@ interface Branch {
 @Component({
   selector: 'add-branch-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatIconModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    MatIconModule,
+    AppModalComponent,
+    AppTabsComponent,
+    InputTextComponent,
+    InputDropdownComponent
+  ],
   templateUrl: './add-branch-modal.component.html',
   styleUrls: ['./add-branch-modal.component.scss']
 })
 export class AddBranchModalComponent implements OnInit {
   currentStep: 1 | 2 | 3 | 4 = 1;
   completedSteps = new Set<number>();
+
+  // Modal configuration
+  modalConfig: AppModalConfig = {
+    title: 'Add New Branch',
+    subtitle: 'Complete all required information to add a new branch',
+    wide: true
+  };
+
+  activeTabId: string = '1';
+
+  get tabsWithState(): Tab[] {
+    return [
+      { id: '1', label: 'Basic Info', disabled: false },
+      { id: '2', label: 'Location', disabled: !this.basicInfoForm.valid },
+      { id: '3', label: 'Operations', disabled: !this.basicInfoForm.valid || !this.locationForm.valid },
+      { id: '4', label: 'Settings', disabled: !this.basicInfoForm.valid || !this.locationForm.valid }
+    ];
+  }
 
   // Form groups
   basicInfoForm: FormGroup;
@@ -52,25 +83,34 @@ export class AddBranchModalComponent implements OnInit {
   settingsForm: FormGroup;
 
   // Data
-  branchTypes = [
-    'Main Branch',
-    'Sub Branch',
-    'Warehouse',
-    'Service Center',
-    'Retail Store'
+  branchTypes: DropdownOption[] = [
+    { id: 'main', label: 'Main Branch' },
+    { id: 'sub', label: 'Sub Branch' },
+    { id: 'warehouse', label: 'Warehouse' },
+    { id: 'service', label: 'Service Center' },
+    { id: 'retail', label: 'Retail Store' }
   ];
 
-  counties = [
-    'Nairobi',
-    'Mombasa',
-    'Kisumu',
-    'Nakuru',
-    'Eldoret',
-    'Kericho',
-    'Kiambu',
-    'Machakos',
-    'Nyeri',
-    'Uasin Gishu'
+  counties: DropdownOption[] = [
+    { id: 'nairobi', label: 'Nairobi' },
+    { id: 'mombasa', label: 'Mombasa' },
+    { id: 'kisumu', label: 'Kisumu' },
+    { id: 'nakuru', label: 'Nakuru' },
+    { id: 'eldoret', label: 'Eldoret' },
+    { id: 'kericho', label: 'Kericho' },
+    { id: 'kiambu', label: 'Kiambu' },
+    { id: 'machakos', label: 'Machakos' },
+    { id: 'nyeri', label: 'Nyeri' },
+    { id: 'uasinGishu', label: 'Uasin Gishu' }
+  ];
+
+  countries: DropdownOption[] = [
+    { id: 'kenya', label: 'Kenya' },
+    { id: 'uganda', label: 'Uganda' },
+    { id: 'tanzania', label: 'Tanzania' },
+    { id: 'rwanda', label: 'Rwanda' },
+    { id: 'ethiopia', label: 'Ethiopia' },
+    { id: 'southAfrica', label: 'South Africa' }
   ];
 
   operatingHours: OperatingHours[] = [
@@ -99,19 +139,19 @@ export class AddBranchModalComponent implements OnInit {
       branchName: ['', [Validators.required]],
       branchCode: ['', [Validators.required]],
       branchType: ['', [Validators.required]],
-      phoneNumber: ['', [Validators.required]],
-      emailAddress: ['', [Validators.required, Validators.email]],
-      managerName: ['', [Validators.required]],
-      managerPhone: ['', [Validators.required]],
-      managerEmail: ['', [Validators.required, Validators.email]]
+      phoneNumber: [''],
+      emailAddress: ['', [Validators.email]],
+      managerName: [''],
+      managerPhone: [''],
+      managerEmail: ['', [Validators.email]]
     });
 
     this.locationForm = this.formBuilder.group({
       streetAddress: ['', [Validators.required]],
-      city: ['', [Validators.required]],
-      county: ['', [Validators.required]],
-      postalCode: ['', [Validators.required]],
-      country: ['Kenya', [Validators.required]],
+      city: [''],
+      county: [''],
+      postalCode: [''],
+      country: [{ id: 'kenya', label: 'Kenya' }, [Validators.required]],
       latitude: [''],
       longitude: ['']
     });
@@ -130,9 +170,18 @@ export class AddBranchModalComponent implements OnInit {
 
   ngOnInit() {}
 
+  onTabChange(tabId: string): void {
+    const step = parseInt(tabId) as 1 | 2 | 3 | 4;
+    if (this.canProceedToStep(step)) {
+      this.currentStep = step;
+      this.activeTabId = tabId;
+    }
+  }
+
   setStep(step: 1 | 2 | 3 | 4) {
     if (this.canProceedToStep(step)) {
       this.currentStep = step;
+      this.activeTabId = step.toString();
     }
   }
 
@@ -154,7 +203,11 @@ export class AddBranchModalComponent implements OnInit {
 
   canProceedNext(): boolean {
     // Only check required fields in the current step
-    if (this.currentStep === 1) return this.basicInfoForm.valid;
+    if (this.currentStep === 1) {
+      const isValid = this.basicInfoForm.valid;
+      console.log('Step 1 validation:', isValid, this.basicInfoForm.value);
+      return isValid;
+    }
     if (this.currentStep === 2) return this.locationForm.valid;
     if (this.currentStep === 3) return this.operationsForm.valid;
     return true;
@@ -164,13 +217,60 @@ export class AddBranchModalComponent implements OnInit {
     if (this.currentStep < 4 && this.canProceedNext()) {
       this.completedSteps.add(this.currentStep);
       this.currentStep = (this.currentStep + 1) as 1 | 2 | 3 | 4;
+      this.activeTabId = this.currentStep.toString();
     }
   }
 
   previousStep() {
     if (this.currentStep > 1) {
       this.currentStep = (this.currentStep - 1) as 1 | 2 | 3 | 4;
+      this.activeTabId = this.currentStep.toString();
     }
+  }
+
+  handleButtonClick(action: string): void {
+    console.log('Button clicked:', action, 'Current step:', this.currentStep, 'Active tab:', this.activeTabId);
+    if (action === 'cancel') {
+      this.closeDialog();
+    } else if (action === 'next') {
+      console.log('Calling nextStep, canProceedNext:', this.canProceedNext());
+      this.nextStep();
+      console.log('After nextStep - Current step:', this.currentStep, 'Active tab:', this.activeTabId);
+    } else if (action === 'previous') {
+      this.previousStep();
+    } else if (action === 'save') {
+      this.addBranch();
+    }
+  }
+
+  getLeftButtons(): ModalButton[] {
+    return [{ label: 'Cancel', action: 'cancel', color: 'default' }];
+  }
+
+  getRightButtons(): ModalButton[] {
+    const buttons: ModalButton[] = [];
+
+    if (this.currentStep > 1) {
+      buttons.push({ label: 'Previous', action: 'previous', color: 'default' });
+    }
+
+    if (this.currentStep < 4) {
+      buttons.push({
+        label: 'Next',
+        action: 'next',
+        color: 'primary',
+        disabled: !this.canProceedNext()
+      });
+    } else {
+      buttons.push({
+        label: 'Add Branch',
+        action: 'save',
+        color: 'primary',
+        disabled: !this.basicInfoForm.valid || !this.locationForm.valid
+      });
+    }
+
+    return buttons;
   }
 
   toggleService(serviceId: string) {
@@ -198,7 +298,7 @@ export class AddBranchModalComponent implements OnInit {
         id: 'branch-' + Date.now(),
         name: this.basicInfoForm.get('branchName')?.value,
         code: this.basicInfoForm.get('branchCode')?.value,
-        type: this.basicInfoForm.get('branchType')?.value,
+        type: this.basicInfoForm.get('branchType')?.value?.label || this.basicInfoForm.get('branchType')?.value,
         phone: this.basicInfoForm.get('phoneNumber')?.value,
         email: this.basicInfoForm.get('emailAddress')?.value,
         managerName: this.basicInfoForm.get('managerName')?.value,

@@ -4,7 +4,9 @@
       *ngFor="let tab of tabs"
       class="tab-button"
       [class.active]="isActive(tab.id)"
+      [class.disabled]="tab.disabled"
       [class.stretch]="stretch"
+      [disabled]="tab.disabled"
       (click)="selectTab(tab.id)"
     >
       {{ tab.label }}
