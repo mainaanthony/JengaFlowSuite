@@ -1,186 +1,186 @@
-<div class="modal-overlay">
-  <div class="modal-container">
-    <!-- Modal Header -->
-    <div class="modal-header">
-      <div>
-        <h2>Schedule New Delivery</h2>
+<ng-template #deliveryFormTemplate>
+  <!-- Tabs Navigation -->
+  <app-tabs
+    [tabs]="tabs"
+    [activeTabId]="activeTab"
+    [stretch]="true"
+    (tabChanged)="onTabChange($event)"
+  ></app-tabs>
+
+  <!-- Form Content -->
+  <form [formGroup]="deliveryForm" class="delivery-form-content">
+    <!-- Delivery Info Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'delivery-info'">
+      <div class="tab-header">
+        <mat-icon>local_shipping</mat-icon>
+        <h3>Delivery Information</h3>
       </div>
-      <button class="btn-close" (click)="closeDialog()" title="Close">
-        <mat-icon>close</mat-icon>
-      </button>
+
+      <div class="form-grid">
+        <!-- Delivery Type -->
+        <div class="form-group">
+          <label class="form-label">Delivery Type <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="deliveryTypeOptions"
+            [config]="deliveryTypeDropdownConfig"
+            (selectionChanged)="onDeliveryTypeChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Priority -->
+        <div class="form-group">
+          <label class="form-label">Priority <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="priorityOptions"
+            [config]="priorityDropdownConfig"
+            (selectionChanged)="onPriorityChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Delivery Date -->
+        <div class="form-group">
+          <app-input-text
+            [config]="deliveryDateConfig"
+            formControlName="deliveryDate"
+          ></app-input-text>
+        </div>
+
+        <!-- Preferred Time -->
+        <div class="form-group">
+          <app-input-text
+            [config]="preferredTimeConfig"
+            formControlName="preferredTime"
+          ></app-input-text>
+        </div>
+
+        <!-- Estimated Duration -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="estimatedDurationConfig"
+            formControlName="estimatedDuration"
+          ></app-input-text>
+        </div>
+      </div>
     </div>
 
-    <!-- Tab Navigation -->
-    <div class="tab-navigation">
-      <button
-        class="tab-button"
-        [class.active]="activeTab === 'delivery-info'"
-        [class.completed]="isTabValid('delivery-info') && activeTab !== 'delivery-info'"
-        (click)="setTab('delivery-info')"
-      >
-        Delivery Info
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="activeTab === 'customer'"
-        [class.completed]="isTabValid('customer') && activeTab !== 'customer'"
-        (click)="setTab('customer')"
-      >
-        Customer
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="activeTab === 'package'"
-        [class.completed]="isTabValid('package') && activeTab !== 'package'"
-        (click)="setTab('package')"
-      >
-        Package
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="activeTab === 'assignment'"
-        (click)="setTab('assignment')"
-      >
-        Assignment
-      </button>
+    <!-- Customer Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'customer'">
+      <div class="tab-header">
+        <mat-icon>location_on</mat-icon>
+        <h3>Customer & Address Information</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Customer ID -->
+        <div class="form-group">
+          <label class="form-label">Customer <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="customerOptions"
+            [config]="customerDropdownConfig"
+            (selectionChanged)="onCustomerChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Customer Name -->
+        <div class="form-group">
+          <app-input-text
+            [config]="customerNameConfig"
+            formControlName="customerName"
+          ></app-input-text>
+        </div>
+
+        <!-- Customer Phone -->
+        <div class="form-group">
+          <app-input-text
+            [config]="customerPhoneConfig"
+            formControlName="customerPhone"
+          ></app-input-text>
+        </div>
+
+        <!-- Customer Email -->
+        <div class="form-group">
+          <app-input-text
+            [config]="customerEmailConfig"
+            formControlName="customerEmail"
+          ></app-input-text>
+        </div>
+
+        <!-- Pickup Address -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="pickupAddressConfig"
+            formControlName="pickupAddress"
+          ></app-input-text>
+        </div>
+
+        <!-- Delivery Address -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="deliveryAddressConfig"
+            formControlName="deliveryAddress"
+          ></app-input-text>
+        </div>
+
+        <!-- Delivery Instructions -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="deliveryInstructionsConfig"
+            formControlName="deliveryInstructions"
+          ></app-input-text>
+        </div>
+
+        <!-- Contact Person -->
+        <div class="form-group">
+          <app-input-text
+            [config]="contactPersonConfig"
+            formControlName="contactPerson"
+          ></app-input-text>
+        </div>
+
+        <!-- Contact Phone -->
+        <div class="form-group">
+          <app-input-text
+            [config]="contactPhoneConfig"
+            formControlName="contactPhone"
+          ></app-input-text>
+        </div>
+      </div>
     </div>
 
-    <!-- Modal Content -->
-    <div class="modal-content">
-      <!-- Delivery Info Tab -->
-      <div class="tab-content" *ngIf="activeTab === 'delivery-info'">
-        <div class="section-header">
-          <mat-icon>local_shipping</mat-icon>
-          <h3>Delivery Information</h3>
-        </div>
-
-        <form [formGroup]="deliveryForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Delivery Type</label>
-              <select formControlName="deliveryType">
-                <option *ngFor="let type of deliveryTypes" [value]="type">{{ type }}</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Priority</label>
-              <select formControlName="priority">
-                <option *ngFor="let priority of priorities" [value]="priority">{{ priority }}</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Delivery Date <span class="required">*</span></label>
-              <input type="date" formControlName="deliveryDate" />
-            </div>
-
-            <div class="form-group">
-              <label>Preferred Time</label>
-              <input type="time" formControlName="preferredTime" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Estimated Duration (minutes)</label>
-            <input type="number" formControlName="estimatedDuration" min="1" />
-          </div>
-        </form>
+    <!-- Package Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'package'">
+      <div class="tab-header">
+        <mat-icon>inventory_2</mat-icon>
+        <h3>Package Information</h3>
       </div>
 
-      <!-- Customer Tab -->
-      <div class="tab-content" *ngIf="activeTab === 'customer'">
-        <div class="section-header">
-          <mat-icon>location_on</mat-icon>
-          <h3>Customer & Address Information</h3>
+      <div class="form-grid">
+        <!-- Package Weight -->
+        <div class="form-group">
+          <app-input-text
+            [config]="packageWeightConfig"
+            formControlName="packageWeight"
+          ></app-input-text>
         </div>
 
-        <form [formGroup]="deliveryForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Customer ID</label>
-              <select formControlName="customerId">
-                <option value="">Select existing customer</option>
-                <option *ngFor="let customer of customers" [value]="customer.id">
-                  {{ customer.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Customer Name <span class="required">*</span></label>
-              <input type="text" formControlName="customerName" placeholder="Enter customer name" />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Customer Phone</label>
-              <input type="tel" formControlName="customerPhone" placeholder="+254 XXX XXX XXX" />
-            </div>
-
-            <div class="form-group">
-              <label>Customer Email</label>
-              <input type="email" formControlName="customerEmail" placeholder="customer@example.com" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Pickup Address</label>
-            <textarea formControlName="pickupAddress" rows="2" placeholder="Enter pickup address (leave empty if from warehouse)"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Delivery Address <span class="required">*</span></label>
-            <textarea formControlName="deliveryAddress" rows="3" placeholder="Enter complete delivery address"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Delivery Instructions</label>
-            <textarea formControlName="deliveryInstructions" rows="2" placeholder="Special instructions for the driver..."></textarea>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Contact Person</label>
-              <input type="text" formControlName="contactPerson" placeholder="Person to receive delivery" />
-            </div>
-
-            <div class="form-group">
-              <label>Contact Phone</label>
-              <input type="tel" formControlName="contactPhone" placeholder="+254 XXX XXX XXX" />
-            </div>
-          </div>
-        </form>
-      </div>
-
-      <!-- Package Tab -->
-      <div class="tab-content" *ngIf="activeTab === 'package'">
-        <div class="section-header">
-          <mat-icon>inventory_2</mat-icon>
-          <h3>Package Information</h3>
+        <!-- Package Dimensions -->
+        <div class="form-group">
+          <app-input-text
+            [config]="packageDimensionsConfig"
+            formControlName="packageDimensions"
+          ></app-input-text>
         </div>
 
-        <form [formGroup]="deliveryForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Package Weight (kg)</label>
-              <input type="number" formControlName="packageWeight" placeholder="0" min="0" step="0.1" />
-            </div>
+        <!-- Package Value -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="packageValueConfig"
+            formControlName="packageValue"
+          ></app-input-text>
+        </div>
 
-            <div class="form-group">
-              <label>Dimensions (L x W x H cm)</label>
-              <input type="text" formControlName="packageDimensions" placeholder="e.g., 30 x 20 x 15" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Package Value (KSH)</label>
-            <input type="number" formControlName="packageValue" placeholder="0" min="0" />
-          </div>
-
+        <!-- Checkboxes -->
+        <div class="form-group full-width">
           <div class="checkbox-group">
             <label class="checkbox-label">
               <input type="checkbox" formControlName="requiresSignature" />
@@ -212,43 +212,50 @@
               <span>GPS Tracking</span>
             </label>
           </div>
-        </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assignment Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'assignment'">
+      <div class="tab-header">
+        <mat-icon>engineering</mat-icon>
+        <h3>Driver & Vehicle Assignment</h3>
       </div>
 
-      <!-- Assignment Tab -->
-      <div class="tab-content" *ngIf="activeTab === 'assignment'">
-        <div class="section-header">
-          <mat-icon>engineering</mat-icon>
-          <h3>Driver & Vehicle Assignment</h3>
+      <div class="form-grid">
+        <!-- Assigned Driver -->
+        <div class="form-group">
+          <label class="form-label">Assigned Driver</label>
+          <app-input-dropdown
+            [options]="driverOptions"
+            [config]="driverDropdownConfig"
+            (selectionChanged)="onDriverChange($event)"
+          ></app-input-dropdown>
         </div>
 
-        <form [formGroup]="deliveryForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Assigned Driver</label>
-              <select formControlName="assignedDriver">
-                <option value="">Select driver</option>
-                <option *ngFor="let driver of drivers" [value]="driver">{{ driver }}</option>
-              </select>
-            </div>
+        <!-- Assigned Vehicle -->
+        <div class="form-group">
+          <label class="form-label">Assigned Vehicle</label>
+          <app-input-dropdown
+            [options]="vehicleOptions"
+            [config]="vehicleDropdownConfig"
+            (selectionChanged)="onVehicleChange($event)"
+          ></app-input-dropdown>
+        </div>
 
-            <div class="form-group">
-              <label>Assigned Vehicle</label>
-              <select formControlName="assignedVehicle">
-                <option value="">Select vehicle</option>
-                <option *ngFor="let vehicle of vehicles" [value]="vehicle">{{ vehicle }}</option>
-              </select>
-            </div>
-          </div>
+        <!-- Delivery Route -->
+        <div class="form-group full-width">
+          <label class="form-label">Delivery Route</label>
+          <app-input-dropdown
+            [options]="routeOptions"
+            [config]="routeDropdownConfig"
+            (selectionChanged)="onRouteChange($event)"
+          ></app-input-dropdown>
+        </div>
 
-          <div class="form-group">
-            <label>Delivery Route</label>
-            <select formControlName="deliveryRoute">
-              <option value="">Select or create route</option>
-              <option *ngFor="let route of deliveryRoutes" [value]="route">{{ route }}</option>
-            </select>
-          </div>
-
+        <!-- Notifications -->
+        <div class="form-group full-width">
           <div class="checkbox-group">
             <label class="checkbox-label">
               <input type="checkbox" formControlName="smsNotification" />
@@ -260,25 +267,16 @@
               <span>Email Notifications to Customer</span>
             </label>
           </div>
+        </div>
 
-          <div class="form-group">
-            <label>Additional Notes</label>
-            <textarea formControlName="additionalNotes" rows="4" placeholder="Any additional notes for this delivery..."></textarea>
-          </div>
-        </form>
+        <!-- Additional Notes -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="additionalNotesConfig"
+            formControlName="additionalNotes"
+          ></app-input-text>
+        </div>
       </div>
     </div>
-
-    <!-- Modal Footer -->
-    <div class="modal-footer">
-      <button class="btn-secondary" (click)="closeDialog()">
-        Cancel
-      </button>
-
-      <button class="btn-primary" (click)="scheduleDelivery()">
-        <mat-icon>schedule</mat-icon>
-        Schedule Delivery
-      </button>
-    </div>
-  </div>
-</div>
+  </form>
+</ng-template>

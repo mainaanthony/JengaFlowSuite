@@ -1,501 +1,459 @@
-<div class="modal-overlay">
-  <div class="modal-container">
-    <!-- Modal Header -->
-    <div class="modal-header">
-      <div>
-        <h2>Add New Supplier</h2>
-        <p>Register a new supplier in the system</p>
-      </div>
-      <button class="btn-close" (click)="closeDialog()" title="Close">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
+<ng-template #supplierFormTemplate>
+  <!-- Tabs Navigation -->
+  <app-tabs
+    [tabs]="tabs"
+    [activeTabId]="activeTab"
+    [stretch]="true"
+    (tabChanged)="onTabChange($event)"
+  ></app-tabs>
 
-    <!-- Tab Navigation -->
-    <div class="tab-navigation">
-      <button
-        class="tab-button"
-        [class.active]="activeTab === 'basic'"
-        [class.completed]="isTabValid('basic')"
-        (click)="setTab('basic')"
-      >
+  <!-- Form Content -->
+  <form [formGroup]="supplierForm" class="supplier-form-content">
+    <!-- Tab 1: Basic Information -->
+    <div class="tab-panel" *ngIf="activeTab === 'basic'">
+      <div class="tab-header">
         <mat-icon>info</mat-icon>
-        <span>Basic Info</span>
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="activeTab === 'contact'"
-        [class.completed]="isTabValid('contact')"
-        (click)="setTab('contact')"
-      >
+        <h3>Company Details</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Company Name -->
+        <div class="form-group">
+          <app-input-text
+            [config]="companyNameConfig"
+            formControlName="companyName"
+          ></app-input-text>
+        </div>
+
+        <!-- Trading Name -->
+        <div class="form-group">
+          <app-input-text
+            [config]="tradingNameConfig"
+            formControlName="tradingName"
+          ></app-input-text>
+        </div>
+
+        <!-- Registration Number -->
+        <div class="form-group">
+          <app-input-text
+            [config]="registrationNumberConfig"
+            formControlName="registrationNumber"
+          ></app-input-text>
+        </div>
+
+        <!-- Tax ID -->
+        <div class="form-group">
+          <app-input-text
+            [config]="taxIdConfig"
+            formControlName="taxId"
+          ></app-input-text>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+          <label class="form-label">Category <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="categoryOptions"
+            [config]="categoryDropdownConfig"
+            (selectionChanged)="onCategoryChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Business Type -->
+        <div class="form-group">
+          <label class="form-label">Business Type <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="businessTypeOptions"
+            [config]="businessTypeDropdownConfig"
+            (selectionChanged)="onBusinessTypeChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Years in Business -->
+        <div class="form-group">
+          <app-input-text
+            [config]="yearsInBusinessConfig"
+            formControlName="yearsInBusiness"
+          ></app-input-text>
+        </div>
+
+        <!-- Website -->
+        <div class="form-group">
+          <app-input-text
+            [config]="websiteConfig"
+            formControlName="website"
+          ></app-input-text>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Contact & Address -->
+    <div class="tab-panel" *ngIf="activeTab === 'contact'">
+      <div class="tab-header">
         <mat-icon>contact_phone</mat-icon>
-        <span>Contact</span>
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="activeTab === 'business'"
-        [class.completed]="isTabValid('business')"
-        (click)="setTab('business')"
-      >
+        <h3>Primary Contact Person</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Primary Contact -->
+        <div class="form-group">
+          <app-input-text
+            [config]="primaryContactConfig"
+            formControlName="primaryContact"
+          ></app-input-text>
+        </div>
+
+        <!-- Primary Phone -->
+        <div class="form-group">
+          <app-input-text
+            [config]="primaryPhoneConfig"
+            formControlName="primaryPhone"
+          ></app-input-text>
+        </div>
+
+        <!-- Primary Email -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="primaryEmailConfig"
+            formControlName="primaryEmail"
+          ></app-input-text>
+        </div>
+      </div>
+
+      <div class="tab-header">
+        <mat-icon>person_outline</mat-icon>
+        <h3>Secondary Contact (Optional)</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Secondary Contact -->
+        <div class="form-group">
+          <app-input-text
+            [config]="secondaryContactConfig"
+            formControlName="secondaryContact"
+          ></app-input-text>
+        </div>
+
+        <!-- Secondary Phone -->
+        <div class="form-group">
+          <app-input-text
+            [config]="secondaryPhoneConfig"
+            formControlName="secondaryPhone"
+          ></app-input-text>
+        </div>
+
+        <!-- Secondary Email -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="secondaryEmailConfig"
+            formControlName="secondaryEmail"
+          ></app-input-text>
+        </div>
+      </div>
+
+      <div class="tab-header">
+        <mat-icon>location_on</mat-icon>
+        <h3>Business Address</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Street Address -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="streetConfig"
+            formControlName="street"
+          ></app-input-text>
+        </div>
+
+        <!-- City -->
+        <div class="form-group">
+          <app-input-text
+            [config]="cityConfig"
+            formControlName="city"
+          ></app-input-text>
+        </div>
+
+        <!-- County -->
+        <div class="form-group">
+          <label class="form-label">County <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="countyOptions"
+            [config]="countyDropdownConfig"
+            (selectionChanged)="onCountyChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Postal Code -->
+        <div class="form-group">
+          <app-input-text
+            [config]="postalCodeConfig"
+            formControlName="postalCode"
+          ></app-input-text>
+        </div>
+
+        <!-- Country -->
+        <div class="form-group">
+          <app-input-text
+            [config]="countryConfig"
+            formControlName="country"
+          ></app-input-text>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Business Details -->
+    <div class="tab-panel" *ngIf="activeTab === 'business'">
+      <div class="tab-header">
         <mat-icon>business</mat-icon>
-        <span>Business</span>
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="activeTab === 'financial'"
-        [class.completed]="isTabValid('financial')"
-        (click)="setTab('financial')"
-      >
+        <h3>Business Details</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Year Established -->
+        <div class="form-group">
+          <app-input-text
+            [config]="yearEstablishedConfig"
+            formControlName="yearEstablished"
+          ></app-input-text>
+        </div>
+
+        <!-- Number of Employees -->
+        <div class="form-group">
+          <label class="form-label">Number of Employees <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="numberOfEmployeesOptions"
+            [config]="numberOfEmployeesDropdownConfig"
+            (selectionChanged)="onNumberOfEmployeesChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Annual Turnover -->
+        <div class="form-group">
+          <label class="form-label">Annual Turnover <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="annualTurnoverOptions"
+            [config]="annualTurnoverDropdownConfig"
+            (selectionChanged)="onAnnualTurnoverChange($event)"
+          ></app-input-dropdown>
+        </div>
+      </div>
+
+      <div class="rating-section">
+        <label class="form-label">Rating</label>
+        <div class="star-rating">
+          <span 
+            *ngFor="let star of [1, 2, 3, 4, 5]" 
+            class="star" 
+            [class.filled]="star <= rating"
+            (click)="setRating(star)"
+          >
+            ★
+          </span>
+          <span class="rating-text">({{ rating }}/5)</span>
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="activeSupplier" />
+          <span>Active supplier</span>
+        </label>
+
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="preferredSupplier" />
+          <span>Preferred supplier</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Tab 4: Financial -->
+    <div class="tab-panel" *ngIf="activeTab === 'financial'">
+      <div class="tab-header">
         <mat-icon>account_balance</mat-icon>
-        <span>Financial</span>
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="activeTab === 'compliance'"
-        (click)="setTab('compliance')"
-      >
+        <h3>Bank Account Details</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Bank Name -->
+        <div class="form-group">
+          <app-input-text
+            [config]="bankNameConfig"
+            formControlName="bankName"
+          ></app-input-text>
+        </div>
+
+        <!-- Branch Code -->
+        <div class="form-group">
+          <app-input-text
+            [config]="branchCodeConfig"
+            formControlName="branchCode"
+          ></app-input-text>
+        </div>
+
+        <!-- Account Name -->
+        <div class="form-group">
+          <app-input-text
+            [config]="accountNameConfig"
+            formControlName="accountName"
+          ></app-input-text>
+        </div>
+
+        <!-- Account Number -->
+        <div class="form-group">
+          <app-input-text
+            [config]="accountNumberConfig"
+            formControlName="accountNumber"
+          ></app-input-text>
+        </div>
+
+        <!-- SWIFT Code -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="swiftCodeConfig"
+            formControlName="swiftCode"
+          ></app-input-text>
+        </div>
+      </div>
+
+      <div class="tab-header">
+        <mat-icon>payment</mat-icon>
+        <h3>Payment Terms</h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Payment Terms -->
+        <div class="form-group">
+          <label class="form-label">Payment Terms <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="paymentTermsOptionsDropdown"
+            [config]="paymentTermsDropdownConfig"
+            (selectionChanged)="onPaymentTermsChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Currency -->
+        <div class="form-group">
+          <label class="form-label">Currency <span class="required">*</span></label>
+          <app-input-dropdown
+            [options]="currencyOptions"
+            [config]="currencyDropdownConfig"
+            (selectionChanged)="onCurrencyChange($event)"
+          ></app-input-dropdown>
+        </div>
+
+        <!-- Credit Limit -->
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="creditLimitConfig"
+            formControlName="creditLimit"
+          ></app-input-text>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 5: Compliance -->
+    <div class="tab-panel" *ngIf="activeTab === 'compliance'">
+      <div class="tab-header">
         <mat-icon>verified</mat-icon>
-        <span>Compliance</span>
-      </button>
+        <h3>Compliance & Documentation</h3>
+      </div>
+
+      <div class="checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="vatRegistered" />
+          <span>VAT Registered</span>
+        </label>
+      </div>
+
+      <div class="form-grid">
+        <!-- Business License Number -->
+        <div class="form-group">
+          <app-input-text
+            [config]="businessLicenseNumberConfig"
+            formControlName="businessLicenseNumber"
+          ></app-input-text>
+        </div>
+
+        <!-- Certificate Number -->
+        <div class="form-group">
+          <app-input-text
+            [config]="certificateNumberConfig"
+            formControlName="certificateNumber"
+          ></app-input-text>
+        </div>
+      </div>
+
+      <div class="tab-header">
+        <mat-icon>description</mat-icon>
+        <h3>Documents</h3>
+      </div>
+
+      <div class="document-upload-combined">
+        <div class="upload-area" *ngIf="!hasFile('businessLicense') && !hasFile('taxCertificate') && !hasFile('bankStatement')">
+          <input
+            type="file"
+            id="documentsUpload"
+            accept=".pdf,.jpg,.jpeg,.png"
+            multiple
+            (change)="onFileSelect($event, 'businessLicense')"
+            hidden
+          />
+          <label for="documentsUpload" class="upload-label">
+            <mat-icon>description</mat-icon>
+            <span>Upload certificates, licenses, contracts</span>
+            <button type="button" class="btn-choose-files">Choose Files</button>
+          </label>
+        </div>
+
+        <div class="uploaded-files-list" *ngIf="hasFile('businessLicense') || hasFile('taxCertificate') || hasFile('bankStatement')">
+          <div class="uploaded-file" *ngIf="hasFile('businessLicense')">
+            <mat-icon>description</mat-icon>
+            <span>{{ getFileName('businessLicense') }}</span>
+            <button type="button" class="btn-remove" (click)="removeFile('businessLicense')">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <div class="uploaded-file" *ngIf="hasFile('taxCertificate')">
+            <mat-icon>description</mat-icon>
+            <span>{{ getFileName('taxCertificate') }}</span>
+            <button type="button" class="btn-remove" (click)="removeFile('taxCertificate')">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <div class="uploaded-file" *ngIf="hasFile('bankStatement')">
+            <mat-icon>description</mat-icon>
+            <span>{{ getFileName('bankStatement') }}</span>
+            <button type="button" class="btn-remove" (click)="removeFile('bankStatement')">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <input
+            type="file"
+            id="documentsUploadMore"
+            accept=".pdf,.jpg,.jpeg,.png"
+            (change)="onFileSelect($event, 'taxCertificate')"
+            hidden
+          />
+          <label for="documentsUploadMore" class="btn-add-more">
+            <mat-icon>add</mat-icon>
+            Add More Files
+          </label>
+        </div>
+      </div>
+
+      <div class="tab-header">
+        <mat-icon>note</mat-icon>
+        <h3>Additional Notes</h3>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <app-input-text
+            [config]="notesConfig"
+            formControlName="notes"
+          ></app-input-text>
+        </div>
+      </div>
     </div>
-
-    <!-- Modal Content -->
-    <div class="modal-content">
-      <form [formGroup]="supplierForm">
-        <!-- Tab 1: Basic Information -->
-        <div class="tab-content" *ngIf="activeTab === 'basic'">
-          <h3>Company Details</h3>
-
-          <div class="form-section">
-            <div class="form-row">
-              <div class="form-group">
-                <label>Company Name <span class="required">*</span></label>
-                <input type="text" formControlName="companyName" placeholder="Enter legal company name" />
-                <span class="error-message" *ngIf="supplierForm.get('companyName')?.invalid && supplierForm.get('companyName')?.touched">
-                  Company name is required
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label>Trading Name (Optional)</label>
-                <input type="text" formControlName="tradingName" placeholder="Enter trading/brand name" />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Registration Number <span class="required">*</span></label>
-                <input type="text" formControlName="registrationNumber" placeholder="e.g., PVT-123456-2024" />
-                <span class="error-message" *ngIf="supplierForm.get('registrationNumber')?.invalid && supplierForm.get('registrationNumber')?.touched">
-                  Registration number is required
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label>Tax ID / PIN <span class="required">*</span></label>
-                <input type="text" formControlName="taxId" placeholder="e.g., P051234567A" />
-                <span class="error-message" *ngIf="supplierForm.get('taxId')?.invalid && supplierForm.get('taxId')?.touched">
-                  Tax ID is required
-                </span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Category <span class="required">*</span></label>
-                <select formControlName="category">
-                  <option value="" disabled>Select category</option>
-                  <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-                </select>
-                <span class="error-message" *ngIf="supplierForm.get('category')?.invalid && supplierForm.get('category')?.touched">
-                  Category is required
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label>Business Type <span class="required">*</span></label>
-                <select formControlName="businessType">
-                  <option value="" disabled>Select business type</option>
-                  <option *ngFor="let type of businessTypes" [value]="type">{{ type }}</option>
-                </select>
-                <span class="error-message" *ngIf="supplierForm.get('businessType')?.invalid && supplierForm.get('businessType')?.touched">
-                  Business type is required
-                </span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Years in Business <span class="required">*</span></label>
-                <input type="number" formControlName="yearsInBusiness" placeholder="0" min="0" />
-              </div>
-
-              <div class="form-group">
-                <label>Website (Optional)</label>
-                <input type="url" formControlName="website" placeholder="https://example.com" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 2: Contact & Address -->
-        <div class="tab-content" *ngIf="activeTab === 'contact'">
-          <h3>Primary Contact Person</h3>
-
-          <div class="form-section">
-            <div class="form-row">
-              <div class="form-group">
-                <label>Full Name <span class="required">*</span></label>
-                <input type="text" formControlName="primaryContact" placeholder="Enter contact person name" />
-                <span class="error-message" *ngIf="supplierForm.get('primaryContact')?.invalid && supplierForm.get('primaryContact')?.touched">
-                  Primary contact is required
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label>Phone Number <span class="required">*</span></label>
-                <input type="tel" formControlName="primaryPhone" placeholder="0712345678" />
-                <span class="error-message" *ngIf="supplierForm.get('primaryPhone')?.invalid && supplierForm.get('primaryPhone')?.touched">
-                  Valid phone number is required (10-15 digits)
-                </span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group full-width">
-                <label>Email Address <span class="required">*</span></label>
-                <input type="email" formControlName="primaryEmail" placeholder="contact@example.com" />
-                <span class="error-message" *ngIf="supplierForm.get('primaryEmail')?.invalid && supplierForm.get('primaryEmail')?.touched">
-                  Valid email address is required
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <h3>Secondary Contact (Optional)</h3>
-
-          <div class="form-section">
-            <div class="form-row">
-              <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" formControlName="secondaryContact" placeholder="Enter secondary contact" />
-              </div>
-
-              <div class="form-group">
-                <label>Phone Number</label>
-                <input type="tel" formControlName="secondaryPhone" placeholder="0712345678" />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group full-width">
-                <label>Email Address</label>
-                <input type="email" formControlName="secondaryEmail" placeholder="secondary@example.com" />
-              </div>
-            </div>
-          </div>
-
-          <h3>Business Address</h3>
-
-          <div class="form-section">
-            <div class="form-row">
-              <div class="form-group full-width">
-                <label>Street Address <span class="required">*</span></label>
-                <input type="text" formControlName="street" placeholder="Enter street address" />
-                <span class="error-message" *ngIf="supplierForm.get('street')?.invalid && supplierForm.get('street')?.touched">
-                  Street address is required
-                </span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>City <span class="required">*</span></label>
-                <input type="text" formControlName="city" placeholder="Enter city" />
-                <span class="error-message" *ngIf="supplierForm.get('city')?.invalid && supplierForm.get('city')?.touched">
-                  City is required
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label>County <span class="required">*</span></label>
-                <select formControlName="county">
-                  <option value="" disabled>Select county</option>
-                  <option *ngFor="let county of counties" [value]="county">{{ county }}</option>
-                </select>
-                <span class="error-message" *ngIf="supplierForm.get('county')?.invalid && supplierForm.get('county')?.touched">
-                  County is required
-                </span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Postal Code</label>
-                <input type="text" formControlName="postalCode" placeholder="00100" />
-              </div>
-
-              <div class="form-group">
-                <label>Country <span class="required">*</span></label>
-                <input type="text" formControlName="country" placeholder="Kenya" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 3: Banking & Payment -->
-        <div class="tab-content" *ngIf="activeTab === 'business'">
-          <h3>Business Details</h3>
-
-          <div class="form-section">
-            <div class="form-row">
-              <div class="form-group">
-                <label>Year Established <span class="required">*</span></label>
-                <input type="number" formControlName="yearEstablished" placeholder="2010" min="1900" max="2026" />
-                <span class="error-message" *ngIf="supplierForm.get('yearEstablished')?.invalid && supplierForm.get('yearEstablished')?.touched">
-                  Year established is required
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label>Number of Employees <span class="required">*</span></label>
-                <select formControlName="numberOfEmployees">
-                  <option value="" disabled>Select range</option>
-                  <option *ngFor="let range of employeeRanges" [value]="range">{{ range }}</option>
-                </select>
-                <span class="error-message" *ngIf="supplierForm.get('numberOfEmployees')?.invalid && supplierForm.get('numberOfEmployees')?.touched">
-                  Number of employees is required
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label>Annual Turnover <span class="required">*</span></label>
-                <select formControlName="annualTurnover">
-                  <option value="" disabled>Select range</option>
-                  <option *ngFor="let range of turnoverRanges" [value]="range">{{ range }}</option>
-                </select>
-                <span class="error-message" *ngIf="supplierForm.get('annualTurnover')?.invalid && supplierForm.get('annualTurnover')?.touched">
-                  Annual turnover is required
-                </span>
-              </div>
-            </div>
-
-            <div class="rating-section">
-              <label>Rating</label>
-              <div class="star-rating">
-                <span 
-                  *ngFor="let star of [1, 2, 3, 4, 5]" 
-                  class="star" 
-                  [class.filled]="star <= rating"
-                  (click)="setRating(star)"
-                >
-                  ★
-                </span>
-                <span class="rating-text">({{ rating }}/5)</span>
-              </div>
-            </div>
-
-            <div class="checkboxes-row">
-              <label class="checkbox-label">
-                <input type="checkbox" formControlName="activeSupplier" />
-                <span class="checkmark"></span>
-                <span class="label-text">Active supplier</span>
-              </label>
-
-              <label class="checkbox-label">
-                <input type="checkbox" formControlName="preferredSupplier" />
-                <span class="checkmark"></span>
-                <span class="label-text">Preferred supplier</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 4: Financial -->
-        <div class="tab-content" *ngIf="activeTab === 'financial'">
-          <h3>Bank Account Details</h3>
-
-          <div class="form-section">
-            <div class="form-row">
-              <div class="form-group">
-                <label>Bank Name <span class="required">*</span></label>
-                <input type="text" formControlName="bankName" placeholder="e.g., Equity Bank" />
-                <span class="error-message" *ngIf="supplierForm.get('bankName')?.invalid && supplierForm.get('bankName')?.touched">
-                  Bank name is required
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label>Branch Code</label>
-                <input type="text" formControlName="branchCode" placeholder="e.g., 068" />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Account Name <span class="required">*</span></label>
-                <input type="text" formControlName="accountName" placeholder="Account holder name" />
-                <span class="error-message" *ngIf="supplierForm.get('accountName')?.invalid && supplierForm.get('accountName')?.touched">
-                  Account name is required
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label>Account Number <span class="required">*</span></label>
-                <input type="text" formControlName="accountNumber" placeholder="Enter account number" />
-                <span class="error-message" *ngIf="supplierForm.get('accountNumber')?.invalid && supplierForm.get('accountNumber')?.touched">
-                  Account number is required
-                </span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group full-width">
-                <label>SWIFT Code (For International Transfers)</label>
-                <input type="text" formControlName="swiftCode" placeholder="e.g., EQBLKENA" />
-              </div>
-            </div>
-          </div>
-
-          <h3>Payment Terms</h3>
-
-          <div class="form-section">
-            <div class="form-row">
-              <div class="form-group">
-                <label>Payment Terms <span class="required">*</span></label>
-                <select formControlName="paymentTerms">
-                  <option *ngFor="let term of paymentTermsOptions" [value]="term">{{ term }}</option>
-                </select>
-                <span class="error-message" *ngIf="supplierForm.get('paymentTerms')?.invalid && supplierForm.get('paymentTerms')?.touched">
-                  Payment terms are required
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label>Currency <span class="required">*</span></label>
-                <select formControlName="currency">
-                  <option *ngFor="let curr of currencies" [value]="curr">{{ curr }}</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group full-width">
-                <label>Credit Limit <span class="required">*</span></label>
-                <input type="number" formControlName="creditLimit" placeholder="0" min="0" />
-                <span class="help-text">Maximum credit amount allowed for this supplier</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 5: Compliance -->
-        <div class="tab-content" *ngIf="activeTab === 'compliance'">
-          <h3>Compliance & Documentation</h3>
-
-          <div class="form-section">
-            <div class="checkboxes-row">
-              <label class="checkbox-label">
-                <input type="checkbox" formControlName="vatRegistered" />
-                <span class="checkmark"></span>
-                <span class="label-text">VAT Registered</span>
-              </label>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Business License</label>
-                <input type="text" formControlName="businessLicenseNumber" placeholder="License number" />
-              </div>
-
-              <div class="form-group">
-                <label>Certificate Number</label>
-                <input type="text" formControlName="certificateNumber" placeholder="Certificate number" />
-              </div>
-            </div>
-          </div>
-
-          <h3>Documents</h3>
-
-          <div class="form-section">
-            <div class="document-upload-combined">
-              <div class="upload-area" *ngIf="!hasFile('businessLicense') && !hasFile('taxCertificate') && !hasFile('bankStatement')">
-                <input
-                  type="file"
-                  id="documentsUpload"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  multiple
-                  (change)="onFileSelect($event, 'businessLicense')"
-                  hidden
-                />
-                <label for="documentsUpload" class="upload-label">
-                  <mat-icon>description</mat-icon>
-                  <span>Upload certificates, licenses, contracts</span>
-                  <button type="button" class="btn-choose-files">Choose Files</button>
-                </label>
-              </div>
-
-              <div class="uploaded-files-list" *ngIf="hasFile('businessLicense') || hasFile('taxCertificate') || hasFile('bankStatement')">
-                <div class="uploaded-file" *ngIf="hasFile('businessLicense')">
-                  <mat-icon>description</mat-icon>
-                  <span>{{ getFileName('businessLicense') }}</span>
-                  <button type="button" class="btn-remove" (click)="removeFile('businessLicense')">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
-                <div class="uploaded-file" *ngIf="hasFile('taxCertificate')">
-                  <mat-icon>description</mat-icon>
-                  <span>{{ getFileName('taxCertificate') }}</span>
-                  <button type="button" class="btn-remove" (click)="removeFile('taxCertificate')">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
-                <div class="uploaded-file" *ngIf="hasFile('bankStatement')">
-                  <mat-icon>description</mat-icon>
-                  <span>{{ getFileName('bankStatement') }}</span>
-                  <button type="button" class="btn-remove" (click)="removeFile('bankStatement')">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
-                <input
-                  type="file"
-                  id="documentsUploadMore"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  (change)="onFileSelect($event, 'taxCertificate')"
-                  hidden
-                />
-                <label for="documentsUploadMore" class="btn-add-more">
-                  <mat-icon>add</mat-icon>
-                  Add More Files
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <h3>Additional Notes</h3>
-
-          <div class="form-section">
-            <div class="form-group full-width">
-              <label>Notes (Optional)</label>
-              <textarea formControlName="notes" placeholder="Any additional notes about this supplier..." rows="4"></textarea>
-            </div>
-          </div>
-        </div>
-      </form>
-    </div>
-
-    <!-- Modal Footer -->
-    <div class="modal-footer">
-      <button class="btn-secondary" (click)="closeDialog()">
-        Cancel
-      </button>
-      <button class="btn-secondary-outline" (click)="saveSupplier()">
-        Save as Draft
-      </button>
-      <button class="btn-primary" (click)="saveSupplier()">
-        <mat-icon>check</mat-icon>
-        Add Supplier
-      </button>
-    </div>
-  </div>
-</div>
+  </form>
+</ng-template>

@@ -1,8 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component';
+import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
+import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
+import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
 
 interface Driver {
   id: string;
@@ -47,33 +51,241 @@ interface Driver {
 @Component({
   selector: 'app-add-driver-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatIconModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    AppTabsComponent,
+    InputTextComponent,
+    InputDropdownComponent
+  ],
   templateUrl: './add-driver-modal.component.html',
   styleUrls: ['./add-driver-modal.component.scss']
 })
-export class AddDriverModalComponent implements OnInit {
+export class AddDriverModalComponent implements OnInit, AfterViewInit {
+  @ViewChild('driverFormTemplate') driverFormTemplate!: TemplateRef<any>;
   driverForm!: FormGroup;
-  activeTab: 'personal' | 'employment' | 'license' | 'documents' = 'personal';
+  activeTab: string = 'personal';
 
-  employmentTypes = ['Full Time', 'Part Time', 'Contract', 'Temporary'];
-  departments = ['Delivery', 'Warehouse', 'Logistics', 'Operations'];
-  statuses = ['Active', 'Inactive', 'On Leave', 'Suspended'];
-  licenseClasses = ['Class A', 'Class B', 'Class C', 'Class D', 'Motorcycle'];
-  vehicleTypes = ['Motorcycle', 'Van', 'Truck', 'Pickup', 'Car'];
-  
-  supervisors = [
-    'John Kamau - Manager',
-    'Mary Njeri - Supervisor',
-    'David Ochieng - Lead',
-    'Grace Wanjiku - Coordinator'
+  tabs: Tab[] = [
+    { id: 'personal', label: 'Personal Info' },
+    { id: 'employment', label: 'Employment' },
+    { id: 'license', label: 'License & Vehicle' },
+    { id: 'documents', label: 'Documents' }
   ];
 
-  vehicles = [
-    'KCB 123A - Toyota Hilux',
-    'KCD 456B - Isuzu D-Max',
-    'KCE 789C - Honda CRF250',
-    'KCF 012D - Nissan NV200'
+  // Input Text Configurations
+  firstNameConfig: InputTextConfig = {
+    placeholder: 'Enter first name',
+    label: 'First Name',
+    required: true,
+    clearable: true
+  };
+
+  lastNameConfig: InputTextConfig = {
+    placeholder: 'Enter last name',
+    label: 'Last Name',
+    required: true,
+    clearable: true
+  };
+
+  emailConfig: InputTextConfig = {
+    placeholder: 'driver@example.com',
+    label: 'Email Address',
+    type: 'email',
+    clearable: true
+  };
+
+  phoneConfig: InputTextConfig = {
+    placeholder: '+254 XXX XXX XXX',
+    label: 'Phone Number',
+    required: true,
+    type: 'tel',
+    clearable: true
+  };
+
+  dobConfig: InputTextConfig = {
+    label: 'Date of Birth',
+    type: 'date',
+    clearable: true
+  };
+
+  idNumberConfig: InputTextConfig = {
+    placeholder: 'Enter ID number',
+    label: 'ID Number',
+    required: true,
+    clearable: true
+  };
+
+  addressConfig: InputTextConfig = {
+    placeholder: 'Enter full address',
+    label: 'Address',
+    required: true,
+    description: true,
+    rows: 3,
+    clearable: true
+  };
+
+  emergencyContactNameConfig: InputTextConfig = {
+    placeholder: 'Enter emergency contact name',
+    label: 'Emergency Contact Name',
+    required: true,
+    clearable: true
+  };
+
+  emergencyContactPhoneConfig: InputTextConfig = {
+    placeholder: '+254 XXX XXX XXX',
+    label: 'Emergency Contact Phone',
+    required: true,
+    type: 'tel',
+    clearable: true
+  };
+
+  employeeIdConfig: InputTextConfig = {
+    placeholder: 'Auto-generated if empty',
+    label: 'Employee ID',
+    clearable: true
+  };
+
+  hireDateConfig: InputTextConfig = {
+    label: 'Hire Date',
+    type: 'date',
+    required: true,
+    clearable: true
+  };
+
+  monthlySalaryConfig: InputTextConfig = {
+    placeholder: '0',
+    label: 'Monthly Salary (KSH)',
+    type: 'number',
+    required: true,
+    clearable: true
+  };
+
+  licenseNumberConfig: InputTextConfig = {
+    placeholder: 'Enter license number',
+    label: 'License Number',
+    required: true,
+    clearable: true
+  };
+
+  licenseExpiryDateConfig: InputTextConfig = {
+    label: 'License Expiry Date',
+    type: 'date',
+    clearable: true
+  };
+
+  maxDeliveriesConfig: InputTextConfig = {
+    placeholder: '10',
+    label: 'Maximum Deliveries per Day',
+    type: 'number',
+    required: true,
+    clearable: true
+  };
+
+  additionalNotesConfig: InputTextConfig = {
+    placeholder: 'Any additional notes about the driver...',
+    label: 'Additional Notes',
+    description: true,
+    rows: 4,
+    clearable: true
+  };
+
+  // Dropdown Options
+  employmentTypeOptions: DropdownOption[] = [
+    { id: 'fulltime', label: 'Full Time', value: 'Full Time' },
+    { id: 'parttime', label: 'Part Time', value: 'Part Time' },
+    { id: 'contract', label: 'Contract', value: 'Contract' },
+    { id: 'temporary', label: 'Temporary', value: 'Temporary' }
   ];
+
+  departmentOptions: DropdownOption[] = [
+    { id: 'delivery', label: 'Delivery', value: 'Delivery' },
+    { id: 'warehouse', label: 'Warehouse', value: 'Warehouse' },
+    { id: 'logistics', label: 'Logistics', value: 'Logistics' },
+    { id: 'operations', label: 'Operations', value: 'Operations' }
+  ];
+
+  statusOptions: DropdownOption[] = [
+    { id: 'active', label: 'Active', value: 'Active' },
+    { id: 'inactive', label: 'Inactive', value: 'Inactive' },
+    { id: 'onleave', label: 'On Leave', value: 'On Leave' },
+    { id: 'suspended', label: 'Suspended', value: 'Suspended' }
+  ];
+
+  licenseClassOptions: DropdownOption[] = [
+    { id: 'classa', label: 'Class A', value: 'Class A' },
+    { id: 'classb', label: 'Class B', value: 'Class B' },
+    { id: 'classc', label: 'Class C', value: 'Class C' },
+    { id: 'classd', label: 'Class D', value: 'Class D' },
+    { id: 'motorcycle', label: 'Motorcycle', value: 'Motorcycle' }
+  ];
+
+  vehicleTypeOptions: DropdownOption[] = [
+    { id: 'motorcycle', label: 'Motorcycle', value: 'Motorcycle' },
+    { id: 'van', label: 'Van', value: 'Van' },
+    { id: 'truck', label: 'Truck', value: 'Truck' },
+    { id: 'pickup', label: 'Pickup', value: 'Pickup' },
+    { id: 'car', label: 'Car', value: 'Car' }
+  ];
+
+  supervisorOptions: DropdownOption[] = [
+    { id: 'sup1', label: 'John Kamau - Manager', value: 'John Kamau - Manager' },
+    { id: 'sup2', label: 'Mary Njeri - Supervisor', value: 'Mary Njeri - Supervisor' },
+    { id: 'sup3', label: 'David Ochieng - Lead', value: 'David Ochieng - Lead' },
+    { id: 'sup4', label: 'Grace Wanjiku - Coordinator', value: 'Grace Wanjiku - Coordinator' }
+  ];
+
+  vehicleOptions: DropdownOption[] = [
+    { id: 'veh1', label: 'KCB 123A - Toyota Hilux', value: 'KCB 123A - Toyota Hilux' },
+    { id: 'veh2', label: 'KCD 456B - Isuzu D-Max', value: 'KCD 456B - Isuzu D-Max' },
+    { id: 'veh3', label: 'KCE 789C - Honda CRF250', value: 'KCE 789C - Honda CRF250' },
+    { id: 'veh4', label: 'KCF 012D - Nissan NV200', value: 'KCF 012D - Nissan NV200' }
+  ];
+
+  // Dropdown Configurations
+  employmentTypeDropdownConfig: DropdownConfig = {
+    placeholder: 'Select employment type',
+    searchable: true,
+    clearable: true
+  };
+
+  departmentDropdownConfig: DropdownConfig = {
+    placeholder: 'Select department',
+    searchable: true,
+    clearable: true
+  };
+
+  statusDropdownConfig: DropdownConfig = {
+    placeholder: 'Select status',
+    searchable: true,
+    clearable: true
+  };
+
+  licenseClassDropdownConfig: DropdownConfig = {
+    placeholder: 'Select license class',
+    searchable: true,
+    clearable: true
+  };
+
+  vehicleTypeDropdownConfig: DropdownConfig = {
+    placeholder: 'Select vehicle type',
+    searchable: true,
+    clearable: true
+  };
+
+  supervisorDropdownConfig: DropdownConfig = {
+    placeholder: 'Select supervisor',
+    searchable: true,
+    clearable: true
+  };
+
+  vehicleDropdownConfig: DropdownConfig = {
+    placeholder: 'Select vehicle',
+    searchable: true,
+    clearable: true
+  };
 
   uploadedFiles = {
     profilePhoto: null as File | null,
@@ -84,11 +296,72 @@ export class AddDriverModalComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private dialog: MatDialog,
     public dialogRef: MatDialogRef<AddDriverModalComponent>
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.openModal();
+    });
+  }
+
+  openModal(): void {
+    const modalConfig: AppModalConfig = {
+      title: 'Add New Driver',
+      subtitle: 'Fill in the driver information',
+      wide: true
+    };
+
+    const leftButtons: ModalButton[] = [
+      {
+        label: 'Cancel',
+        action: 'cancel',
+        color: 'default'
+      }
+    ];
+
+    const rightButtons: ModalButton[] = [
+      {
+        label: 'Add Driver',
+        action: 'save',
+        color: 'primary',
+        icon: 'person_add'
+      }
+    ];
+
+    const modalDialogRef = this.dialog.open(AppModalComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      disableClose: false,
+      panelClass: 'custom-modal-panel'
+    });
+
+    const instance = modalDialogRef.componentInstance;
+    instance.config = modalConfig;
+    instance.contentTemplate = this.driverFormTemplate;
+    instance.leftButtons = leftButtons;
+    instance.rightButtons = rightButtons;
+
+    instance.buttonClicked.subscribe((action: string) => {
+      if (action === 'save') {
+        this.saveDriver(modalDialogRef, instance);
+      } else if (action === 'cancel') {
+        this.dialogRef.close();
+      }
+    });
+
+    modalDialogRef.afterClosed().subscribe(result => {
+      this.dialogRef.close(result);
+    });
+  }
+
+  onTabChange(tabId: string): void {
+    this.activeTab = tabId;
   }
 
   private initializeForm(): void {
@@ -126,11 +399,7 @@ export class AddDriverModalComponent implements OnInit {
     });
   }
 
-  setTab(tab: 'personal' | 'employment' | 'license' | 'documents'): void {
-    this.activeTab = tab;
-  }
-
-  isTabValid(tab: 'personal' | 'employment' | 'license' | 'documents'): boolean {
+  isTabValid(tab: string): boolean {
     if (tab === 'personal') {
       return (
         (this.driverForm.get('firstName')?.valid ?? false) &&
@@ -178,19 +447,97 @@ export class AddDriverModalComponent implements OnInit {
     return this.uploadedFiles[fileType] !== null;
   }
 
-  addDriver(): void {
-    if (!this.driverForm.valid) {
-      alert('Please fill in all required fields');
+  onEmploymentTypeChange(value: DropdownOption | DropdownOption[] | null): void {
+    if (value && !Array.isArray(value)) {
+      this.driverForm.patchValue({ employmentType: value.value });
+    }
+  }
+
+  onDepartmentChange(value: DropdownOption | DropdownOption[] | null): void {
+    if (value && !Array.isArray(value)) {
+      this.driverForm.patchValue({ department: value.value });
+    }
+  }
+
+  onStatusChange(value: DropdownOption | DropdownOption[] | null): void {
+    if (value && !Array.isArray(value)) {
+      this.driverForm.patchValue({ status: value.value });
+    }
+  }
+
+  onSupervisorChange(value: DropdownOption | DropdownOption[] | null): void {
+    if (value && !Array.isArray(value)) {
+      this.driverForm.patchValue({ supervisor: value.value });
+    }
+  }
+
+  onLicenseClassChange(value: DropdownOption | DropdownOption[] | null): void {
+    if (value && !Array.isArray(value)) {
+      this.driverForm.patchValue({ licenseClass: value.value });
+    }
+  }
+
+  onVehicleChange(value: DropdownOption | DropdownOption[] | null): void {
+    if (value && !Array.isArray(value)) {
+      this.driverForm.patchValue({ assignedVehicle: value.value });
+    }
+  }
+
+  onVehicleTypeChange(value: DropdownOption | DropdownOption[] | null): void {
+    if (value && !Array.isArray(value)) {
+      this.driverForm.patchValue({ vehicleType: value.value });
+    }
+  }
+
+  canSave(): boolean {
+    const firstName = this.driverForm.get('firstName');
+    const lastName = this.driverForm.get('lastName');
+    const phone = this.driverForm.get('phone');
+    const idNumber = this.driverForm.get('idNumber');
+    const licenseNumber = this.driverForm.get('licenseNumber');
+    
+    return !!(
+      firstName?.valid && firstName?.value &&
+      lastName?.valid && lastName?.value &&
+      phone?.valid && phone?.value &&
+      idNumber?.valid && idNumber?.value &&
+      licenseNumber?.valid && licenseNumber?.value
+    );
+  }
+
+  saveDriver(dialogRef: any, instance: AppModalComponent): void {
+    if (!this.canSave()) {
+      instance.showErrorMessage = true;
+      instance.errorMessage = 'Please fill in all required fields';
+      setTimeout(() => {
+        instance.showErrorMessage = false;
+      }, 3000);
       return;
     }
 
-    const driverData: Driver = {
-      id: 'DRV-' + Date.now(),
-      ...this.driverForm.value,
-      documents: this.uploadedFiles
-    };
+    const saveBtn = instance.rightButtons.find(b => b.action === 'save');
+    if (saveBtn) saveBtn.loading = true;
 
-    this.dialogRef.close(driverData);
+    // Simulate API call
+    setTimeout(() => {
+      const driverData: Driver = {
+        id: 'DRV-' + Date.now(),
+        ...this.driverForm.value,
+        documents: this.uploadedFiles
+      };
+      
+      instance.showSuccessMessage = true;
+      instance.successMessage = 'Driver added successfully!';
+      
+      setTimeout(() => {
+        dialogRef.close(driverData);
+      }, 1500);
+    }, 800);
+  }
+
+  addDriver(): void {
+    // This method is kept for backward compatibility but not used anymore
+    // The actual save is handled by saveDriver method
   }
 
   closeDialog(): void {
