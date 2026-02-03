@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
+import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
+import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
 
 interface Supplier {
   id: string;
@@ -46,17 +49,154 @@ interface PurchaseOrder {
 @Component({
   selector: 'app-create-po-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatIconModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatIconModule, InputTextComponent, InputDropdownComponent],
   templateUrl: './create-po-modal.component.html',
   styleUrls: ['./create-po-modal.component.scss']
 })
-export class CreatePOModalComponent implements OnInit {
+export class CreatePOModalComponent implements OnInit, AfterViewInit {
+  @ViewChild('poFormTemplate') poFormTemplate!: TemplateRef<any>;
   currentStep: 1 | 2 | 3 = 1;
   poForm!: FormGroup;
   itemForm!: FormGroup;
   reviewForm!: FormGroup;
+  modalInstance: any = null;
 
   activeReviewTab: 'review' | 'notes' = 'review';
+
+  // Input Text Configurations
+  poNumberConfig: InputTextConfig = {
+    placeholder: 'Auto-generated',
+    label: 'PO Number',
+    clearable: false
+  };
+
+  requestedByConfig: InputTextConfig = {
+    placeholder: 'Requested by',
+    label: 'Requested By',
+    clearable: false
+  };
+
+  expectedDeliveryConfig: InputTextConfig = {
+    placeholder: 'Select delivery date',
+    label: 'Expected Delivery Date',
+    type: 'date',
+    clearable: true
+  };
+
+  deliveryAddressConfig: InputTextConfig = {
+    placeholder: 'Enter complete delivery address...',
+    label: 'Delivery Address',
+    description: true,
+    rows: 3,
+    clearable: true
+  };
+
+  itemNameConfig: InputTextConfig = {
+    placeholder: 'Enter item name',
+    label: 'Item Name',
+    required: true,
+    clearable: true
+  };
+
+  itemDescriptionConfig: InputTextConfig = {
+    placeholder: 'Item description...',
+    label: 'Description',
+    description: true,
+    rows: 3,
+    clearable: true
+  };
+
+  itemSpecsConfig: InputTextConfig = {
+    placeholder: 'Technical specifications...',
+    label: 'Specifications',
+    description: true,
+    rows: 3,
+    clearable: true
+  };
+
+  itemQuantityConfig: InputTextConfig = {
+    placeholder: '1',
+    label: 'Quantity',
+    type: 'number',
+    required: true,
+    clearable: true
+  };
+
+  itemUnitPriceConfig: InputTextConfig = {
+    placeholder: '0',
+    label: 'Unit Price (KES)',
+    type: 'number',
+    required: true,
+    clearable: true
+  };
+
+  publicNotesConfig: InputTextConfig = {
+    placeholder: 'Any special instructions for the supplier...',
+    label: 'Public Notes (visible to supplier)',
+    description: true,
+    rows: 4,
+    clearable: true
+  };
+
+  internalNotesConfig: InputTextConfig = {
+    placeholder: 'Internal notes for your team...',
+    label: 'Internal Notes (private)',
+    description: true,
+    rows: 4,
+    clearable: true
+  };
+
+  // Dropdown Options
+  supplierOptions: DropdownOption[] = [];
+  paymentTermsOptions: DropdownOption[] = [];
+  branchOptions: DropdownOption[] = [];
+  priorityOptions: DropdownOption[] = [];
+  urgencyOptions: DropdownOption[] = [];
+  budgetCodeOptions: DropdownOption[] = [];
+  approverOptions: DropdownOption[] = [];
+
+  // Dropdown Configurations
+  supplierDropdownConfig: DropdownConfig = {
+    placeholder: 'Choose a supplier',
+    searchable: true,
+    clearable: true
+  };
+
+  paymentTermsDropdownConfig: DropdownConfig = {
+    placeholder: 'Select payment terms',
+    searchable: true,
+    clearable: true
+  };
+
+  branchDropdownConfig: DropdownConfig = {
+    placeholder: 'Select branch',
+    searchable: true,
+    clearable: true
+  };
+
+  priorityDropdownConfig: DropdownConfig = {
+    placeholder: 'Select priority',
+    searchable: true,
+    clearable: true
+  };
+
+  urgencyDropdownConfig: DropdownConfig = {
+    placeholder: 'Select urgency',
+    searchable: true,
+    clearable: true
+  };
+
+  budgetCodeDropdownConfig: DropdownConfig = {
+    placeholder: 'Select budget code',
+    searchable: true,
+    clearable: true
+  };
+
+  approverDropdownConfig: DropdownConfig = {
+    placeholder: 'Select approver',
+    searchable: true,
+    clearable: true
+  };
 
   suppliers: Supplier[] = [
     { id: '1', name: 'Metro Building Supplies', category: 'Construction Materials', paymentTerms: 'Net 15' },
@@ -64,7 +204,7 @@ export class CreatePOModalComponent implements OnInit {
     { id: '3', name: 'Prime Tools Ltd', category: 'Equipment', paymentTerms: 'Net 45' }
   ];
 
-  paymentTermsOptions = ['Net 15', 'Net 30', 'Net 45', 'Net 60', 'Cash on Delivery'];
+  paymentTerms = ['Net 15', 'Net 30', 'Net 45', 'Net 60', 'Cash on Delivery'];
   branches = ['Westlands Branch', 'CBD Branch', 'Eastlands Branch', 'Mombasa Branch'];
   priorities = ['Normal', 'High', 'Urgent', 'Low'];
   urgencies = ['Normal', 'Urgent', 'Critical'];
@@ -77,11 +217,156 @@ export class CreatePOModalComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private dialog: MatDialog,
     public dialogRef: MatDialogRef<CreatePOModalComponent>
   ) {}
 
   ngOnInit(): void {
     this.initializeForms();
+    this.initializeDropdownOptions();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.openModal();
+    });
+  }
+
+  openModal(): void {
+    const modalConfig: AppModalConfig = {
+      title: 'Create Purchase Order',
+      subtitle: 'Create a new purchase order for supplier procurement',
+      wide: true
+    };
+
+    const leftButtons: ModalButton[] = [];
+    const rightButtons: ModalButton[] = [];
+
+    // Step-specific buttons
+    if (this.currentStep === 1) {
+      leftButtons.push({
+        label: 'Cancel',
+        action: 'cancel',
+        color: 'default'
+      });
+      rightButtons.push({
+        label: 'Continue',
+        action: 'next',
+        color: 'primary',
+        disabled: !this.canProceedToStep2()
+      });
+    } else if (this.currentStep === 2) {
+      leftButtons.push({
+        label: 'Back',
+        action: 'previous',
+        color: 'default'
+      });
+      rightButtons.push({
+        label: 'Continue',
+        action: 'next',
+        color: 'primary',
+        disabled: !this.canProceedToStep3()
+      });
+    } else if (this.currentStep === 3) {
+      leftButtons.push({
+        label: 'Back',
+        action: 'previous',
+        color: 'default'
+      });
+      rightButtons.push(
+        {
+          label: 'Create PO',
+          action: 'save',
+          color: 'primary',
+          icon: 'description'
+        }
+      );
+    }
+
+    const modalDialogRef = this.dialog.open(AppModalComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      disableClose: false,
+      panelClass: 'custom-modal-panel'
+    });
+
+    const instance = modalDialogRef.componentInstance;
+    this.modalInstance = instance;
+    instance.config = modalConfig;
+    instance.contentTemplate = this.poFormTemplate;
+    instance.leftButtons = leftButtons;
+    instance.rightButtons = rightButtons;
+
+    instance.buttonClicked.subscribe((action: string) => {
+      if (action === 'save') {
+        this.createPO(modalDialogRef, instance);
+      } else if (action === 'next') {
+        this.nextStep();
+        this.updateModalButtons(instance);
+      } else if (action === 'previous') {
+        this.previousStep();
+        this.updateModalButtons(instance);
+      } else if (action === 'cancel') {
+        this.dialogRef.close();
+      }
+    });
+
+    modalDialogRef.afterClosed().subscribe(result => {
+      if (result !== undefined) {
+        this.dialogRef.close(result);
+      }
+    });
+  }
+
+  private initializeDropdownOptions(): void {
+    // Convert suppliers to dropdown options
+    this.supplierOptions = this.suppliers.map(supplier => ({
+      id: supplier.id,
+      label: `${supplier.name} - ${supplier.category}`,
+      value: supplier.id
+    }));
+
+    // Convert payment terms to dropdown options
+    this.paymentTermsOptions = this.paymentTerms.map((term, index) => ({
+      id: `pt${index}`,
+      label: term,
+      value: term
+    }));
+
+    // Convert branches to dropdown options
+    this.branchOptions = this.branches.map((branch, index) => ({
+      id: `br${index}`,
+      label: branch,
+      value: branch
+    }));
+
+    // Convert priorities to dropdown options
+    this.priorityOptions = this.priorities.map((priority, index) => ({
+      id: `pr${index}`,
+      label: priority,
+      value: priority
+    }));
+
+    // Convert urgencies to dropdown options
+    this.urgencyOptions = this.urgencies.map((urgency, index) => ({
+      id: `ur${index}`,
+      label: urgency,
+      value: urgency
+    }));
+
+    // Convert budget codes to dropdown options
+    this.budgetCodeOptions = this.budgetCodes.map((code, index) => ({
+      id: `bc${index}`,
+      label: code,
+      value: code
+    }));
+
+    // Convert approvers to dropdown options
+    this.approverOptions = this.approvers.map((approver, index) => ({
+      id: `ap${index}`,
+      label: approver,
+      value: approver
+    }));
   }
 
   private initializeForms(): void {
@@ -111,14 +396,123 @@ export class CreatePOModalComponent implements OnInit {
       publicNotes: [''],
       internalNotes: ['']
     });
+  }
 
-    // Watch supplier selection
-    this.poForm.get('supplier')?.valueChanges.subscribe(supplierId => {
-      this.selectedSupplier = this.suppliers.find(s => s.id === supplierId) || null;
-      if (this.selectedSupplier) {
-        this.poForm.patchValue({ paymentTerms: this.selectedSupplier.paymentTerms });
+  // Dropdown Change Handlers
+  onSupplierChange(option: DropdownOption | null): void {
+    if (!option) return;
+    const value = option.value || option.id;
+    this.poForm.patchValue({ supplier: value });
+    this.selectedSupplier = this.suppliers.find(s => s.id === value) || null;
+    if (this.selectedSupplier) {
+      this.poForm.patchValue({ paymentTerms: this.selectedSupplier.paymentTerms });
+    }
+    this.updateButtonState();
+  }
+
+  onPaymentTermsChange(option: DropdownOption | null): void {
+    if (!option) return;
+    const value = option.value || option.label;
+    this.poForm.patchValue({ paymentTerms: value });
+    this.updateButtonState();
+  }
+
+  onBranchChange(option: DropdownOption | null): void {
+    if (!option) return;
+    const value = option.value || option.label;
+    this.poForm.patchValue({ branch: value });
+    this.updateButtonState();
+  }
+
+  onPriorityChange(option: DropdownOption | null): void {
+    if (!option) return;
+    const value = option.value || option.label;
+    this.poForm.patchValue({ priority: value });
+    this.updateButtonState();
+  }
+
+  onUrgencyChange(option: DropdownOption | null): void {
+    if (!option) return;
+    const value = option.value || option.label;
+    this.itemForm.patchValue({ urgency: value });
+  }
+
+  onBudgetCodeChange(option: DropdownOption | null): void {
+    if (!option) return;
+    const value = option.value || option.label;
+    this.poForm.patchValue({ budgetCode: value });
+  }
+
+  onApproverChange(option: DropdownOption | null): void {
+    if (!option) return;
+    const value = option.value || option.label;
+    this.poForm.patchValue({ approver: value });
+  }
+
+  updateButtonState(): void {
+    if (!this.modalInstance) return;
+
+    if (this.currentStep === 1) {
+      const canProceed = this.canProceedToStep2();
+      if (this.modalInstance.rightButtons && this.modalInstance.rightButtons.length > 0) {
+        this.modalInstance.rightButtons[0].disabled = !canProceed;
       }
-    });
+    } else if (this.currentStep === 2) {
+      const canProceed = this.canProceedToStep3();
+      if (this.modalInstance.rightButtons && this.modalInstance.rightButtons.length > 0) {
+        this.modalInstance.rightButtons[0].disabled = !canProceed;
+      }
+    }
+  }
+
+  updateModalButtons(instance: AppModalComponent): void {
+    const leftButtons: ModalButton[] = [];
+    const rightButtons: ModalButton[] = [];
+
+    if (this.currentStep === 1) {
+      leftButtons.push({
+        label: 'Cancel',
+        action: 'cancel',
+        color: 'default'
+      });
+      rightButtons.push({
+        label: 'Continue',
+        action: 'next',
+        color: 'primary',
+        icon: 'arrow_forward',
+        disabled: !this.canProceedToStep2()
+      });
+    } else if (this.currentStep === 2) {
+      leftButtons.push({
+        label: 'Back',
+        action: 'previous',
+        color: 'default',
+        icon: 'arrow_back'
+      });
+      rightButtons.push({
+        label: 'Continue',
+        action: 'next',
+        color: 'primary',
+        icon: 'arrow_forward',
+        disabled: !this.canProceedToStep3()
+      });
+    } else if (this.currentStep === 3) {
+      leftButtons.push({
+        label: 'Back',
+        action: 'previous',
+        color: 'default',
+        icon: 'arrow_back'
+      });
+      rightButtons.push({
+        label: 'Create PO',
+        action: 'save',
+        color: 'primary',
+        icon: 'check'
+      });
+    }
+
+    instance.leftButtons = leftButtons;
+    instance.rightButtons = rightButtons;
   }
 
   private generatePONumber(): string {
@@ -164,10 +558,12 @@ export class CreatePOModalComponent implements OnInit {
       description: '',
       specifications: ''
     });
+    this.updateButtonState();
   }
 
   removeItem(index: number): void {
     this.items.splice(index, 1);
+    this.updateButtonState();
   }
 
   updateItemQuantity(index: number, newQuantity: number): void {
@@ -231,21 +627,34 @@ export class CreatePOModalComponent implements OnInit {
     this.activeReviewTab = tab;
   }
 
-  saveDraft(): void {
+  saveDraft(modalDialogRef: MatDialogRef<AppModalComponent>, instance: any): void {
+    instance.loading = true;
     const poData = this.compilePOData();
     console.log('Saving draft:', poData);
-    this.dialogRef.close({ draft: true, data: poData });
+    
+    setTimeout(() => {
+      instance.loading = false;
+      modalDialogRef.close();
+      this.dialogRef.close({ draft: true, data: poData });
+    }, 1000);
   }
 
-  createPO(): void {
+  createPO(modalDialogRef: MatDialogRef<AppModalComponent>, instance: any): void {
     if (!this.canProceedToStep2() || !this.canProceedToStep3()) {
       alert('Please complete all required fields');
+      instance.loading = false;
       return;
     }
 
+    instance.loading = true;
     const poData = this.compilePOData();
     console.log('Creating PO:', poData);
-    this.dialogRef.close({ draft: false, data: poData });
+    
+    setTimeout(() => {
+      instance.loading = false;
+      modalDialogRef.close();
+      this.dialogRef.close({ draft: false, data: poData });
+    }, 1000);
   }
 
   private compilePOData(): PurchaseOrder {

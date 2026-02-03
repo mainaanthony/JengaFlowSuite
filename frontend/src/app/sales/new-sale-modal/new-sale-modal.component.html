@@ -1,18 +1,6 @@
-<div class="modal-overlay">
-  <div class="modal-container">
-    <!-- Modal Header -->
-    <div class="modal-header">
-      <div>
-        <h2>New Sale</h2>
-        <p>Process a new sales transaction</p>
-      </div>
-      <button class="btn-close" (click)="closeDialog()" title="Close">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-
-    <!-- Steps Indicator -->
-    <div class="steps-indicator">
+<ng-template #saleFormTemplate>
+  <!-- Steps Indicator -->
+  <div class="steps-indicator">
       <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
         <div class="step-number">1</div>
         <div class="step-label">Customer</div>
@@ -31,8 +19,8 @@
       </div>
     </div>
 
-    <!-- Modal Content -->
-    <div class="modal-content">
+  <!-- Form Content -->
+  <div class="sale-form-content">
       <!-- Step 1: Customer Selection -->
       <div class="step-content" *ngIf="currentStep === 1" [@fadeInOut]>
         <h3>Select a Customer</h3>
@@ -67,22 +55,32 @@
         </div>
 
         <div class="new-customer-section">
-          <h4>Create New Customer</h4>
-          <div class="form-row">
-            <input
-              type="text"
-              placeholder="Full Name"
-              [formControl]="customerForm.get('newCustomerName')"
-            />
-            <input
-              type="tel"
-              placeholder="Phone Number"
-              [formControl]="customerForm.get('newCustomerPhone')"
-            />
-            <button class="btn-primary" (click)="createNewCustomer()">
-              <mat-icon>add</mat-icon>
-              Add Customer
-            </button>
+          <button class="btn-secondary" (click)="toggleNewCustomerForm()" *ngIf="!showNewCustomerForm">
+            <mat-icon>person_add</mat-icon>
+            New Customer
+          </button>
+          
+          <div *ngIf="showNewCustomerForm">
+            <div class="section-header">
+              <h4>Create New Customer</h4>
+              <button class="btn-icon" (click)="toggleNewCustomerForm()" title="Cancel">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            <div class="form-row">
+              <app-input-text
+                [config]="newCustomerNameConfig"
+                [formControl]="customerForm.get('newCustomerName')"
+              ></app-input-text>
+              <app-input-text
+                [config]="newCustomerPhoneConfig"
+                [formControl]="customerForm.get('newCustomerPhone')"
+              ></app-input-text>
+              <button class="btn-primary" (click)="createNewCustomer()">
+                <mat-icon>add</mat-icon>
+                Add Customer
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -200,17 +198,17 @@
             <div class="discount-section" [formGroup]="checkoutForm">
               <div class="discount-row">
                 <div class="discount-input-group">
-                  <select formControlName="discountType" (change)="onDiscountChange()">
-                    <option value="percentage">Discount %</option>
-                    <option value="fixed">Discount KES</option>
-                  </select>
-                  <input
-                    type="number"
+                  <label class="form-label">Discount Type <span class="required">*</span></label>
+                  <app-input-dropdown
+                    [options]="discountTypeOptions"
+                    [config]="discountTypeDropdownConfig"
+                    (selectionChanged)="onDiscountTypeChange($event)"
+                  ></app-input-dropdown>
+                  <app-input-text
+                    [config]="discountValueConfig"
                     formControlName="discountValue"
-                    placeholder="0"
-                    (change)="onDiscountChange()"
-                    min="0"
-                  />
+                    (valueChanged)="onDiscountChange()"
+                  ></app-input-text>
                 </div>
                 <span class="discount-amount" *ngIf="totals.discountAmount > 0">
                   -KES {{ totals.discountAmount | number: '1.0-0' }}
@@ -234,22 +232,19 @@
             <h4>Payment Information</h4>
 
             <div class="form-group">
-              <label>Payment Method</label>
-              <select formControlName="paymentMethod">
-                <option value="Cash">Cash</option>
-                <option value="M-Pesa">M-Pesa</option>
-                <option value="Card">Card</option>
-              </select>
+              <label class="form-label">Payment Method <span class="required">*</span></label>
+              <app-input-dropdown
+                [options]="paymentMethodOptions"
+                [config]="paymentMethodDropdownConfig"
+                (selectionChanged)="onPaymentMethodChange($event)"
+              ></app-input-dropdown>
             </div>
 
             <div class="form-group">
-              <label>Amount Paid (KES)</label>
-              <input
-                type="number"
+              <app-input-text
+                [config]="amountPaidConfig"
                 formControlName="amountPaid"
-                placeholder="0"
-                min="0"
-              />
+              ></app-input-text>
             </div>
 
             <div class="balance-section" [class.insufficient]="getBalance() > 0">
@@ -271,49 +266,13 @@
             </div>
 
             <div class="form-group">
-              <label>Notes (Optional)</label>
-              <textarea formControlName="notes" placeholder="Add order notes..."></textarea>
+              <app-input-text
+                [config]="notesConfig"
+                formControlName="notes"
+              ></app-input-text>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Modal Footer -->
-    <div class="modal-footer">
-      <button class="btn-secondary" (click)="closeDialog()">
-        Cancel
-      </button>
-
-      <div class="step-buttons">
-        <button
-          class="btn-secondary"
-          *ngIf="currentStep > 1"
-          (click)="previousStep()"
-        >
-          <mat-icon>arrow_back</mat-icon>
-          Back
-        </button>
-
-        <button
-          class="btn-primary"
-          *ngIf="currentStep < 3"
-          (click)="nextStep()"
-          [disabled]="(currentStep === 1 && !canProceedToStep2()) || (currentStep === 2 && !canProceedToStep3())"
-        >
-          Continue
-          <mat-icon>arrow_forward</mat-icon>
-        </button>
-
-        <button
-          class="btn-success"
-          *ngIf="currentStep === 3"
-          (click)="completeSale()"
-        >
-          <mat-icon>check</mat-icon>
-          Complete Sale
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+</ng-template>

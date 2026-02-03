@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
+import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
+import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
 
 interface Customer {
   id: string;
@@ -53,13 +56,22 @@ interface SaleTransaction {
 @Component({
   selector: 'app-new-sale-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule, 
+    MatIconModule,
+    InputTextComponent,
+    InputDropdownComponent
+  ],
   templateUrl: './new-sale-modal.component.html',
   styleUrls: ['./new-sale-modal.component.scss']
 })
-export class NewSaleModalComponent implements OnInit {
+export class NewSaleModalComponent implements OnInit, AfterViewInit {
+  @ViewChild('saleFormTemplate') saleFormTemplate!: TemplateRef<any>;
   currentStep: 1 | 2 | 3 = 1;
   Math = Math;
+  modalInstance: any = null;
 
   // Forms
   customerForm!: FormGroup;
@@ -86,6 +98,7 @@ export class NewSaleModalComponent implements OnInit {
 
   selectedCustomer: Customer | null = null;
   cart: CartItem[] = [];
+  showNewCustomerForm: boolean = false;
   totals = {
     subtotal: 0,
     discountAmount: 0,
@@ -93,8 +106,74 @@ export class NewSaleModalComponent implements OnInit {
     total: 0
   };
 
+  // Input Text Configurations
+  newCustomerNameConfig: InputTextConfig = {
+    placeholder: 'Enter full name',
+    label: 'Customer Name',
+    required: true,
+    clearable: true
+  };
+
+  newCustomerPhoneConfig: InputTextConfig = {
+    placeholder: 'Enter phone number',
+    label: 'Phone Number',
+    type: 'tel',
+    required: true,
+    clearable: true
+  };
+
+  discountValueConfig: InputTextConfig = {
+    placeholder: '0',
+    label: 'Discount Value',
+    type: 'number',
+    required: true,
+    clearable: true
+  };
+
+  amountPaidConfig: InputTextConfig = {
+    placeholder: '0',
+    label: 'Amount Paid (KES)',
+    type: 'number',
+    required: true,
+    clearable: true
+  };
+
+  notesConfig: InputTextConfig = {
+    placeholder: 'Add order notes...',
+    label: 'Notes (Optional)',
+    description: true,
+    rows: 3,
+    clearable: true
+  };
+
+  // Dropdown Options
+  discountTypeOptions: DropdownOption[] = [
+    { id: 'percentage', label: 'Discount %', value: 'percentage' },
+    { id: 'fixed', label: 'Discount KES', value: 'fixed' }
+  ];
+
+  paymentMethodOptions: DropdownOption[] = [
+    { id: 'cash', label: 'Cash', value: 'Cash' },
+    { id: 'mpesa', label: 'M-Pesa', value: 'M-Pesa' },
+    { id: 'card', label: 'Card', value: 'Card' }
+  ];
+
+  // Dropdown Configurations
+  discountTypeDropdownConfig: DropdownConfig = {
+    placeholder: 'Select discount type',
+    searchable: false,
+    clearable: false
+  };
+
+  paymentMethodDropdownConfig: DropdownConfig = {
+    placeholder: 'Select payment method',
+    searchable: false,
+    clearable: false
+  };
+
   constructor(
     private fb: FormBuilder,
+    private dialog: MatDialog,
     public dialogRef: MatDialogRef<NewSaleModalComponent>
   ) {}
 
@@ -102,6 +181,100 @@ export class NewSaleModalComponent implements OnInit {
     this.initializeForms();
     this.filteredProducts = [...this.products];
     this.filteredCustomers = [...this.customers];
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.openModal();
+    });
+  }
+
+  openModal(): void {
+    const modalConfig: AppModalConfig = {
+      title: 'New Sale',
+      subtitle: 'Process a new sales transaction',
+      wide: true
+    };
+
+    const leftButtons: ModalButton[] = [];
+    const rightButtons: ModalButton[] = [];
+
+    // Step-specific buttons
+    if (this.currentStep === 1) {
+      leftButtons.push({
+        label: 'Cancel',
+        action: 'cancel',
+        color: 'default'
+      });
+      rightButtons.push({
+        label: 'Continue',
+        action: 'next',
+        color: 'primary',
+        icon: 'arrow_forward',
+        disabled: !this.canProceedToStep2()
+      });
+    } else if (this.currentStep === 2) {
+      leftButtons.push({
+        label: 'Back',
+        action: 'previous',
+        color: 'default',
+        icon: 'arrow_back'
+      });
+      rightButtons.push({
+        label: 'Continue',
+        action: 'next',
+        color: 'primary',
+        icon: 'arrow_forward',
+        disabled: !this.canProceedToStep3()
+      });
+    } else if (this.currentStep === 3) {
+      leftButtons.push({
+        label: 'Back',
+        action: 'previous',
+        color: 'default',
+        icon: 'arrow_back'
+      });
+      rightButtons.push({
+        label: 'Complete Sale',
+        action: 'save',
+        color: 'primary',
+        icon: 'check'
+      });
+    }
+
+    const modalDialogRef = this.dialog.open(AppModalComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      disableClose: false,
+      panelClass: 'custom-modal-panel'
+    });
+
+    const instance = modalDialogRef.componentInstance;
+    this.modalInstance = instance;
+    instance.config = modalConfig;
+    instance.contentTemplate = this.saleFormTemplate;
+    instance.leftButtons = leftButtons;
+    instance.rightButtons = rightButtons;
+
+    instance.buttonClicked.subscribe((action: string) => {
+      if (action === 'save') {
+        this.completeSale(modalDialogRef, instance);
+      } else if (action === 'next') {
+        this.nextStep();
+        this.updateModalButtons(instance);
+      } else if (action === 'previous') {
+        this.previousStep();
+        this.updateModalButtons(instance);
+      } else if (action === 'cancel') {
+        this.dialogRef.close();
+      }
+    });
+
+    modalDialogRef.afterClosed().subscribe(result => {
+      if (result !== undefined) {
+        this.dialogRef.close(result);
+      }
+    });
   }
 
   private initializeForms(): void {
@@ -123,6 +296,88 @@ export class NewSaleModalComponent implements OnInit {
       amountPaid: [0, [Validators.required, Validators.min(0)]],
       notes: ['']
     });
+
+    // Set initial dropdown values
+    this.checkoutForm.patchValue({
+      discountType: 'percentage',
+      paymentMethod: 'Cash'
+    });
+  }
+
+  // Dropdown Change Handlers
+  onDiscountTypeChange(value: string): void {
+    this.checkoutForm.patchValue({ discountType: value });
+    this.onDiscountChange();
+  }
+
+  onPaymentMethodChange(value: string): void {
+    this.checkoutForm.patchValue({ paymentMethod: value });
+  }
+
+  updateButtonState(): void {
+    if (!this.modalInstance) return;
+
+    if (this.currentStep === 1) {
+      const canProceed = this.canProceedToStep2();
+      if (this.modalInstance.rightButtons && this.modalInstance.rightButtons.length > 0) {
+        this.modalInstance.rightButtons[0].disabled = !canProceed;
+      }
+    } else if (this.currentStep === 2) {
+      const canProceed = this.canProceedToStep3();
+      if (this.modalInstance.rightButtons && this.modalInstance.rightButtons.length > 0) {
+        this.modalInstance.rightButtons[0].disabled = !canProceed;
+      }
+    }
+  }
+
+  updateModalButtons(instance: AppModalComponent): void {
+    const leftButtons: ModalButton[] = [];
+    const rightButtons: ModalButton[] = [];
+
+    if (this.currentStep === 1) {
+      leftButtons.push({
+        label: 'Cancel',
+        action: 'cancel',
+        color: 'default'
+      });
+      rightButtons.push({
+        label: 'Continue',
+        action: 'next',
+        color: 'primary',
+        icon: 'arrow_forward',
+        disabled: !this.canProceedToStep2()
+      });
+    } else if (this.currentStep === 2) {
+      leftButtons.push({
+        label: 'Back',
+        action: 'previous',
+        color: 'default',
+        icon: 'arrow_back'
+      });
+      rightButtons.push({
+        label: 'Continue',
+        action: 'next',
+        color: 'primary',
+        icon: 'arrow_forward',
+        disabled: !this.canProceedToStep3()
+      });
+    } else if (this.currentStep === 3) {
+      leftButtons.push({
+        label: 'Back',
+        action: 'previous',
+        color: 'default',
+        icon: 'arrow_back'
+      });
+      rightButtons.push({
+        label: 'Complete Sale',
+        action: 'save',
+        color: 'primary',
+        icon: 'check'
+      });
+    }
+
+    instance.leftButtons = leftButtons;
+    instance.rightButtons = rightButtons;
   }
 
   // Step 1: Customer Selection
@@ -136,23 +391,46 @@ export class NewSaleModalComponent implements OnInit {
 
   selectCustomer(customer: Customer): void {
     this.selectedCustomer = customer;
+    this.showNewCustomerForm = false;
+    this.updateButtonState();
+  }
+
+  toggleNewCustomerForm(): void {
+    this.showNewCustomerForm = !this.showNewCustomerForm;
+    if (this.showNewCustomerForm) {
+      this.selectedCustomer = null;
+    }
+    this.updateButtonState();
   }
 
   createNewCustomer(): void {
     const name = this.customerForm.get('newCustomerName')?.value;
     const phone = this.customerForm.get('newCustomerPhone')?.value;
 
-    if (name && phone) {
-      const newCustomer: Customer = {
-        id: Date.now().toString(),
-        name,
-        phone,
-        email: '',
-        loyaltyPoints: 0
-      };
-      this.selectedCustomer = newCustomer;
-      this.customers.push(newCustomer);
+    if (!name || !phone) {
+      alert('Please enter customer name and phone');
+      return;
     }
+
+    const newCustomer: Customer = {
+      id: Date.now().toString(),
+      name,
+      phone,
+      email: '',
+      loyaltyPoints: 0
+    };
+
+    this.customers.push(newCustomer);
+    this.filteredCustomers = [...this.customers];
+    this.selectedCustomer = newCustomer;
+    this.showNewCustomerForm = false;
+
+    this.customerForm.patchValue({
+      newCustomerName: '',
+      newCustomerPhone: ''
+    });
+
+    this.updateButtonState();
   }
 
   canProceedToStep2(): boolean {
@@ -195,6 +473,7 @@ export class NewSaleModalComponent implements OnInit {
     }
 
     this.calculateTotals();
+    this.updateButtonState();
   }
 
   updateCartQuantity(index: number, newQuantity: number): void {
@@ -203,11 +482,13 @@ export class NewSaleModalComponent implements OnInit {
       this.cart[index].subtotal = this.cart[index].price * newQuantity;
     }
     this.calculateTotals();
+    this.updateButtonState();
   }
 
   removeFromCart(index: number): void {
     this.cart.splice(index, 1);
     this.calculateTotals();
+    this.updateButtonState();
   }
 
   canProceedToStep3(): boolean {
@@ -249,7 +530,7 @@ export class NewSaleModalComponent implements OnInit {
     this.calculateTotals();
   }
 
-  completeSale(): void {
+  completeSale(modalDialogRef: MatDialogRef<AppModalComponent>, instance: any): void {
     if (!this.selectedCustomer || this.cart.length === 0) {
       alert('Please select a customer and add products');
       return;
@@ -260,27 +541,33 @@ export class NewSaleModalComponent implements OnInit {
       return;
     }
 
-    const saleData: SaleTransaction = {
-      id: 'TRX-' + Date.now(),
-      customerId: this.selectedCustomer.id,
-      customerName: this.selectedCustomer.name,
-      customerPhone: this.selectedCustomer.phone,
-      cartItems: this.cart,
-      subtotal: this.totals.subtotal,
-      discountType: this.checkoutForm.get('discountType')?.value,
-      discountValue: parseFloat(this.checkoutForm.get('discountValue')?.value || 0),
-      discountAmount: this.totals.discountAmount,
-      taxAmount: this.totals.taxAmount,
-      total: this.totals.total,
-      paymentMethod: this.checkoutForm.get('paymentMethod')?.value,
-      amountPaid: parseFloat(this.checkoutForm.get('amountPaid')?.value || 0),
-      balance: this.getBalance(),
-      notes: this.checkoutForm.get('notes')?.value || '',
-      timestamp: new Date(),
-      attendant: 'Current User' // Will be replaced with actual user
-    };
+    instance.loading = true;
 
-    this.dialogRef.close(saleData);
+    // Simulate async operation
+    setTimeout(() => {
+      const saleData: SaleTransaction = {
+        id: 'TRX-' + Date.now(),
+        customerId: this.selectedCustomer!.id,
+        customerName: this.selectedCustomer!.name,
+        customerPhone: this.selectedCustomer!.phone,
+        cartItems: this.cart,
+        subtotal: this.totals.subtotal,
+        discountType: this.checkoutForm.get('discountType')?.value,
+        discountValue: parseFloat(this.checkoutForm.get('discountValue')?.value || 0),
+        discountAmount: this.totals.discountAmount,
+        taxAmount: this.totals.taxAmount,
+        total: this.totals.total,
+        paymentMethod: this.checkoutForm.get('paymentMethod')?.value,
+        amountPaid: parseFloat(this.checkoutForm.get('amountPaid')?.value || 0),
+        balance: this.getBalance(),
+        notes: this.checkoutForm.get('notes')?.value || '',
+        timestamp: new Date(),
+        attendant: 'Current User' // Will be replaced with actual user
+      };
+
+      instance.loading = false;
+      modalDialogRef.close(saleData);
+    }, 1000);
   }
 
   previousStep(): void {
@@ -295,9 +582,5 @@ export class NewSaleModalComponent implements OnInit {
     } else if (this.currentStep === 2 && this.canProceedToStep3()) {
       this.currentStep = 3;
     }
-  }
-
-  closeDialog(): void {
-    this.dialogRef.close();
   }
 }
