@@ -3,7 +3,7 @@ using Api.Core.Models;
 
 namespace Api.Models.Supplier
 {
-    public class Supplier : AuditableEntity
+    public class Supplier : BaseEntity
     {
         public string Name { get; set; } = string.Empty;
         public string? ContactPerson { get; set; }

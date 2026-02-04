@@ -4,7 +4,7 @@ using Api.Enums;
 
 namespace Api.Models.Delivery
 {
-    public class Delivery : AuditableEntity
+    public class Delivery : BaseEntity
     {
         public string DeliveryNumber { get; set; } = string.Empty;
         public int? SaleId { get; set; }

@@ -3,7 +3,7 @@ using Api.Core.Models;
 
 namespace Api.Models.User
 {
-    public class User : AuditableEntity
+    public class User : BaseEntity
     {
         public string KeycloakId { get; set; } = string.Empty; // Link to Keycloak user
         public string Username { get; set; } = string.Empty;

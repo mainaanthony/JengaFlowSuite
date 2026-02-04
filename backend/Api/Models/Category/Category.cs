@@ -3,7 +3,7 @@ using Api.Core.Models;
 
 namespace Api.Models.Category
 {
-    public class Category : AuditableEntity
+    public class Category : BaseEntity
     {
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }

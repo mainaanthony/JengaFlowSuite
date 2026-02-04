@@ -4,7 +4,7 @@ using Api.Enums;
 
 namespace Api.Models.PurchaseOrder
 {
-    public class PurchaseOrder : AuditableEntity
+    public class PurchaseOrder : BaseEntity
     {
         public string PONumber { get; set; } = string.Empty;
         public int SupplierId { get; set; }

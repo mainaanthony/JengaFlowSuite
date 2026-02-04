@@ -4,7 +4,7 @@ using Api.Enums;
 
 namespace Api.Models.Customer
 {
-    public class Customer : AuditableEntity
+    public class Customer : BaseEntity
     {
         public string Name { get; set; } = string.Empty;
         public string? Phone { get; set; }

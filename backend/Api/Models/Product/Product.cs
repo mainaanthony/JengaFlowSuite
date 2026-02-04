@@ -3,7 +3,7 @@ using Api.Core.Models;
 
 namespace Api.Models.Product
 {
-    public class Product : AuditableEntity
+    public class Product : BaseEntity
     {
         public string Name { get; set; } = string.Empty;
         public string SKU { get; set; } = string.Empty;

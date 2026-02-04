@@ -3,7 +3,7 @@ using Api.Core.Models;
 
 namespace Api.Models.Inventory
 {
-    public class Inventory : AuditableEntity
+    public class Inventory : BaseEntity
     {
         public int ProductId { get; set; }
         public int BranchId { get; set; }

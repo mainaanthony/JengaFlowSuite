@@ -4,7 +4,7 @@ using Api.Enums;
 
 namespace Api.Models.TaxReturn
 {
-    public class TaxReturn : AuditableEntity
+    public class TaxReturn : BaseEntity
     {
         public string Period { get; set; } = string.Empty; // e.g., "December 2023"
         public TaxType TaxType { get; set; } = TaxType.VAT;

@@ -4,7 +4,7 @@ using Api.Enums;
 
 namespace Api.Models.StockTransfer
 {
-    public class StockTransfer : AuditableEntity
+    public class StockTransfer : BaseEntity
     {
         public string TransferNumber { get; set; } = string.Empty;
         public int FromBranchId { get; set; }
