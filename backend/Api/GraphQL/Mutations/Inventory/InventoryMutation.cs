@@ -1,0 +1,78 @@
+using Api.Models.Inventory;
+using Api.Services;
+using Api.Core;
+using Api.Core.Models;
+using HotChocolate;
+using HotChocolate.Types;
+using System.Text.Json;
+
+namespace Api.GraphQL.Mutations.Inventory
+{
+    [MutationType]
+    public static class InventoryMutation
+    {
+        public static async Task<Models.Inventory.Inventory> AddInventoryAsync(
+            InventoryMutationInput input,
+            EntityLogInfo logInfo,
+            [Service] IInventoryService service
+        )
+        {
+            input.ProductId.CheckRequired(nameof(input.ProductId));
+            input.BranchId.CheckRequired(nameof(input.BranchId));
+
+            var entity = new Models.Inventory.Inventory
+            {
+                ProductId = input.ProductId.Value,
+                BranchId = input.BranchId.Value,
+                Quantity = input.Quantity.CheckForValue(0),
+                ReorderLevel = input.ReorderLevel.CheckForValue(10),
+                MaxStockLevel = input.MaxStockLevel.CheckForValue(100),
+                LastRestocked = DateTime.UtcNow
+            };
+
+            entity = await service.AddAsync(entity, logInfo);
+            return entity;
+        }
+
+        public static async Task<Models.Inventory.Inventory> UpdateInventoryAsync(
+            InventoryMutationInput input,
+            EntityLogInfo logInfo,
+            [Service] IInventoryService service
+        )
+        {
+            input.Id.CheckRequired(nameof(input.Id));
+
+            var entity = await service.GetByIdAsync(input.Id.Value)
+                ?? throw new GraphQLException(new Error($"Inventory with ID {input.Id.Value} not found"));
+
+            var oldEntity = JsonSerializer.Deserialize<Models.Inventory.Inventory>(JsonSerializer.Serialize(entity));
+
+            // Check if quantity is being increased to update LastRestocked
+            bool quantityIncreased = input.Quantity.HasValue && input.Quantity.Value > entity.Quantity;
+
+            entity.ProductId = input.ProductId.CheckForValue(entity.ProductId);
+            entity.BranchId = input.BranchId.CheckForValue(entity.BranchId);
+            entity.Quantity = input.Quantity.CheckForValue(entity.Quantity);
+            entity.ReorderLevel = input.ReorderLevel.CheckForValue(entity.ReorderLevel);
+            entity.MaxStockLevel = input.MaxStockLevel.CheckForValue(entity.MaxStockLevel);
+
+            if (quantityIncreased)
+                entity.LastRestocked = DateTime.UtcNow;
+
+            entity = await service.UpdateAsync(entity, logInfo, oldEntity);
+            return entity;
+        }
+
+        public static async Task<bool> DeleteInventoryAsync(
+            int id,
+            EntityLogInfo logInfo,
+            [Service] IInventoryService service
+        )
+        {
+            var result = await service.DeleteAsync(id, logInfo);
+            if (!result)
+                throw new GraphQLException(new Error($"Inventory with ID {id} not found"));
+            return result;
+        }
+    }
+}

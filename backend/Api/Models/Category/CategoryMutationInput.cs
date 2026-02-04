@@ -1,0 +1,20 @@
+using HotChocolate;
+using HotChocolate.Types;
+
+namespace Api.Models.Category
+{
+    public record CategoryMutationInput
+    (
+        [property: DefaultValue(0)]
+        Optional<int> Id,
+
+        [property: DefaultValue("")]
+        Optional<string> Name,
+
+        [property: DefaultValue("")]
+        Optional<string?> Description,
+
+        [property: DefaultValue(true)]
+        Optional<bool> IsActive
+    );
+}

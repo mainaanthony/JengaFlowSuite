@@ -1,0 +1,16 @@
+using System.Linq.Expressions;
+
+namespace Api.Repositories
+{
+    public interface IRepository<T> where T : class
+    {
+        Task<T?> GetByIdAsync(int id);
+        Task<IEnumerable<T>> GetAllAsync();
+        IQueryable<T> GetQueryable();
+        Task<T> AddAsync(T entity);
+        Task<T> UpdateAsync(T entity);
+        Task<bool> DeleteAsync(int id);
+        Task<bool> ExistsAsync(int id);
+        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
+    }
+}
