@@ -1,4 +1,4 @@
-using Api.Models.Inventory;
+using Api.Models;
 using Api.Core.Models;
 
 namespace Api.Services

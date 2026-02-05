@@ -1,4 +1,4 @@
-using Api.Models.StockTransferItem;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.StockTransferItem
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class StockTransferItemMutation
     {
-        public static async Task<Models.StockTransferItem.StockTransferItem> AddStockTransferItemAsync(
+        public static async Task<StockTransferItem> AddStockTransferItemAsync(
             StockTransferItemMutationInput input,
             EntityLogInfo logInfo,
             [Service] IStockTransferItemService service
@@ -21,7 +21,7 @@ namespace Api.GraphQL.Mutations.StockTransferItem
             input.ProductId.CheckRequired(nameof(input.ProductId));
             input.QuantityRequested.CheckRequired(nameof(input.QuantityRequested));
 
-            var entity = new Models.StockTransferItem.StockTransferItem
+            var entity = new StockTransferItem
             {
                 StockTransferId = input.StockTransferId.Value,
                 ProductId = input.ProductId.Value,
@@ -33,7 +33,7 @@ namespace Api.GraphQL.Mutations.StockTransferItem
             return entity;
         }
 
-        public static async Task<Models.StockTransferItem.StockTransferItem> UpdateStockTransferItemAsync(
+        public static async Task<StockTransferItem> UpdateStockTransferItemAsync(
             StockTransferItemMutationInput input,
             EntityLogInfo logInfo,
             [Service] IStockTransferItemService service
@@ -44,7 +44,7 @@ namespace Api.GraphQL.Mutations.StockTransferItem
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"StockTransferItem with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.StockTransferItem.StockTransferItem>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<StockTransferItem>(JsonSerializer.Serialize(entity));
 
             entity.StockTransferId = input.StockTransferId.CheckForValue(entity.StockTransferId);
             entity.ProductId = input.ProductId.CheckForValue(entity.ProductId);

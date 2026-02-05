@@ -1,4 +1,4 @@
-using Api.Models.SaleItem;
+using Api.Models;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
 

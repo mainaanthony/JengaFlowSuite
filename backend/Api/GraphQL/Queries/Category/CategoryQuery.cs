@@ -1,9 +1,9 @@
-using Api.Models.Category;
+using Api.Models;
 using Api.Services;
 using HotChocolate;
 using HotChocolate.Types;
 
-namespace Api.GraphQL.Queries.Category
+namespace Api.GraphQL.Queries
 {
     [QueryType]
     public static class CategoryQuery
@@ -12,16 +12,16 @@ namespace Api.GraphQL.Queries.Category
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public static IQueryable<Models.Category.Category> GetCategories([Service] ICategoryService service)
+        public static IQueryable<Category> GetCategories([Service] ICategoryService service)
             => service.GetQueryable();
 
         [UseProjection]
-        public static async Task<Models.Category.Category?> GetCategory(int id, [Service] ICategoryService service)
+        public static async Task<Category?> GetCategory(int id, [Service] ICategoryService service)
             => await service.GetByIdAsync(id);
 
         [UseFiltering]
         [UseSorting]
-        public static async Task<IEnumerable<Models.Category.Category>> GetActiveCategories([Service] ICategoryService service)
+        public static async Task<IEnumerable<Category>> GetActiveCategories([Service] ICategoryService service)
             => await service.GetActiveAsync();
     }
 }

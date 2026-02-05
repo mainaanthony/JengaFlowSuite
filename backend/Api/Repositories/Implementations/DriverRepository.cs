@@ -1,4 +1,4 @@
-using Api.Models.Driver;
+using Api.Models;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
 

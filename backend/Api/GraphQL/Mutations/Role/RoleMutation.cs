@@ -1,4 +1,4 @@
-using Api.Models.Role;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.Role
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class RoleMutation
     {
-        public static async Task<Models.Role.Role> AddRoleAsync(
+        public static async Task<Role> AddRoleAsync(
             RoleMutationInput input,
             EntityLogInfo logInfo,
             [Service] IRoleService service
@@ -19,7 +19,7 @@ namespace Api.GraphQL.Mutations.Role
         {
             input.Name.CheckRequired(nameof(input.Name));
 
-            var entity = new Models.Role.Role
+            var entity = new Role
             {
                 Name = input.Name.Value!,
                 Description = input.Description.CheckForValue(null)
@@ -29,7 +29,7 @@ namespace Api.GraphQL.Mutations.Role
             return entity;
         }
 
-        public static async Task<Models.Role.Role> UpdateRoleAsync(
+        public static async Task<Role> UpdateRoleAsync(
             RoleMutationInput input,
             EntityLogInfo logInfo,
             [Service] IRoleService service
@@ -40,7 +40,7 @@ namespace Api.GraphQL.Mutations.Role
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"Role with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.Role.Role>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<Role>(JsonSerializer.Serialize(entity));
 
             entity.Name = input.Name.CheckForValue(entity.Name);
             entity.Description = input.Description.CheckForValue(entity.Description);

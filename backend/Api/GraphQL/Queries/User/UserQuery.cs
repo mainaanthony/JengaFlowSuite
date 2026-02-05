@@ -1,9 +1,9 @@
-using Api.Models.User;
+using Api.Models;
 using Api.Services;
 using HotChocolate;
 using HotChocolate.Types;
 
-namespace Api.GraphQL.Queries.User
+namespace Api.GraphQL.Queries
 {
     [QueryType]
     public static class UserQuery
@@ -12,24 +12,24 @@ namespace Api.GraphQL.Queries.User
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public static IQueryable<Models.User.User> GetUsers([Service] IUserService service)
+        public static IQueryable<User> GetUsers([Service] IUserService service)
             => service.GetQueryable();
 
         [UseProjection]
-        public static async Task<Models.User.User?> GetUser(int id, [Service] IUserService service)
+        public static async Task<User?> GetUser(int id, [Service] IUserService service)
             => await service.GetByIdAsync(id);
 
         [UseProjection]
-        public static async Task<Models.User.User?> GetUserByKeycloakId(string keycloakId, [Service] IUserService service)
+        public static async Task<User?> GetUserByKeycloakId(string keycloakId, [Service] IUserService service)
             => await service.GetByKeycloakIdAsync(keycloakId);
 
         [UseProjection]
-        public static async Task<Models.User.User?> GetUserByEmail(string email, [Service] IUserService service)
+        public static async Task<User?> GetUserByEmail(string email, [Service] IUserService service)
             => await service.GetByEmailAsync(email);
 
         [UseFiltering]
         [UseSorting]
-        public static async Task<IEnumerable<Models.User.User>> GetActiveUsers([Service] IUserService service)
+        public static async Task<IEnumerable<User>> GetActiveUsers([Service] IUserService service)
             => await service.GetActiveAsync();
     }
 }

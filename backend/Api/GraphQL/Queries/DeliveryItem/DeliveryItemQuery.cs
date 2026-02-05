@@ -1,9 +1,9 @@
-using Api.Models.DeliveryItem;
+using Api.Models;
 using Api.Services;
 using HotChocolate;
 using HotChocolate.Types;
 
-namespace Api.GraphQL.Queries.DeliveryItem
+namespace Api.GraphQL.Queries
 {
     [QueryType]
     public static class DeliveryItemQuery
@@ -12,16 +12,16 @@ namespace Api.GraphQL.Queries.DeliveryItem
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public static IQueryable<Models.DeliveryItem.DeliveryItem> GetDeliveryItems([Service] IDeliveryItemService service)
+        public static IQueryable<DeliveryItem> GetDeliveryItems([Service] IDeliveryItemService service)
             => service.GetQueryable();
 
         [UseProjection]
-        public static async Task<Models.DeliveryItem.DeliveryItem?> GetDeliveryItem(int id, [Service] IDeliveryItemService service)
+        public static async Task<DeliveryItem?> GetDeliveryItem(int id, [Service] IDeliveryItemService service)
             => await service.GetByIdAsync(id);
 
         [UseFiltering]
         [UseSorting]
-        public static async Task<IEnumerable<Models.DeliveryItem.DeliveryItem>> GetDeliveryItemsByDelivery(int deliveryId, [Service] IDeliveryItemService service)
+        public static async Task<IEnumerable<DeliveryItem>> GetDeliveryItemsByDelivery(int deliveryId, [Service] IDeliveryItemService service)
             => await service.GetByDeliveryIdAsync(deliveryId);
     }
 }

@@ -1,4 +1,4 @@
-using Api.Models.Supplier;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.Supplier
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class SupplierMutation
     {
-        public static async Task<Models.Supplier.Supplier> AddSupplierAsync(
+        public static async Task<Supplier> AddSupplierAsync(
             SupplierMutationInput input,
             EntityLogInfo logInfo,
             [Service] ISupplierService service
@@ -19,7 +19,7 @@ namespace Api.GraphQL.Mutations.Supplier
         {
             input.Name.CheckRequired(nameof(input.Name));
 
-            var entity = new Models.Supplier.Supplier
+            var entity = new Supplier
             {
                 Name = input.Name.Value!,
                 Email = input.Email.Value!,
@@ -35,7 +35,7 @@ namespace Api.GraphQL.Mutations.Supplier
             return entity;
         }
 
-        public static async Task<Models.Supplier.Supplier> UpdateSupplierAsync(
+        public static async Task<Supplier> UpdateSupplierAsync(
             SupplierMutationInput input,
             EntityLogInfo logInfo,
             [Service] ISupplierService service
@@ -46,7 +46,7 @@ namespace Api.GraphQL.Mutations.Supplier
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"Supplier with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.Supplier.Supplier>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<Supplier>(JsonSerializer.Serialize(entity));
 
             entity.Name = input.Name.CheckForValue(entity.Name);
             entity.Email = input.Email.CheckForValue(entity.Email);

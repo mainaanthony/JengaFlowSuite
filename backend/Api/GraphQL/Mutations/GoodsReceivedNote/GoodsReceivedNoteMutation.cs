@@ -1,4 +1,4 @@
-using Api.Models.GoodsReceivedNote;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.GoodsReceivedNote
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class GoodsReceivedNoteMutation
     {
-        public static async Task<Models.GoodsReceivedNote.GoodsReceivedNote> AddGoodsReceivedNoteAsync(
+        public static async Task<GoodsReceivedNote> AddGoodsReceivedNoteAsync(
             GoodsReceivedNoteMutationInput input,
             EntityLogInfo logInfo,
             [Service] IGoodsReceivedNoteService service
@@ -21,7 +21,7 @@ namespace Api.GraphQL.Mutations.GoodsReceivedNote
             input.PurchaseOrderId.CheckRequired(nameof(input.PurchaseOrderId));
             input.ReceivedByUserId.CheckRequired(nameof(input.ReceivedByUserId));
 
-            var entity = new Models.GoodsReceivedNote.GoodsReceivedNote
+            var entity = new GoodsReceivedNote
             {
                 GRNNumber = input.GRNNumber.Value!,
                 PurchaseOrderId = input.PurchaseOrderId.Value,
@@ -35,7 +35,7 @@ namespace Api.GraphQL.Mutations.GoodsReceivedNote
             return entity;
         }
 
-        public static async Task<Models.GoodsReceivedNote.GoodsReceivedNote> UpdateGoodsReceivedNoteAsync(
+        public static async Task<GoodsReceivedNote> UpdateGoodsReceivedNoteAsync(
             GoodsReceivedNoteMutationInput input,
             EntityLogInfo logInfo,
             [Service] IGoodsReceivedNoteService service
@@ -46,7 +46,7 @@ namespace Api.GraphQL.Mutations.GoodsReceivedNote
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"GoodsReceivedNote with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.GoodsReceivedNote.GoodsReceivedNote>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<GoodsReceivedNote>(JsonSerializer.Serialize(entity));
 
             entity.GRNNumber = input.GRNNumber.CheckForValue(entity.GRNNumber);
             entity.PurchaseOrderId = input.PurchaseOrderId.CheckForValue(entity.PurchaseOrderId);

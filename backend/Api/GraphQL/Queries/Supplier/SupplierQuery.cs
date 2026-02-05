@@ -1,9 +1,10 @@
-using Api.Models.Supplier;
+using Api.Models;
+using Api.Models;
 using Api.Services;
 using HotChocolate;
 using HotChocolate.Types;
 
-namespace Api.GraphQL.Queries.Supplier
+namespace Api.GraphQL.Queries
 {
     [QueryType]
     public static class SupplierQuery
@@ -12,20 +13,20 @@ namespace Api.GraphQL.Queries.Supplier
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public static IQueryable<Models.Supplier.Supplier> GetSuppliers([Service] ISupplierService service)
+        public static IQueryable<Supplier> GetSuppliers([Service] ISupplierService service)
             => service.GetQueryable();
 
         [UseProjection]
-        public static async Task<Models.Supplier.Supplier?> GetSupplier(int id, [Service] ISupplierService service)
+        public static async Task<Supplier?> GetSupplier(int id, [Service] ISupplierService service)
             => await service.GetByIdAsync(id);
 
         [UseProjection]
-        public static async Task<Models.Supplier.Supplier?> GetSupplierByEmail(string email, [Service] ISupplierService service)
+        public static async Task<Supplier?> GetSupplierByEmail(string email, [Service] ISupplierService service)
             => await service.GetByEmailAsync(email);
 
         [UseFiltering]
         [UseSorting]
-        public static async Task<IEnumerable<Models.Supplier.Supplier>> GetActiveSuppliers([Service] ISupplierService service)
+        public static async Task<IEnumerable<Supplier>> GetActiveSuppliers([Service] ISupplierService service)
             => await service.GetActiveAsync();
     }
 }

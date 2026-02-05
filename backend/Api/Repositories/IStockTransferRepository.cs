@@ -1,4 +1,4 @@
-using Api.Models.StockTransfer;
+using Api.Models;
 using Api.Core.Models;
 
 namespace Api.Repositories

@@ -1,17 +1,19 @@
-using Api.Models.PurchaseOrder;
+using PurchaseOrder = Api.Models.PurchaseOrder;
+using PurchaseOrderMutationInput = Api.Models.PurchaseOrderMutationInput;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Models;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.PurchaseOrder
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class PurchaseOrderMutation
     {
-        public static async Task<Models.PurchaseOrder.PurchaseOrder> AddPurchaseOrderAsync(
+        public static async Task<PurchaseOrder> AddPurchaseOrderAsync(
             PurchaseOrderMutationInput input,
             EntityLogInfo logInfo,
             [Service] IPurchaseOrderService service
@@ -21,7 +23,7 @@ namespace Api.GraphQL.Mutations.PurchaseOrder
             input.SupplierId.CheckRequired(nameof(input.SupplierId));
             input.CreatedByUserId.CheckRequired(nameof(input.CreatedByUserId));
 
-            var entity = new Models.PurchaseOrder.PurchaseOrder
+            var entity = new PurchaseOrder
             {
                 PONumber = input.PONumber.Value!,
                 SupplierId = input.SupplierId.Value,
@@ -38,7 +40,7 @@ namespace Api.GraphQL.Mutations.PurchaseOrder
             return entity;
         }
 
-        public static async Task<Models.PurchaseOrder.PurchaseOrder> UpdatePurchaseOrderAsync(
+        public static async Task<PurchaseOrder> UpdatePurchaseOrderAsync(
             PurchaseOrderMutationInput input,
             EntityLogInfo logInfo,
             [Service] IPurchaseOrderService service
@@ -49,7 +51,7 @@ namespace Api.GraphQL.Mutations.PurchaseOrder
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"PurchaseOrder with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.PurchaseOrder.PurchaseOrder>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<PurchaseOrder>(JsonSerializer.Serialize(entity));
 
             entity.PONumber = input.PONumber.CheckForValue(entity.PONumber);
             entity.SupplierId = input.SupplierId.CheckForValue(entity.SupplierId);

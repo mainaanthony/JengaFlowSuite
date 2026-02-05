@@ -1,4 +1,4 @@
-using Api.Models.Sale;
+using Api.Models;
 using Api.Core.Models;
 
 namespace Api.Services

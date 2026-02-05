@@ -1,9 +1,9 @@
-using Api.Models.Product;
+using Api.Models;
 using Api.Services;
 using HotChocolate;
 using HotChocolate.Types;
 
-namespace Api.GraphQL.Queries.Product
+namespace Api.GraphQL.Queries
 {
     [QueryType]
     public static class ProductQuery
@@ -12,20 +12,20 @@ namespace Api.GraphQL.Queries.Product
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public static IQueryable<Models.Product.Product> GetProducts([Service] IProductService service)
+        public static IQueryable<Product> GetProducts([Service] IProductService service)
             => service.GetQueryable();
 
         [UseProjection]
-        public static async Task<Models.Product.Product?> GetProduct(int id, [Service] IProductService service)
+        public static async Task<Product?> GetProduct(int id, [Service] IProductService service)
             => await service.GetByIdAsync(id);
 
         [UseProjection]
-        public static async Task<Models.Product.Product?> GetProductBySKU(string sku, [Service] IProductService service)
+        public static async Task<Product?> GetProductBySKU(string sku, [Service] IProductService service)
             => await service.GetBySKUAsync(sku);
 
         [UseFiltering]
         [UseSorting]
-        public static async Task<IEnumerable<Models.Product.Product>> GetActiveProducts([Service] IProductService service)
+        public static async Task<IEnumerable<Product>> GetActiveProducts([Service] IProductService service)
             => await service.GetActiveAsync();
     }
 }

@@ -1,4 +1,4 @@
-using Api.Models.Delivery;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.Delivery
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class DeliveryMutation
     {
-        public static async Task<Models.Delivery.Delivery> AddDeliveryAsync(
+        public static async Task<Delivery> AddDeliveryAsync(
             DeliveryMutationInput input,
             EntityLogInfo logInfo,
             [Service] IDeliveryService service
@@ -22,7 +22,7 @@ namespace Api.GraphQL.Mutations.Delivery
             input.DriverId.CheckRequired(nameof(input.DriverId));
             input.DeliveryAddress.CheckRequired(nameof(input.DeliveryAddress));
 
-            var entity = new Models.Delivery.Delivery
+            var entity = new Delivery
             {
                 DeliveryNumber = input.DeliveryNumber.Value!,
                 SaleId = input.SaleId.CheckForValue(null),
@@ -41,7 +41,7 @@ namespace Api.GraphQL.Mutations.Delivery
             return entity;
         }
 
-        public static async Task<Models.Delivery.Delivery> UpdateDeliveryAsync(
+        public static async Task<Delivery> UpdateDeliveryAsync(
             DeliveryMutationInput input,
             EntityLogInfo logInfo,
             [Service] IDeliveryService service
@@ -52,7 +52,7 @@ namespace Api.GraphQL.Mutations.Delivery
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"Delivery with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.Delivery.Delivery>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<Delivery>(JsonSerializer.Serialize(entity));
 
             entity.DeliveryNumber = input.DeliveryNumber.CheckForValue(entity.DeliveryNumber);
             entity.SaleId = input.SaleId.CheckForValue(entity.SaleId);

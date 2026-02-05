@@ -1,4 +1,4 @@
-using Api.Models.Branch;
+using Api.Models;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
 

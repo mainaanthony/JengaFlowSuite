@@ -1,4 +1,4 @@
-using Api.Models.Role;
+using Api.Models;
 using Api.Core.Models;
 
 namespace Api.Repositories

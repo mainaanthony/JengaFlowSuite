@@ -2,28 +2,27 @@ using HotChocolate;
 using HotChocolate.Types;
 using Api.Enums;
 
-namespace Api.Models.Customer
-{
-    public record CustomerMutationInput
-    (
-        [property: DefaultValue(0)]
-        Optional<int> Id,
+namespace Api.Models;
 
-        [property: DefaultValue("")]
-        Optional<string> Name,
+public record CustomerMutationInput
+(
+    [property: DefaultValue(0)]
+    Optional<int> Id,
 
-        [property: DefaultValue("")]
-        Optional<string?> Phone,
+    [property: DefaultValue("")]
+    Optional<string> Name,
 
-        [property: DefaultValue("")]
-        Optional<string?> Email,
+    [property: DefaultValue("")]
+    Optional<string?> Phone,
 
-        [property: DefaultValue("")]
-        Optional<string?> Address,
+    [property: DefaultValue("")]
+    Optional<string?> Email,
 
-        Optional<CustomerType> CustomerType,
+    [property: DefaultValue("")]
+    Optional<string?> Address,
 
-        [property: DefaultValue(true)]
-        Optional<bool> IsActive
-    );
-}
+    Optional<CustomerType> CustomerType,
+
+    [property: DefaultValue(true)]
+    Optional<bool> IsActive
+);

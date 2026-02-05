@@ -1,17 +1,17 @@
-using Api.Models.Category;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Models;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.Category
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class CategoryMutation
     {
-        public static async Task<Models.Category.Category> AddCategoryAsync(
+        public static async Task<Category> AddCategoryAsync(
             CategoryMutationInput input,
             EntityLogInfo logInfo,
             [Service] ICategoryService service
@@ -19,7 +19,7 @@ namespace Api.GraphQL.Mutations.Category
         {
             input.Name.CheckRequired(nameof(input.Name));
 
-            var entity = new Models.Category.Category
+            var entity = new Category
             {
                 Name = input.Name.Value!,
                 Description = input.Description.CheckForValue(null),
@@ -30,7 +30,7 @@ namespace Api.GraphQL.Mutations.Category
             return entity;
         }
 
-        public static async Task<Models.Category.Category> UpdateCategoryAsync(
+        public static async Task<Category> UpdateCategoryAsync(
             CategoryMutationInput input,
             EntityLogInfo logInfo,
             [Service] ICategoryService service
@@ -41,7 +41,7 @@ namespace Api.GraphQL.Mutations.Category
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"Category with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.Category.Category>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<Category>(JsonSerializer.Serialize(entity));
 
             entity.Name = input.Name.CheckForValue(entity.Name);
             entity.Description = input.Description.CheckForValue(entity.Description);

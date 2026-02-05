@@ -1,4 +1,4 @@
-using Api.Models.TaxReturn;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.TaxReturn
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class TaxReturnMutation
     {
-        public static async Task<Models.TaxReturn.TaxReturn> AddTaxReturnAsync(
+        public static async Task<TaxReturn> AddTaxReturnAsync(
             TaxReturnMutationInput input,
             EntityLogInfo logInfo,
             [Service] ITaxReturnService service
@@ -19,7 +19,7 @@ namespace Api.GraphQL.Mutations.TaxReturn
         {
             input.Period.CheckRequired(nameof(input.Period));
 
-            var entity = new Models.TaxReturn.TaxReturn
+            var entity = new TaxReturn
             {
                 Period = input.Period.Value!,
                 TaxType = input.TaxType.CheckForValue(Enums.TaxType.VAT),
@@ -35,7 +35,7 @@ namespace Api.GraphQL.Mutations.TaxReturn
             return entity;
         }
 
-        public static async Task<Models.TaxReturn.TaxReturn> UpdateTaxReturnAsync(
+        public static async Task<TaxReturn> UpdateTaxReturnAsync(
             TaxReturnMutationInput input,
             EntityLogInfo logInfo,
             [Service] ITaxReturnService service
@@ -46,7 +46,7 @@ namespace Api.GraphQL.Mutations.TaxReturn
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"TaxReturn with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.TaxReturn.TaxReturn>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<TaxReturn>(JsonSerializer.Serialize(entity));
 
             entity.Period = input.Period.CheckForValue(entity.Period);
             entity.TaxType = input.TaxType.CheckForValue(entity.TaxType);

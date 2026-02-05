@@ -1,4 +1,4 @@
-using Api.Models.Category;
+using Api.Models;
 using Api.Repositories;
 using Api.Core.Models;
 using Microsoft.EntityFrameworkCore;

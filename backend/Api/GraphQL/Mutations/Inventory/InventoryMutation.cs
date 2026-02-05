@@ -1,4 +1,4 @@
-using Api.Models.Inventory;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.Inventory
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class InventoryMutation
     {
-        public static async Task<Models.Inventory.Inventory> AddInventoryAsync(
+        public static async Task<Inventory> AddInventoryAsync(
             InventoryMutationInput input,
             EntityLogInfo logInfo,
             [Service] IInventoryService service
@@ -20,7 +20,7 @@ namespace Api.GraphQL.Mutations.Inventory
             input.ProductId.CheckRequired(nameof(input.ProductId));
             input.BranchId.CheckRequired(nameof(input.BranchId));
 
-            var entity = new Models.Inventory.Inventory
+            var entity = new Inventory
             {
                 ProductId = input.ProductId.Value,
                 BranchId = input.BranchId.Value,
@@ -34,7 +34,7 @@ namespace Api.GraphQL.Mutations.Inventory
             return entity;
         }
 
-        public static async Task<Models.Inventory.Inventory> UpdateInventoryAsync(
+        public static async Task<Inventory> UpdateInventoryAsync(
             InventoryMutationInput input,
             EntityLogInfo logInfo,
             [Service] IInventoryService service
@@ -45,7 +45,7 @@ namespace Api.GraphQL.Mutations.Inventory
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"Inventory with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.Inventory.Inventory>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<Inventory>(JsonSerializer.Serialize(entity));
 
             // Check if quantity is being increased to update LastRestocked
             bool quantityIncreased = input.Quantity.HasValue && input.Quantity.Value > entity.Quantity;

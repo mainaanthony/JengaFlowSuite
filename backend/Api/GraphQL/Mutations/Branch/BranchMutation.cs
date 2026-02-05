@@ -1,17 +1,17 @@
-using Api.Models.Branch;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Models;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.Branch
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class BranchMutation
     {
-        public static async Task<Models.Branch.Branch> AddBranchAsync(
+        public static async Task<Branch> AddBranchAsync(
             BranchMutationInput input,
             EntityLogInfo logInfo,
             [Service] IBranchService service
@@ -20,7 +20,7 @@ namespace Api.GraphQL.Mutations.Branch
             input.Name.CheckRequired(nameof(input.Name));
             input.Code.CheckRequired(nameof(input.Code));
 
-            var entity = new Models.Branch.Branch
+            var entity = new Branch
             {
                 Name = input.Name.Value!,
                 Code = input.Code.Value!,
@@ -35,7 +35,7 @@ namespace Api.GraphQL.Mutations.Branch
             return entity;
         }
 
-        public static async Task<Models.Branch.Branch> UpdateBranchAsync(
+        public static async Task<Branch> UpdateBranchAsync(
             BranchMutationInput input,
             EntityLogInfo logInfo,
             [Service] IBranchService service
@@ -46,7 +46,7 @@ namespace Api.GraphQL.Mutations.Branch
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"Branch with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.Branch.Branch>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<Branch>(JsonSerializer.Serialize(entity));
 
             entity.Name = input.Name.CheckForValue(entity.Name);
             entity.Code = input.Code.CheckForValue(entity.Code);

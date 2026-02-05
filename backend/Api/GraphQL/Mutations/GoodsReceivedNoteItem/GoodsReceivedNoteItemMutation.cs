@@ -1,4 +1,4 @@
-using Api.Models.GoodsReceivedNoteItem;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.GoodsReceivedNoteItem
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class GoodsReceivedNoteItemMutation
     {
-        public static async Task<Models.GoodsReceivedNoteItem.GoodsReceivedNoteItem> AddGoodsReceivedNoteItemAsync(
+        public static async Task<GoodsReceivedNoteItem> AddGoodsReceivedNoteItemAsync(
             GoodsReceivedNoteItemMutationInput input,
             EntityLogInfo logInfo,
             [Service] IGoodsReceivedNoteItemService service
@@ -22,7 +22,7 @@ namespace Api.GraphQL.Mutations.GoodsReceivedNoteItem
             input.QuantityOrdered.CheckRequired(nameof(input.QuantityOrdered));
             input.QuantityReceived.CheckRequired(nameof(input.QuantityReceived));
 
-            var entity = new Models.GoodsReceivedNoteItem.GoodsReceivedNoteItem
+            var entity = new GoodsReceivedNoteItem
             {
                 GoodsReceivedNoteId = input.GoodsReceivedNoteId.Value,
                 ProductId = input.ProductId.Value,
@@ -35,7 +35,7 @@ namespace Api.GraphQL.Mutations.GoodsReceivedNoteItem
             return entity;
         }
 
-        public static async Task<Models.GoodsReceivedNoteItem.GoodsReceivedNoteItem> UpdateGoodsReceivedNoteItemAsync(
+        public static async Task<GoodsReceivedNoteItem> UpdateGoodsReceivedNoteItemAsync(
             GoodsReceivedNoteItemMutationInput input,
             EntityLogInfo logInfo,
             [Service] IGoodsReceivedNoteItemService service
@@ -46,7 +46,7 @@ namespace Api.GraphQL.Mutations.GoodsReceivedNoteItem
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"GoodsReceivedNoteItem with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.GoodsReceivedNoteItem.GoodsReceivedNoteItem>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<GoodsReceivedNoteItem>(JsonSerializer.Serialize(entity));
 
             entity.GoodsReceivedNoteId = input.GoodsReceivedNoteId.CheckForValue(entity.GoodsReceivedNoteId);
             entity.ProductId = input.ProductId.CheckForValue(entity.ProductId);

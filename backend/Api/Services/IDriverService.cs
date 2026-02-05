@@ -1,4 +1,4 @@
-using Api.Models.Driver;
+using Api.Models;
 using Api.Core.Models;
 
 namespace Api.Services

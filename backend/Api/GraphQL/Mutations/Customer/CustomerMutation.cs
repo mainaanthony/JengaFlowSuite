@@ -1,17 +1,17 @@
-using Api.Models.Customer;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Models;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.Customer
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class CustomerMutation
     {
-        public static async Task<Models.Customer.Customer> AddCustomerAsync(
+        public static async Task<Customer> AddCustomerAsync(
             CustomerMutationInput input,
             EntityLogInfo logInfo,
             [Service] ICustomerService service
@@ -20,7 +20,7 @@ namespace Api.GraphQL.Mutations.Customer
             input.Name.CheckRequired(nameof(input.Name));
             input.CustomerType.CheckRequired(nameof(input.CustomerType));
 
-            var entity = new Models.Customer.Customer
+            var entity = new Customer
             {
                 Name = input.Name.Value!,
                 CustomerType = input.CustomerType.Value!,
@@ -34,7 +34,7 @@ namespace Api.GraphQL.Mutations.Customer
             return entity;
         }
 
-        public static async Task<Models.Customer.Customer> UpdateCustomerAsync(
+        public static async Task<Customer> UpdateCustomerAsync(
             CustomerMutationInput input,
             EntityLogInfo logInfo,
             [Service] ICustomerService service
@@ -45,7 +45,7 @@ namespace Api.GraphQL.Mutations.Customer
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"Customer with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.Customer.Customer>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<Customer>(JsonSerializer.Serialize(entity));
 
             entity.Name = input.Name.CheckForValue(entity.Name);
             entity.CustomerType = input.CustomerType.CheckForValue(entity.CustomerType);

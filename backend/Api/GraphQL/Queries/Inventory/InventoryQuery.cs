@@ -1,9 +1,9 @@
-using Api.Models.Inventory;
+using Api.Models;
 using Api.Services;
 using HotChocolate;
 using HotChocolate.Types;
 
-namespace Api.GraphQL.Queries.Inventory
+namespace Api.GraphQL.Queries
 {
     [QueryType]
     public static class InventoryQuery
@@ -12,15 +12,15 @@ namespace Api.GraphQL.Queries.Inventory
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public static IQueryable<Models.Inventory.Inventory> GetInventories([Service] IInventoryService service)
+        public static IQueryable<Inventory> GetInventories([Service] IInventoryService service)
             => service.GetQueryable();
 
         [UseProjection]
-        public static async Task<Models.Inventory.Inventory?> GetInventory(int id, [Service] IInventoryService service)
+        public static async Task<Inventory?> GetInventory(int id, [Service] IInventoryService service)
             => await service.GetByIdAsync(id);
 
         [UseProjection]
-        public static async Task<Models.Inventory.Inventory?> GetInventoryByProductAndBranch(
+        public static async Task<Inventory?> GetInventoryByProductAndBranch(
             int productId,
             int branchId,
             [Service] IInventoryService service)
@@ -28,7 +28,7 @@ namespace Api.GraphQL.Queries.Inventory
 
         [UseFiltering]
         [UseSorting]
-        public static async Task<IEnumerable<Models.Inventory.Inventory>> GetLowStockItems([Service] IInventoryService service)
+        public static async Task<IEnumerable<Inventory>> GetLowStockItems([Service] IInventoryService service)
             => await service.GetLowStockAsync();
     }
 }

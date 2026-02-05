@@ -1,4 +1,4 @@
-using Api.Models.SaleItem;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.SaleItem
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class SaleItemMutation
     {
-        public static async Task<Models.SaleItem.SaleItem> AddSaleItemAsync(
+        public static async Task<SaleItem> AddSaleItemAsync(
             SaleItemMutationInput input,
             EntityLogInfo logInfo,
             [Service] ISaleItemService service
@@ -22,7 +22,7 @@ namespace Api.GraphQL.Mutations.SaleItem
             input.Quantity.CheckRequired(nameof(input.Quantity));
             input.UnitPrice.CheckRequired(nameof(input.UnitPrice));
 
-            var entity = new Models.SaleItem.SaleItem
+            var entity = new SaleItem
             {
                 SaleId = input.SaleId.Value,
                 ProductId = input.ProductId.Value,
@@ -36,7 +36,7 @@ namespace Api.GraphQL.Mutations.SaleItem
             return entity;
         }
 
-        public static async Task<Models.SaleItem.SaleItem> UpdateSaleItemAsync(
+        public static async Task<SaleItem> UpdateSaleItemAsync(
             SaleItemMutationInput input,
             EntityLogInfo logInfo,
             [Service] ISaleItemService service
@@ -47,7 +47,7 @@ namespace Api.GraphQL.Mutations.SaleItem
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"SaleItem with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.SaleItem.SaleItem>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<SaleItem>(JsonSerializer.Serialize(entity));
 
             entity.SaleId = input.SaleId.CheckForValue(entity.SaleId);
             entity.ProductId = input.ProductId.CheckForValue(entity.ProductId);

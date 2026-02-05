@@ -1,35 +1,34 @@
 using HotChocolate;
 using HotChocolate.Types;
 
-namespace Api.Models.Supplier
-{
-    public record SupplierMutationInput
-    (
-        [property: DefaultValue(0)]
-        Optional<int> Id,
+namespace Api.Models;
 
-        [property: DefaultValue("")]
-        Optional<string> Name,
+public record SupplierMutationInput
+(
+    [property: DefaultValue(0)]
+    Optional<int> Id,
 
-        [property: DefaultValue("")]
-        Optional<string?> ContactPerson,
+    [property: DefaultValue("")]
+    Optional<string> Name,
 
-        [property: DefaultValue("")]
-        Optional<string> Phone,
+    [property: DefaultValue("")]
+    Optional<string?> ContactPerson,
 
-        [property: DefaultValue("")]
-        Optional<string> Email,
+    [property: DefaultValue("")]
+    Optional<string> Phone,
 
-        [property: DefaultValue("")]
-        Optional<string?> Address,
+    [property: DefaultValue("")]
+    Optional<string> Email,
 
-        [property: DefaultValue("")]
-        Optional<string?> Category,
+    [property: DefaultValue("")]
+    Optional<string?> Address,
 
-        [property: DefaultValue(0)]
-        Optional<decimal> Rating,
+    [property: DefaultValue("")]
+    Optional<string?> Category,
 
-        [property: DefaultValue(true)]
-        Optional<bool> IsActive
-    );
-}
+    [property: DefaultValue(0)]
+    Optional<decimal> Rating,
+
+    [property: DefaultValue(true)]
+    Optional<bool> IsActive
+);

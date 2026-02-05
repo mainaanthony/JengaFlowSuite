@@ -1,4 +1,4 @@
-using Api.Models.StockTransfer;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.StockTransfer
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class StockTransferMutation
     {
-        public static async Task<Models.StockTransfer.StockTransfer> AddStockTransferAsync(
+        public static async Task<StockTransfer> AddStockTransferAsync(
             StockTransferMutationInput input,
             EntityLogInfo logInfo,
             [Service] IStockTransferService service
@@ -22,7 +22,7 @@ namespace Api.GraphQL.Mutations.StockTransfer
             input.ToBranchId.CheckRequired(nameof(input.ToBranchId));
             input.RequestedByUserId.CheckRequired(nameof(input.RequestedByUserId));
 
-            var entity = new Models.StockTransfer.StockTransfer
+            var entity = new StockTransfer
             {
                 TransferNumber = input.TransferNumber.Value!,
                 FromBranchId = input.FromBranchId.Value,
@@ -39,7 +39,7 @@ namespace Api.GraphQL.Mutations.StockTransfer
             return entity;
         }
 
-        public static async Task<Models.StockTransfer.StockTransfer> UpdateStockTransferAsync(
+        public static async Task<StockTransfer> UpdateStockTransferAsync(
             StockTransferMutationInput input,
             EntityLogInfo logInfo,
             [Service] IStockTransferService service
@@ -50,7 +50,7 @@ namespace Api.GraphQL.Mutations.StockTransfer
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"StockTransfer with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.StockTransfer.StockTransfer>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<StockTransfer>(JsonSerializer.Serialize(entity));
 
             entity.TransferNumber = input.TransferNumber.CheckForValue(entity.TransferNumber);
             entity.FromBranchId = input.FromBranchId.CheckForValue(entity.FromBranchId);

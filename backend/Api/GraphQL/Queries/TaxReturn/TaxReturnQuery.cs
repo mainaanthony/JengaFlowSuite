@@ -1,9 +1,9 @@
-using Api.Models.TaxReturn;
+using Api.Models;
 using Api.Services;
 using HotChocolate;
 using HotChocolate.Types;
 
-namespace Api.GraphQL.Queries.TaxReturn
+namespace Api.GraphQL.Queries
 {
     [QueryType]
     public static class TaxReturnQuery
@@ -12,20 +12,20 @@ namespace Api.GraphQL.Queries.TaxReturn
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public static IQueryable<Models.TaxReturn.TaxReturn> GetTaxReturns([Service] ITaxReturnService service)
+        public static IQueryable<TaxReturn> GetTaxReturns([Service] ITaxReturnService service)
             => service.GetQueryable();
 
         [UseProjection]
-        public static async Task<Models.TaxReturn.TaxReturn?> GetTaxReturn(int id, [Service] ITaxReturnService service)
+        public static async Task<TaxReturn?> GetTaxReturn(int id, [Service] ITaxReturnService service)
             => await service.GetByIdAsync(id);
 
         [UseProjection]
-        public static async Task<Models.TaxReturn.TaxReturn?> GetTaxReturnByPeriod(string period, [Service] ITaxReturnService service)
+        public static async Task<TaxReturn?> GetTaxReturnByPeriod(string period, [Service] ITaxReturnService service)
             => await service.GetByPeriodAsync(period);
 
         [UseFiltering]
         [UseSorting]
-        public static async Task<IEnumerable<Models.TaxReturn.TaxReturn>> GetTaxReturnsByStatus(Enums.TaxReturnStatus status, [Service] ITaxReturnService service)
+        public static async Task<IEnumerable<TaxReturn>> GetTaxReturnsByStatus(Enums.TaxReturnStatus status, [Service] ITaxReturnService service)
             => await service.GetByStatusAsync(status);
     }
 }

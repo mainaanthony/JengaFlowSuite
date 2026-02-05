@@ -1,9 +1,9 @@
-using Api.Models.GoodsReceivedNoteItem;
+using Api.Models;
 using Api.Services;
 using HotChocolate;
 using HotChocolate.Types;
 
-namespace Api.GraphQL.Queries.GoodsReceivedNoteItem
+namespace Api.GraphQL.Queries
 {
     [QueryType]
     public static class GoodsReceivedNoteItemQuery
@@ -12,16 +12,16 @@ namespace Api.GraphQL.Queries.GoodsReceivedNoteItem
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public static IQueryable<Models.GoodsReceivedNoteItem.GoodsReceivedNoteItem> GetGoodsReceivedNoteItems([Service] IGoodsReceivedNoteItemService service)
+        public static IQueryable<GoodsReceivedNoteItem> GetGoodsReceivedNoteItems([Service] IGoodsReceivedNoteItemService service)
             => service.GetQueryable();
 
         [UseProjection]
-        public static async Task<Models.GoodsReceivedNoteItem.GoodsReceivedNoteItem?> GetGoodsReceivedNoteItem(int id, [Service] IGoodsReceivedNoteItemService service)
+        public static async Task<GoodsReceivedNoteItem?> GetGoodsReceivedNoteItem(int id, [Service] IGoodsReceivedNoteItemService service)
             => await service.GetByIdAsync(id);
 
         [UseFiltering]
         [UseSorting]
-        public static async Task<IEnumerable<Models.GoodsReceivedNoteItem.GoodsReceivedNoteItem>> GetGoodsReceivedNoteItemsByGoodsReceivedNote(int goodsReceivedNoteId, [Service] IGoodsReceivedNoteItemService service)
+        public static async Task<IEnumerable<GoodsReceivedNoteItem>> GetGoodsReceivedNoteItemsByGoodsReceivedNote(int goodsReceivedNoteId, [Service] IGoodsReceivedNoteItemService service)
             => await service.GetByGoodsReceivedNoteIdAsync(goodsReceivedNoteId);
     }
 }

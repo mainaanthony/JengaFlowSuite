@@ -1,4 +1,4 @@
-using Api.Models.TaxReturn;
+using Api.Models;
 using Api.Data;
 using Api.Enums;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-using Api.Models.DeliveryItem;
+using Api.Models;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
 

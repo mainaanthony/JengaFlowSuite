@@ -1,17 +1,17 @@
-using Api.Models.User;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
+using Api.Models;
 
-namespace Api.GraphQL.Mutations.User
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class UserMutation
     {
-        public static async Task<Models.User.User> AddUserAsync(
+        public static async Task<User> AddUserAsync(
             UserMutationInput input,
             EntityLogInfo logInfo,
             [Service] IUserService service
@@ -25,7 +25,7 @@ namespace Api.GraphQL.Mutations.User
             input.BranchId.CheckRequired(nameof(input.BranchId));
             input.RoleId.CheckRequired(nameof(input.RoleId));
 
-            var entity = new Models.User.User
+            var entity = new User
             {
                 KeycloakId = input.KeycloakId.Value!,
                 Username = input.Username.Value!,
@@ -42,7 +42,7 @@ namespace Api.GraphQL.Mutations.User
             return entity;
         }
 
-        public static async Task<Models.User.User> UpdateUserAsync(
+        public static async Task<User> UpdateUserAsync(
             UserMutationInput input,
             EntityLogInfo logInfo,
             [Service] IUserService service
@@ -53,7 +53,7 @@ namespace Api.GraphQL.Mutations.User
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"User with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.User.User>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<User>(JsonSerializer.Serialize(entity));
 
             entity.KeycloakId = input.KeycloakId.CheckForValue(entity.KeycloakId);
             entity.Username = input.Username.CheckForValue(entity.Username);
@@ -81,7 +81,7 @@ namespace Api.GraphQL.Mutations.User
             return result;
         }
 
-        public static async Task<Models.User.User> UpdateLastLoginAsync(
+        public static async Task<User> UpdateLastLoginAsync(
             int id,
             [Service] IUserService service
         )

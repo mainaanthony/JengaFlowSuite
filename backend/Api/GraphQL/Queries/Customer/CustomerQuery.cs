@@ -1,9 +1,9 @@
-using Api.Models.Customer;
+using Api.Models;
 using Api.Services;
 using HotChocolate;
 using HotChocolate.Types;
 
-namespace Api.GraphQL.Queries.Customer
+namespace Api.GraphQL.Queries
 {
     [QueryType]
     public static class CustomerQuery
@@ -12,20 +12,20 @@ namespace Api.GraphQL.Queries.Customer
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public static IQueryable<Models.Customer.Customer> GetCustomers([Service] ICustomerService service)
+        public static IQueryable<Customer> GetCustomers([Service] ICustomerService service)
             => service.GetQueryable();
 
         [UseProjection]
-        public static async Task<Models.Customer.Customer?> GetCustomer(int id, [Service] ICustomerService service)
+        public static async Task<Customer?> GetCustomer(int id, [Service] ICustomerService service)
             => await service.GetByIdAsync(id);
 
         [UseProjection]
-        public static async Task<Models.Customer.Customer?> GetCustomerByEmail(string email, [Service] ICustomerService service)
+        public static async Task<Customer?> GetCustomerByEmail(string email, [Service] ICustomerService service)
             => await service.GetByEmailAsync(email);
 
         [UseFiltering]
         [UseSorting]
-        public static async Task<IEnumerable<Models.Customer.Customer>> GetActiveCustomers([Service] ICustomerService service)
+        public static async Task<IEnumerable<Customer>> GetActiveCustomers([Service] ICustomerService service)
             => await service.GetActiveAsync();
     }
 }

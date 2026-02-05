@@ -1,4 +1,4 @@
-using Api.Models.Customer;
+using Api.Models;
 using Api.Core.Models;
 using Api.Enums;
 

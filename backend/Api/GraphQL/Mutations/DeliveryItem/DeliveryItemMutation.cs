@@ -1,4 +1,4 @@
-using Api.Models.DeliveryItem;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.DeliveryItem
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class DeliveryItemMutation
     {
-        public static async Task<Models.DeliveryItem.DeliveryItem> AddDeliveryItemAsync(
+        public static async Task<DeliveryItem> AddDeliveryItemAsync(
             DeliveryItemMutationInput input,
             EntityLogInfo logInfo,
             [Service] IDeliveryItemService service
@@ -21,7 +21,7 @@ namespace Api.GraphQL.Mutations.DeliveryItem
             input.ProductId.CheckRequired(nameof(input.ProductId));
             input.Quantity.CheckRequired(nameof(input.Quantity));
 
-            var entity = new Models.DeliveryItem.DeliveryItem
+            var entity = new DeliveryItem
             {
                 DeliveryId = input.DeliveryId.Value,
                 ProductId = input.ProductId.Value,
@@ -32,7 +32,7 @@ namespace Api.GraphQL.Mutations.DeliveryItem
             return entity;
         }
 
-        public static async Task<Models.DeliveryItem.DeliveryItem> UpdateDeliveryItemAsync(
+        public static async Task<DeliveryItem> UpdateDeliveryItemAsync(
             DeliveryItemMutationInput input,
             EntityLogInfo logInfo,
             [Service] IDeliveryItemService service
@@ -43,7 +43,7 @@ namespace Api.GraphQL.Mutations.DeliveryItem
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"DeliveryItem with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.DeliveryItem.DeliveryItem>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<DeliveryItem>(JsonSerializer.Serialize(entity));
 
             entity.DeliveryId = input.DeliveryId.CheckForValue(entity.DeliveryId);
             entity.ProductId = input.ProductId.CheckForValue(entity.ProductId);

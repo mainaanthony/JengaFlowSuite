@@ -1,17 +1,17 @@
-using Api.Models.Product;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Models;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.Product
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class ProductMutation
     {
-        public static async Task<Models.Product.Product> AddProductAsync(
+        public static async Task<Product> AddProductAsync(
             ProductMutationInput input,
             EntityLogInfo logInfo,
             [Service] IProductService service
@@ -20,7 +20,7 @@ namespace Api.GraphQL.Mutations.Product
             input.Name.CheckRequired(nameof(input.Name));
             input.SKU.CheckRequired(nameof(input.SKU));
 
-            var entity = new Models.Product.Product
+            var entity = new Product
             {
                 Name = input.Name.Value!,
                 SKU = input.SKU.Value!,
@@ -35,7 +35,7 @@ namespace Api.GraphQL.Mutations.Product
             return entity;
         }
 
-        public static async Task<Models.Product.Product> UpdateProductAsync(
+        public static async Task<Product> UpdateProductAsync(
             ProductMutationInput input,
             EntityLogInfo logInfo,
             [Service] IProductService service
@@ -46,7 +46,7 @@ namespace Api.GraphQL.Mutations.Product
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"Product with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.Product.Product>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<Product>(JsonSerializer.Serialize(entity));
 
             entity.Name = input.Name.CheckForValue(entity.Name);
             entity.SKU = input.SKU.CheckForValue(entity.SKU);

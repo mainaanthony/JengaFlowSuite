@@ -1,4 +1,4 @@
-using Api.Models.Driver;
+using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -6,12 +6,12 @@ using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
-namespace Api.GraphQL.Mutations.Driver
+namespace Api.GraphQL.Mutations
 {
     [MutationType]
     public static class DriverMutation
     {
-        public static async Task<Models.Driver.Driver> AddDriverAsync(
+        public static async Task<Driver> AddDriverAsync(
             DriverMutationInput input,
             EntityLogInfo logInfo,
             [Service] IDriverService service
@@ -21,7 +21,7 @@ namespace Api.GraphQL.Mutations.Driver
             input.Phone.CheckRequired(nameof(input.Phone));
             input.Vehicle.CheckRequired(nameof(input.Vehicle));
 
-            var entity = new Models.Driver.Driver
+            var entity = new Driver
             {
                 Name = input.Name.Value!,
                 Phone = input.Phone.Value!,
@@ -37,7 +37,7 @@ namespace Api.GraphQL.Mutations.Driver
             return entity;
         }
 
-        public static async Task<Models.Driver.Driver> UpdateDriverAsync(
+        public static async Task<Driver> UpdateDriverAsync(
             DriverMutationInput input,
             EntityLogInfo logInfo,
             [Service] IDriverService service
@@ -48,7 +48,7 @@ namespace Api.GraphQL.Mutations.Driver
             var entity = await service.GetByIdAsync(input.Id.Value)
                 ?? throw new GraphQLException(new Error($"Driver with ID {input.Id.Value} not found"));
 
-            var oldEntity = JsonSerializer.Deserialize<Models.Driver.Driver>(JsonSerializer.Serialize(entity));
+            var oldEntity = JsonSerializer.Deserialize<Driver>(JsonSerializer.Serialize(entity));
 
             entity.Name = input.Name.CheckForValue(entity.Name);
             entity.Phone = input.Phone.CheckForValue(entity.Phone);

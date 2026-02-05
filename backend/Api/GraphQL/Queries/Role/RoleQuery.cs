@@ -1,9 +1,9 @@
-using Api.Models.Role;
+using Api.Models;
 using Api.Services;
 using HotChocolate;
 using HotChocolate.Types;
 
-namespace Api.GraphQL.Queries.Role
+namespace Api.GraphQL.Queries
 {
     [QueryType]
     public static class RoleQuery
@@ -12,15 +12,15 @@ namespace Api.GraphQL.Queries.Role
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public static IQueryable<Models.Role.Role> GetRoles([Service] IRoleService service)
+        public static IQueryable<Role> GetRoles([Service] IRoleService service)
             => service.GetQueryable();
 
         [UseProjection]
-        public static async Task<Models.Role.Role?> GetRole(int id, [Service] IRoleService service)
+        public static async Task<Role?> GetRole(int id, [Service] IRoleService service)
             => await service.GetByIdAsync(id);
 
         [UseProjection]
-        public static async Task<Models.Role.Role?> GetRoleByName(string name, [Service] IRoleService service)
+        public static async Task<Role?> GetRoleByName(string name, [Service] IRoleService service)
             => await service.GetByNameAsync(name);
     }
 }

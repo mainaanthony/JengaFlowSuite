@@ -1,4 +1,4 @@
-using Api.Models.Supplier;
+using Api.Models;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
 
