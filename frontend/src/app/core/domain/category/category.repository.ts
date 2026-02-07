@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Category } from './category';
@@ -20,22 +21,31 @@ import {
   providedIn: 'root',
 })
 export class CategoryRepository extends BaseRepository<Category> {
-  constructor() {
-    super();
+  constructor(protected override apollo: Apollo) {
+    super(apollo);
   }
 
   /**
    * Get category by ID
    */
   override get(id: string): Observable<Category> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .query<{ categories: Category[] }>({
+        query: GET_CATEGORY,
+        variables: { id: parseInt(id) },
+      })
+      .pipe(map((result) => result.data.categories[0]));
   }
 
   /**
    * Get all categories
    */
   override getAll(): Observable<Category[]> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .watchQuery<{ categories: Category[] }>({
+        query: GET_CATEGORIES,
+      })
+      .valueChanges.pipe(map((result) => result.data.categories));
   }
 
   /**
@@ -45,7 +55,20 @@ export class CategoryRepository extends BaseRepository<Category> {
     data: Partial<Category>,
     logInfo: EntityLogInfo
   ): Observable<Partial<Category>> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .mutate<{ addCategory: Category }>({
+        mutation: ADD_CATEGORY,
+        variables: { input: { ...data, createdBy: logInfo.userId } },
+        refetchQueries: [{ query: GET_CATEGORIES }],
+      })
+      .pipe(
+        map((result) => {
+          if (result.data?.addCategory) {
+            return result.data.addCategory;
+          }
+          throw new Error('Cannot create category.');
+        })
+      );
   }
 
   /**
@@ -55,13 +78,38 @@ export class CategoryRepository extends BaseRepository<Category> {
     category: Partial<Category>,
     logInfo: EntityLogInfo
   ): Observable<Partial<Category>> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .mutate<{ updateCategory: Category }>({
+        mutation: UPDATE_CATEGORY,
+        variables: { input: { ...category, updatedBy: logInfo.userId } },
+      })
+      .pipe(
+        map((result) => {
+          if (result.data?.updateCategory) {
+            return result.data.updateCategory;
+          }
+          throw new Error('Cannot update category.');
+        })
+      );
   }
 
   /**
    * Delete a category
    */
   override delete(id: string, logInfo: EntityLogInfo): Observable<boolean> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .mutate<{ deleteCategory: boolean }>({
+        mutation: DELETE_CATEGORY,
+        variables: { id: parseInt(id) },
+        refetchQueries: [{ query: GET_CATEGORIES }],
+      })
+      .pipe(
+        map((result) => {
+          if (result.data?.deleteCategory) {
+            return result.data.deleteCategory;
+          }
+          throw new Error('Cannot delete category.');
+        })
+      );
   }
 }

@@ -11,6 +11,9 @@ export * from './driver/driver.barrel';
 export * from './delivery/delivery.barrel';
 export * from './stock-transfer/stock-transfer.barrel';
 export * from './inventory/inventory';
+export * from './purchase-order/purchase-order.barrel';
+export * from './goods-received-note/goods-received-note.barrel';
+export * from './tax-return/tax-return.barrel';
 
 // Repository Exports
 export * from '../repository/base-repository';

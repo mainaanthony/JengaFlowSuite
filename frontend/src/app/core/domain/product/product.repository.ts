@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Product } from './product';
@@ -23,43 +24,66 @@ import {
   providedIn: 'root',
 })
 export class ProductRepository extends BaseRepository<Product> {
-  constructor() {
-    super();
+  constructor(protected override apollo: Apollo) {
+    super(apollo);
   }
 
   /**
    * Get product by ID
    */
   override get(id: string): Observable<Product> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .query<{ products: Product[] }>({
+        query: GET_PRODUCT,
+        variables: { id: parseInt(id) },
+      })
+      .pipe(map((result) => result.data.products[0]));
   }
 
   /**
    * Get all active products
    */
   override getAll(): Observable<Product[]> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .watchQuery<{ products: Product[] }>({
+        query: GET_PRODUCTS,
+      })
+      .valueChanges.pipe(map((result) => result.data.products));
   }
 
   /**
    * Get all products including inactive
    */
   getAllProducts(): Observable<Product[]> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .watchQuery<{ products: Product[] }>({
+        query: GET_ALL_PRODUCTS,
+      })
+      .valueChanges.pipe(map((result) => result.data.products));
   }
 
   /**
    * Get products by category
    */
   getProductsByCategory(categoryId: number): Observable<Product[]> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .query<{ products: Product[] }>({
+        query: GET_PRODUCTS_BY_CATEGORY,
+        variables: { categoryId },
+      })
+      .pipe(map((result) => result.data.products));
   }
 
   /**
    * Search products by name, SKU, or brand
    */
   searchProducts(search: string): Observable<Product[]> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .query<{ products: Product[] }>({
+        query: SEARCH_PRODUCTS,
+        variables: { search },
+      })
+      .pipe(map((result) => result.data.products));
   }
 
   /**
@@ -69,7 +93,20 @@ export class ProductRepository extends BaseRepository<Product> {
     data: Partial<Product>,
     logInfo: EntityLogInfo
   ): Observable<Partial<Product>> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .mutate<{ addProduct: Product }>({
+        mutation: ADD_PRODUCT,
+        variables: { input: { ...data, createdBy: logInfo.userId } },
+        refetchQueries: [{ query: GET_PRODUCTS }],
+      })
+      .pipe(
+        map((result) => {
+          if (result.data?.addProduct) {
+            return result.data.addProduct;
+          }
+          throw new Error('Cannot create product.');
+        })
+      );
   }
 
   /**
@@ -79,13 +116,38 @@ export class ProductRepository extends BaseRepository<Product> {
     product: Partial<Product>,
     logInfo: EntityLogInfo
   ): Observable<Partial<Product>> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .mutate<{ updateProduct: Product }>({
+        mutation: UPDATE_PRODUCT,
+        variables: { input: { ...product, updatedBy: logInfo.userId } },
+      })
+      .pipe(
+        map((result) => {
+          if (result.data?.updateProduct) {
+            return result.data.updateProduct;
+          }
+          throw new Error('Cannot update product.');
+        })
+      );
   }
 
   /**
    * Delete a product
    */
   override delete(id: string, logInfo: EntityLogInfo): Observable<boolean> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .mutate<{ deleteProduct: boolean }>({
+        mutation: DELETE_PRODUCT,
+        variables: { id: parseInt(id) },
+        refetchQueries: [{ query: GET_PRODUCTS }],
+      })
+      .pipe(
+        map((result) => {
+          if (result.data?.deleteProduct) {
+            return result.data.deleteProduct;
+          }
+          throw new Error('Cannot delete product.');
+        })
+      );
   }
 }

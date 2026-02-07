@@ -1,5 +1,4 @@
-import { User } from '../user/user';
-// import { Inventory } from '../inventory/inventory'; // Commented out to avoid circular dependency
+import { Inventory, User} from '../domain.barrel';
 
 /**
  * Represents a Branch/Location
@@ -33,7 +32,7 @@ export interface Branch {
   users?: User[];
 
   /** Inventory Records - inventory at this branch */
-  inventoryRecords?: any[]; // Changed from Inventory[] to any[] to avoid circular dependency
+  inventoryRecords?: Inventory[]; // Changed from Inventory[] to any[] to avoid circular dependency
 
   /** Created At */
   createdAt?: Date;

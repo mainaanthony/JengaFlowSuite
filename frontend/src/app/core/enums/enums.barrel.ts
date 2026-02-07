@@ -5,3 +5,6 @@ export * from './customer-type';
 export * from './delivery-status';
 export * from './stock-transfer-status';
 export * from './priority';
+export * from './goods-received-note-status';
+export * from './tax-return-status';
+export * from './tax-type';

@@ -1,5 +1,4 @@
-// Note: To avoid circular dependencies, Branch and Role types are referenced
-// but not imported. They'll be available when using the full domain barrel.
+import { Branch, Role } from "../domain.barrel";
 
 /**
  * Represents a User Account
@@ -39,10 +38,10 @@ export interface User {
   roleId?: number;
 
   /** Branch - associated branch */
-  branch?: any; // Branch type - use full type from branch.barrel when needed
+  branch?: Branch; // Branch type - use full type from branch.barrel when needed
 
   /** Role - associated role */
-  role?: any; // Role type - use full type from role.barrel when needed
+  role?: Role; // Role type - use full type from role.barrel when needed
 
   /** Created At */
   createdAt?: Date;

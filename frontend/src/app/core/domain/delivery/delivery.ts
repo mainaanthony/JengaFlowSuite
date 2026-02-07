@@ -1,6 +1,5 @@
-import { Customer } from '../customer/customer';
-import { Driver } from '../driver/driver';
 import { DeliveryStatus, Priority } from '../../enums/enums.barrel';
+import { Sale, Customer, Driver } from '../domain.barrel';
 
 /**
  * Represents a Delivery Item
@@ -72,7 +71,7 @@ export interface Delivery {
   driver?: Driver;
 
   /** Sale - associated sale (if any) */
-  sale?: any; // Sale type
+  sale?: Sale; // Sale type
 
   /** Items - delivery items */
   items?: DeliveryItem[];

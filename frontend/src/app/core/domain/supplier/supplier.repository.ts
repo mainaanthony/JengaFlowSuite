@@ -68,7 +68,7 @@ export class SupplierRepository extends BaseRepository<Supplier> {
     return this.apollo
       .mutate<{ addSupplier: Supplier }>({
         mutation: ADD_SUPPLIER,
-        variables: { input: data },
+        variables: { input: { ...data, createdBy: logInfo.userId } },
         refetchQueries: [{ query: GET_SUPPLIERS }],
       })
       .pipe(
@@ -88,7 +88,7 @@ export class SupplierRepository extends BaseRepository<Supplier> {
     return this.apollo
       .mutate<{ updateSupplier: Supplier }>({
         mutation: UPDATE_SUPPLIER,
-        variables: { input: supplier },
+        variables: { input: { ...supplier, updatedBy: logInfo.userId } },
       })
       .pipe(
         map((result) => {

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Branch } from './branch';
@@ -21,29 +22,42 @@ import {
   providedIn: 'root',
 })
 export class BranchRepository extends BaseRepository<Branch> {
-  constructor() {
-    super();
+  constructor(protected override apollo: Apollo) {
+    super(apollo);
   }
 
   /**
    * Get branch by ID
    */
   override get(id: string): Observable<Branch> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .query<{ branches: Branch[] }>({
+        query: GET_BRANCH,
+        variables: { id: parseInt(id) },
+      })
+      .pipe(map((result) => result.data.branches[0]));
   }
 
   /**
    * Get all active branches
    */
   override getAll(): Observable<Branch[]> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .watchQuery<{ branches: Branch[] }>({
+        query: GET_BRANCHES,
+      })
+      .valueChanges.pipe(map((result) => result.data.branches));
   }
 
   /**
    * Get all branches including inactive
    */
   getAllBranches(): Observable<Branch[]> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .watchQuery<{ branches: Branch[] }>({
+        query: GET_ALL_BRANCHES,
+      })
+      .valueChanges.pipe(map((result) => result.data.branches));
   }
 
   /**
@@ -53,7 +67,20 @@ export class BranchRepository extends BaseRepository<Branch> {
     data: Partial<Branch>,
     logInfo: EntityLogInfo
   ): Observable<Partial<Branch>> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .mutate<{ addBranch: Branch }>({
+        mutation: ADD_BRANCH,
+        variables: { input: { ...data, createdBy: logInfo.userId } },
+        refetchQueries: [{ query: GET_BRANCHES }],
+      })
+      .pipe(
+        map((result) => {
+          if (result.data?.addBranch) {
+            return result.data.addBranch;
+          }
+          throw new Error('Cannot create branch.');
+        })
+      );
   }
 
   /**
@@ -63,13 +90,38 @@ export class BranchRepository extends BaseRepository<Branch> {
     branch: Partial<Branch>,
     logInfo: EntityLogInfo
   ): Observable<Partial<Branch>> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .mutate<{ updateBranch: Branch }>({
+        mutation: UPDATE_BRANCH,
+        variables: { input: { ...branch, updatedBy: logInfo.userId } },
+      })
+      .pipe(
+        map((result) => {
+          if (result.data?.updateBranch) {
+            return result.data.updateBranch;
+          }
+          throw new Error('Cannot update branch.');
+        })
+      );
   }
 
   /**
    * Delete a branch
    */
   override delete(id: string, logInfo: EntityLogInfo): Observable<boolean> {
-    throw new Error('Not implemented - Apollo GraphQL required');
+    return this.apollo
+      .mutate<{ deleteBranch: boolean }>({
+        mutation: DELETE_BRANCH,
+        variables: { id: parseInt(id) },
+        refetchQueries: [{ query: GET_BRANCHES }],
+      })
+      .pipe(
+        map((result) => {
+          if (result.data?.deleteBranch) {
+            return result.data.deleteBranch;
+          }
+          throw new Error('Cannot delete branch.');
+        })
+      );
   }
 }
