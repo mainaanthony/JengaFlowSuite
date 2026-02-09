@@ -57,7 +57,14 @@ export class PurchaseOrderRepository extends BaseRepository<PurchaseOrder> {
     return this.apollo
       .mutate<{ addPurchaseOrder: PurchaseOrder }>({
         mutation: ADD_PURCHASE_ORDER,
-        variables: { input: { ...data, createdBy: logInfo.userId } },
+        variables: { 
+          input: data,
+          logInfo: {
+            changedBy: logInfo.userId || 'system',
+            changeTrigger: logInfo.category || 'UI',
+            changeReason: logInfo.description
+          }
+        },
         refetchQueries: [{ query: GET_PURCHASE_ORDERS }],
       })
       .pipe(

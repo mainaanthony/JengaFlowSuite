@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { AppModalComponent, ModalButton, AppModalConfig } from '../../shared/modals/app-modal.component';
 import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component';
 import { InputTextComponent } from '../../shared/input-text/input-text.component';
 import { InputDropdownComponent, DropdownOption } from '../../shared/input-dropdown/input-dropdown.component';
+import { BranchRepository, Branch as DomainBranch } from '../../core/domain/domain.barrel';
 
 interface OperatingHours {
   day: string;
@@ -57,6 +58,9 @@ interface Branch {
 export class AddBranchModalComponent implements OnInit {
   currentStep: 1 | 2 | 3 | 4 = 1;
   completedSteps = new Set<number>();
+  editMode = false;
+  editingBranchId?: number;
+  loading = false;
 
   // Modal configuration
   modalConfig: AppModalConfig = {
@@ -133,8 +137,15 @@ export class AddBranchModalComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private dialogRef: MatDialogRef<AddBranchModalComponent>
+    private dialogRef: MatDialogRef<AddBranchModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { branch?: DomainBranch },
+    private branchRepository: BranchRepository
   ) {
+    this.editMode = !!data?.branch;
+    if (this.editMode && data.branch) {
+      this.editingBranchId = data.branch.id;
+    }
+
     this.basicInfoForm = this.formBuilder.group({
       branchName: ['', [Validators.required]],
       branchCode: ['', [Validators.required]],
@@ -294,31 +305,37 @@ export class AddBranchModalComponent implements OnInit {
 
   addBranch() {
     if (this.basicInfoForm.valid && this.locationForm.valid) {
-      const branchData: Branch = {
-        id: 'branch-' + Date.now(),
+      this.loading = true;
+
+      const branchData: Partial<DomainBranch> = {
         name: this.basicInfoForm.get('branchName')?.value,
         code: this.basicInfoForm.get('branchCode')?.value,
-        type: this.basicInfoForm.get('branchType')?.value?.label || this.basicInfoForm.get('branchType')?.value,
         phone: this.basicInfoForm.get('phoneNumber')?.value,
         email: this.basicInfoForm.get('emailAddress')?.value,
-        managerName: this.basicInfoForm.get('managerName')?.value,
-        managerPhone: this.basicInfoForm.get('managerPhone')?.value,
-        managerEmail: this.basicInfoForm.get('managerEmail')?.value,
-        streetAddress: this.locationForm.get('streetAddress')?.value,
+        address: this.locationForm.get('streetAddress')?.value,
         city: this.locationForm.get('city')?.value,
-        county: this.locationForm.get('county')?.value,
-        postalCode: this.locationForm.get('postalCode')?.value,
-        country: this.locationForm.get('country')?.value,
-        latitude: this.locationForm.get('latitude')?.value,
-        longitude: this.locationForm.get('longitude')?.value,
-        operatingHours: this.operatingHours,
-        servicesOffered: this.getSelectedServices(),
-        status: this.operationsForm.get('status')?.value,
-        createdAt: new Date().toISOString()
+        isActive: this.operationsForm.get('status')?.value === 'Active'
       };
 
-      console.log('Adding branch:', branchData);
-      this.dialogRef.close(branchData);
+      const logInfo = {
+        description: this.editMode ? `Updated branch ${branchData.name}` : `Created branch ${branchData.name}`
+      };
+
+      const operation = this.editMode
+        ? this.branchRepository.update({ ...branchData, id: this.editingBranchId }, logInfo)
+        : this.branchRepository.create(branchData, logInfo);
+
+      operation.subscribe({
+        next: (result) => {
+          console.log(this.editMode ? 'Branch updated:' : 'Branch created:', result);
+          this.dialogRef.close(result);
+        },
+        error: (error) => {
+          console.error('Error saving branch:', error);
+          alert('Failed to save branch. Please try again.');
+          this.loading = false;
+        }
+      });
     }
   }
 

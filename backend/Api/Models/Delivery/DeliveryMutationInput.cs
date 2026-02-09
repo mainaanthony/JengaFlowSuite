@@ -42,3 +42,29 @@ public record DeliveryMutationInput
     [DefaultValue(null)]
     public Optional<string?> Notes { get; set; }
 }
+
+// Simple input records for future use
+public record CreateDeliveryInput(
+    string DeliveryNumber,
+    int? SaleId,
+    int CustomerId,
+    int DriverId,
+    string DeliveryAddress,
+    DateTime ScheduledDate,
+    DeliveryStatus Status = DeliveryStatus.Scheduled,
+    Priority Priority = Priority.Normal,
+    string? Notes = null
+);
+
+public record UpdateDeliveryInput(
+    int Id,
+    string DeliveryNumber,
+    int? SaleId,
+    int CustomerId,
+    int DriverId,
+    string DeliveryAddress,
+    DateTime ScheduledDate,
+    DeliveryStatus Status,
+    Priority Priority,
+    string? Notes
+);

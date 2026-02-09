@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
@@ -7,10 +7,18 @@ import { CardComponent } from '../shared/card/card.component';
 import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../shared/app-table/app-table.component';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime } from 'rxjs';
+import { debounceTime, Subject, takeUntil } from 'rxjs';
 import { AddSupplierModalComponent } from './add-supplier-modal/add-supplier-modal.component';
 import { CreatePOModalComponent } from './create-po-modal/create-po-modal.component';
 import { ModalService } from '../core/services/modal.service';
+import {
+  PurchaseOrderRepository,
+  SupplierRepository,
+  GoodsReceivedNoteRepository,
+  PurchaseOrder as DomainPurchaseOrder,
+  Supplier as DomainSupplier,
+  GoodsReceivedNote as DomainGRN
+} from '../core/domain/domain.barrel';
 
 interface PurchaseOrder {
   id: string;
@@ -57,9 +65,11 @@ interface GoodsReceivedNote {
   templateUrl: './procurement.component.html',
   styleUrls: ['./procurement.component.scss']
 })
-export class ProcurementComponent implements OnInit {
+export class ProcurementComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   searchControl = new FormControl('');
   activeTab: 'purchase-orders' | 'suppliers' | 'goods-received' = 'purchase-orders';
+  loading = false;
 
   // Table configuration
   poColumns: ColumnConfig[] = [];
@@ -67,72 +77,79 @@ export class ProcurementComponent implements OnInit {
   supplierColumns: ColumnConfig[] = [];
   supplierActions: TableAction[] = [];
 
-  constructor(private dialog: MatDialog, private modalService: ModalService) {
+  constructor(
+    private dialog: MatDialog, 
+    private modalService: ModalService,
+    private purchaseOrderRepository: PurchaseOrderRepository,
+    private supplierRepository: SupplierRepository,
+    private grnRepository: GoodsReceivedNoteRepository
+  ) {
     this.initializeTableConfig();
   }
 
   stats = {
-    activePOs: 23,
-    activePOsChange: 3,
-    pendingApproval: 7,
-    pendingApprovalChange: 2,
-    inTransit: 5,
-    inTransitChange: 1,
-    monthlySpend: 'KES 2.4M',
-    monthlySpendChange: -12
+    activePOs: 0,
+    activePOsChange: 0,
+    pendingApproval: 0,
+    pendingApprovalChange: 0,
+    inTransit: 0,
+    inTransitChange: 0,
+    monthlySpend: 'KES 0',
+    monthlySpendChange: 0
   };
 
-  purchaseOrders: PurchaseOrder[] = [
-    {
-      id: 'PO-2024-001',
-      supplier: 'ABC Hardware Suppliers',
-      items: 15,
-      total: 45600,
-      status: 'Pending Approval',
-      created: '2024-01-15',
-      expectedDelivery: '2024-01-25'
-    },
-    {
-      id: 'PO-2024-002',
-      supplier: 'Metro Building Supplies',
-      items: 8,
-      total: 78900,
-      status: 'Approved',
-      created: '2024-01-14',
-      expectedDelivery: '2024-01-22'
-    },
-    {
-      id: 'PO-2024-003',
-      supplier: 'Prime Tools Ltd',
-      items: 12,
-      total: 23400,
-      status: 'Delivered',
-      created: '2024-01-13',
-      expectedDelivery: '2024-01-20'
-    }
-  ];
+  purchaseOrders: PurchaseOrder[] = [];
+  // purchaseOrders: PurchaseOrder[] = [
+  //   {
+  //     id: 'PO-2024-001',
+  //     supplier: 'ABC Hardware Suppliers',
+  //     items: 15,
+  //     total: 45600,
+  //     status: 'Pending Approval',
+  //     created: '2024-01-15',
+  //     expectedDelivery: '2024-01-25'
+  //   },
+  //   {
+  //     id: 'PO-2024-002',
+  //     supplier: 'Metro Building Supplies',
+  //     items: 8,
+  //     total: 78900,
+  //     status: 'Approved',
+  //     created: '2024-01-14',
+  //     expectedDelivery: '2024-01-22'
+  //   },
+  //   {
+  //     id: 'PO-2024-003',
+  //     supplier: 'Prime Tools Ltd',
+  //     items: 12,
+  //     total: 23400,
+  //     status: 'Delivered',
+  //     created: '2024-01-13',
+  //     expectedDelivery: '2024-01-20'
+  //   }
+  // ];
 
-  suppliers: Supplier[] = [
-    {
-      id: 'SUP-001',
-      name: 'ABC Hardware Suppliers',
-      contact: 'supplier@abc.com',
-      phone: '+254-700-123456',
-      category: 'General Hardware',
-      rating: 4.8,
-      status: 'Active'
-    },
-    {
-      id: 'SUP-002',
-      name: 'Metro Building Supplies',
-      contact: 'orders@metro.co.ke',
-      phone: '+254-722-987654',
-      category: 'Building Materials',
-      rating: 4.5,
-      status: 'Active'
-    }
-  ];
-
+  // suppliers: Supplier[] = [
+  //   {
+  //     id: 'SUP-001',
+  //     name: 'ABC Hardware Suppliers',
+  //     contact: 'supplier@abc.com',
+  //     phone: '+254-700-123456',
+  //     category: 'General Hardware',
+  //     rating: 4.8,
+  //     status: 'Active'
+  //   },
+  //   {
+  //     id: 'SUP-002',
+  //     name: 'Metro Building Supplies',
+  //     contact: 'orders@metro.co.ke',
+  //     phone: '+254-722-987654',
+  //     category: 'Building Materials',
+  //     rating: 4.5,
+  //     status: 'Active'
+  //   }
+  // ];
+  suppliers: Supplier[] = [];
   goodsReceivedNotes: GoodsReceivedNote[] = [];
 
   filteredPOs: PurchaseOrder[] = [];
@@ -140,10 +157,125 @@ export class ProcurementComponent implements OnInit {
   filteredGRNs: GoodsReceivedNote[] = [];
 
   ngOnInit() {
-    this.filteredPOs = this.purchaseOrders;
-    this.filteredSuppliers = this.suppliers;
-    this.filteredGRNs = this.goodsReceivedNotes;
+    this.loadAllData();
     this.setupSearch();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadAllData() {
+    this.loadPurchaseOrders();
+    this.loadSuppliers();
+    this.loadGoodsReceivedNotes();
+  }
+
+  loadPurchaseOrders() {
+    this.loading = true;
+    this.purchaseOrderRepository.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (pos: DomainPurchaseOrder[]) => {
+          this.purchaseOrders = pos.map(po => ({
+            id: po.poNumber,
+            supplier: po.supplier?.name || 'Unknown Supplier',
+            items: 0, // TODO: Calculate from PO items
+            total: po.totalAmount,
+            status: this.mapPOStatus(po.status),
+            created: new Date(po.expectedDeliveryDate).toLocaleDateString(),
+            expectedDelivery: po.expectedDeliveryDate ? new Date(po.expectedDeliveryDate).toLocaleDateString() : 'N/A'
+          }));
+          this.filteredPOs = [...this.purchaseOrders];
+          this.updateStats();
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Error loading purchase orders:', err);
+          this.loading = false;
+        }
+      });
+  }
+
+  loadSuppliers() {
+    this.supplierRepository.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (suppliers: DomainSupplier[]) => {
+          this.suppliers = suppliers.map(s => ({
+            id: `SUP-${s.id.toString().padStart(3, '0')}`,
+            name: s.name,
+            contact: s.email || 'N/A',
+            phone: s.phone || 'N/A',
+            category: s.category || 'General',
+            rating: s.rating || 0,
+            status: s.isActive ? 'Active' : 'Inactive'
+          }));
+          this.filteredSuppliers = [...this.suppliers];
+        },
+        error: (err) => {
+          console.error('Error loading suppliers:', err);
+        }
+      });
+  }
+
+  loadGoodsReceivedNotes() {
+    this.grnRepository.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (grns: DomainGRN[]) => {
+          this.goodsReceivedNotes = grns.map(grn => ({
+            id: grn.grnNumber,
+            poNumber: grn.purchaseOrder?.poNumber || 'N/A',
+            supplier: grn.purchaseOrder?.supplier?.name || 'N/A',
+            items: 0, // TODO: Calculate from GRN items
+            receivedDate: new Date(grn.receivedDate).toLocaleDateString(),
+            status: grn.status
+          }));
+          this.filteredGRNs = [...this.goodsReceivedNotes];
+        },
+        error: (err) => {
+          console.error('Error loading GRNs:', err);
+        }
+      });
+  }
+
+  private mapPOStatus(status: string): 'Pending Approval' | 'Approved' | 'Delivered' {
+    const statusMap: { [key: string]: 'Pending Approval' | 'Approved' | 'Delivered' } = {
+      'PENDING': 'Pending Approval',
+      'APPROVED': 'Approved',
+      'DELIVERED': 'Delivered',
+      'COMPLETED': 'Delivered'
+    };
+    return statusMap[status?.toUpperCase()] || 'Pending Approval';
+  }
+
+  updateStats() {
+    const activePOs = this.purchaseOrders.filter(po => 
+      po.status === 'Approved' || po.status === 'Pending Approval'
+    ).length;
+    
+    const pendingApproval = this.purchaseOrders.filter(po => 
+      po.status === 'Pending Approval'
+    ).length;
+    
+    const inTransit = this.purchaseOrders.filter(po => 
+      po.status === 'Approved'
+    ).length;
+    
+    const monthlySpend = this.purchaseOrders.reduce((sum, po) => sum + (po.total || 0), 0);
+
+    this.stats = {
+      activePOs,
+      activePOsChange: 0, // TODO: Compare with previous period
+      pendingApproval,
+      pendingApprovalChange: 0,
+      inTransit,
+      inTransitChange: 0,
+      monthlySpend: `KES ${monthlySpend.toLocaleString()}`,
+      monthlySpendChange: 0
+    };
   }
 
   initializeTableConfig(): void {
@@ -373,10 +505,10 @@ export class ProcurementComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'create') {
         console.log('Purchase Order created:', result.data);
-        // Handle the created PO (e.g., save to backend, update UI)
+        this.loadPurchaseOrders(); // Reload purchase orders
       } else if (result && result.action === 'draft') {
         console.log('Purchase Order saved as draft:', result.data);
-        // Handle the draft PO
+        this.loadPurchaseOrders(); // Reload purchase orders
       }
     });
   }

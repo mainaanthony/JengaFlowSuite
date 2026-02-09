@@ -23,3 +23,21 @@ public record InventoryMutationInput
     [DefaultValue(100)]
     public Optional<int> MaxStockLevel { get; set; }
 }
+
+// Simple input records for future use
+public record CreateInventoryInput(
+    int ProductId,
+    int BranchId,
+    int Quantity,
+    int ReorderLevel = 10,
+    int MaxStockLevel = 100
+);
+
+public record UpdateInventoryInput(
+    int Id,
+    int ProductId,
+    int BranchId,
+    int Quantity,
+    int ReorderLevel,
+    int MaxStockLevel
+);

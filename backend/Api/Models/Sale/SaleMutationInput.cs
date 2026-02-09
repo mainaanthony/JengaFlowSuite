@@ -4,6 +4,14 @@ using Api.Enums;
 
 namespace Api.Models;
 
+public record SaleItemInput
+{
+    public int ProductId { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+    public decimal? Discount { get; set; }
+}
+
 public record SaleMutationInput
 {
     [DefaultValue(0)]
@@ -29,4 +37,13 @@ public record SaleMutationInput
 
     [DefaultValue(OrderStatus.Completed)]
     public Optional<OrderStatus> Status { get; set; }
+
+    [DefaultValue(null)]
+    public Optional<string?> Notes { get; set; }
+
+    /// <summary>
+    /// Sale items - for creation with nested items (backend calculates totals)
+    /// </summary>
+    [DefaultValue(null)]
+    public Optional<List<SaleItemInput>?> Items { get; set; }
 }

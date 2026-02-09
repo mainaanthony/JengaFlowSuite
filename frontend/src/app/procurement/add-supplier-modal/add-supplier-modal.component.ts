@@ -1,12 +1,13 @@
-import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component';
 import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
 import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
+import { SupplierRepository, Supplier as DomainSupplier } from '../../core/domain/domain.barrel';
 
 interface Supplier {
   id: string;
@@ -394,7 +395,9 @@ export class AddSupplierModalComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    public dialogRef: MatDialogRef<AddSupplierModalComponent>
+    public dialogRef: MatDialogRef<AddSupplierModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { supplier?: DomainSupplier },
+    private supplierRepository: SupplierRepository
   ) {}
 
   ngOnInit(): void {
@@ -622,19 +625,34 @@ export class AddSupplierModalComponent implements OnInit, AfterViewInit {
 
     instance.loading = true;
 
-    const supplierData: Supplier = {
-      id: 'SUP-' + Date.now(),
-      ...this.supplierForm.value,
-      documents: this.uploadedFiles,
+    const formValue = this.supplierForm.value;
+    const supplierData: Partial<DomainSupplier> = {
+      name: formValue.companyName,
+      contactPerson: formValue.primaryContact,
+      phone: formValue.primaryPhone,
+      email: formValue.primaryEmail,
+      address: formValue.street,
+      category: formValue.category,
       rating: this.rating,
-      status: 'Pending Verification' as const
+      isActive: true
     };
 
-    setTimeout(() => {
-      instance.loading = false;
-      modalDialogRef.close();
-      this.dialogRef.close(supplierData);
-    }, 1000);
+    const logInfo = {
+      description: `Created supplier ${supplierData.name}`
+    };
+
+    this.supplierRepository.create(supplierData, logInfo).subscribe({
+      next: (result) => {
+        instance.loading = false;
+        modalDialogRef.close();
+        this.dialogRef.close(result);
+      },
+      error: (error) => {
+        console.error('Error saving supplier:', error);
+        alert('Failed to save supplier. Please try again.');
+        instance.loading = false;
+      }
+    });
   }
 
   closeDialog(): void {

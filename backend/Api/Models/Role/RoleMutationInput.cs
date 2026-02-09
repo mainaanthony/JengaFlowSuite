@@ -14,3 +14,15 @@ public record RoleMutationInput
     [DefaultValue(null)]
     public Optional<string?> Description { get; set; }
 }
+
+// Simple input records for future use
+public record CreateRoleInput(
+    string Name,
+    string? Description
+);
+
+public record UpdateRoleInput(
+    int Id,
+    string Name,
+    string? Description
+);

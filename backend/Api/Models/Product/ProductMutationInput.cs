@@ -29,3 +29,25 @@ public record ProductMutationInput
     [property: DefaultValue(true)]
     Optional<bool> IsActive
 );
+
+// Simple input records for future use
+public record CreateProductInput(
+    string Name,
+    string SKU,
+    string? Brand,
+    int? CategoryId,
+    decimal Price,
+    string? Description,
+    bool IsActive = true
+);
+
+public record UpdateProductInput(
+    int Id,
+    string Name,
+    string SKU,
+    string? Brand,
+    int? CategoryId,
+    decimal Price,
+    string? Description,
+    bool IsActive
+);

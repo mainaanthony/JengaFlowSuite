@@ -29,3 +29,25 @@ public record BranchMutationInput
     [property: DefaultValue(true)]
     Optional<bool> IsActive
 );
+
+// Simple input records for future use
+public record CreateBranchInput(
+    string Name,
+    string Code,
+    string? Address,
+    string? City,
+    string? Phone,
+    string? Email,
+    bool IsActive = true
+);
+
+public record UpdateBranchInput(
+    int Id,
+    string Name,
+    string Code,
+    string? Address,
+    string? City,
+    string? Phone,
+    string? Email,
+    bool IsActive
+);

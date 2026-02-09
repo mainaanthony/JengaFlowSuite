@@ -27,3 +27,23 @@ public record GoodsReceivedNoteMutationInput
     [DefaultValue(GoodsReceivedNoteStatus.FullyReceived)]
     public Optional<GoodsReceivedNoteStatus> Status { get; set; }
 }
+
+// Simple input records for future use
+public record CreateGoodsReceivedNoteInput(
+    string GRNNumber,
+    int PurchaseOrderId,
+    int ReceivedByUserId,
+    DateTime ReceivedDate,
+    GoodsReceivedNoteStatus Status = GoodsReceivedNoteStatus.FullyReceived,
+    string? Notes = null
+);
+
+public record UpdateGoodsReceivedNoteInput(
+    int Id,
+    string GRNNumber,
+    int PurchaseOrderId,
+    int ReceivedByUserId,
+    DateTime ReceivedDate,
+    GoodsReceivedNoteStatus Status,
+    string? Notes
+);

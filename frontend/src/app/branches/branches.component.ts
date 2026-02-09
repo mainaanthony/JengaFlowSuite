@@ -1,11 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../shared/app-table/app-table.component';
 import { StockTransferModalComponent } from './stock-transfer-modal/stock-transfer-modal.component';
 import { AddBranchModalComponent } from './add-branch-modal/add-branch-modal.component';
+import { BranchRepository, Branch as DomainBranch } from '../core/domain/domain.barrel';
 
 // Interfaces
 interface BranchStat {
@@ -60,19 +62,25 @@ interface InventoryItem {
   templateUrl: './branches.component.html',
   styleUrls: ['./branches.component.scss']
 })
-export class BranchesComponent implements OnInit {
+export class BranchesComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+  
   // Math utility for template
   Math = Math;
 
   // Search and filter
   searchControl = new FormControl('');
   activeTab: 'allBranches' | 'performance' | 'inventory' = 'allBranches';
+  loading = false;
 
   // Table configuration
   branchColumns: ColumnConfig[] = [];
   branchActions: TableAction[] = [];
 
-  constructor(private dialog: MatDialog) {
+  constructor(
+    private dialog: MatDialog,
+    private branchRepository: BranchRepository
+  ) {
     this.initializeTableConfig();
   }
 
@@ -93,12 +101,64 @@ export class BranchesComponent implements OnInit {
   inventoryData: InventoryItem[] = [];
 
   ngOnInit(): void {
+    this.loadBranches();
     this.initializeStats();
-    this.initializeBranches();
     this.initializePerformanceData();
     this.initializeStaffAllocation();
     this.initializeInventoryData();
     this.setupSearch();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadBranches() {
+    this.loading = true;
+    this.branchRepository.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (branches: DomainBranch[]) => {
+          this.branches = branches.map(b => this.mapDomainBranchToUIBranch(b));
+          this.filteredBranches = [...this.branches];
+          this.updateStats();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading branches:', error);
+          this.loading = false;
+        }
+      });
+  }
+
+  mapDomainBranchToUIBranch(branch: DomainBranch): Branch {
+    return {
+      id: `BR-${branch.id.toString().padStart(3, '0')}`,
+      name: branch.name,
+      code: branch.code,
+      location: branch.address || 'N/A',
+      phone: branch.phone || 'N/A',
+      email: branch.email || 'N/A',
+      manager: 'N/A', // TODO: Get from users
+      staff: 0, // TODO: Count from users
+      revenue: 'KES 0', // TODO: Calculate from sales
+      products: 0, // TODO: Count from inventory
+      customers: 0, // TODO: Count from customers
+      status: branch.isActive ? 'Active' : 'Inactive'
+    };
+  }
+
+  updateStats() {
+    const totalBranches = this.branches.length;
+    const activeBranches = this.branches.filter(b => b.status === 'Active').length;
+    
+    this.stats = [
+      { label: 'Total Branches', value: totalBranches, icon: 'store' },
+      { label: 'Active Branches', value: activeBranches, icon: 'check_circle' },
+      { label: 'Total Staff', value: 0, icon: 'people' }, // TODO: Count from users
+      { label: 'Total Revenue', value: 'KES 0', icon: 'trending_up' } // TODO: Sum from sales
+    ];
   }
 
   initializeTableConfig(): void {
@@ -212,6 +272,8 @@ export class BranchesComponent implements OnInit {
   }
 
   initializeBranches(): void {
+    // Dummy data commented out - now using real data from loadBranches()
+    /*
     this.branches = [
       {
         id: 'BR-001',
@@ -271,9 +333,13 @@ export class BranchesComponent implements OnInit {
       }
     ];
     this.filteredBranches = [...this.branches];
+    */
+    // Real data is now loaded via loadBranches() method which fetches from BranchRepository
   }
 
   initializePerformanceData(): void {
+    // Dummy data commented out - TODO: Calculate from real sales data
+    /*
     this.performanceData = [
       {
         branch: 'Main Branch',
@@ -300,9 +366,14 @@ export class BranchesComponent implements OnInit {
         deltaPercent: 12
       }
     ];
+    */
+    // TODO: Calculate performance data from real branches and sales data
+    this.performanceData = [];
   }
 
   initializeStaffAllocation(): void {
+    // Dummy data commented out - TODO: Calculate from real user data
+    /*
     this.staffAllocation = [
       {
         branch: 'Main Branch',
@@ -329,9 +400,14 @@ export class BranchesComponent implements OnInit {
         status: 'Under Renovation'
       }
     ];
+    */
+    // TODO: Calculate staff allocation from real branches and users data
+    this.staffAllocation = [];
   }
 
   initializeInventoryData(): void {
+    // Dummy data commented out - TODO: Calculate from real inventory data
+    /*
     this.inventoryData = [
       {
         category: 'Power Tools',
@@ -366,6 +442,9 @@ export class BranchesComponent implements OnInit {
         total: 505
       }
     ];
+    */
+    // TODO: Calculate inventory distribution from real inventory records
+    this.inventoryData = [];
   }
 
   setupSearch(): void {
@@ -405,38 +484,73 @@ export class BranchesComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Branch created:', result);
-        // TODO: Save to backend API
-        // Add new branch to the list
-        const newBranch: Branch = {
-          id: `BR-${(this.branches.length + 1).toString().padStart(3, '0')}`,
-          code: result.branchCode,
-          name: result.branchName,
-          location: `📍 ${result.locationForm.get('city')?.value}, ${result.locationForm.get('county')?.value}`,
-          phone: result.phoneNumber,
-          email: result.emailAddress,
-          manager: result.managerName,
-          staff: 0,
-          revenue: 'KES 0',
-          products: 0,
-          customers: 0,
-          status: 'Active'
-        };
-        this.branches.push(newBranch);
-        this.filteredBranches = [...this.branches];
+        this.loadBranches();
+        // console.log('Branch created:', result);
+        // // TODO: Save to backend API
+        // // Add new branch to the list
+        // const newBranch: Branch = {
+        //   id: `BR-${(this.branches.length + 1).toString().padStart(3, '0')}`,
+        //   code: result.branchCode,
+        //   name: result.branchName,
+        //   location: `📍 ${result.locationForm.get('city')?.value}, ${result.locationForm.get('county')?.value}`,
+        //   phone: result.phoneNumber,
+        //   email: result.emailAddress,
+        //   manager: result.managerName,
+        //   staff: 0,
+        //   revenue: 'KES 0',
+        //   products: 0,
+        //   customers: 0,
+        //   status: 'Active'
+        // };
+        // this.branches.push(newBranch);
+        // this.filteredBranches = [...this.branches];
       }
     });
   }
 
   editBranch(branch: Branch): void {
-    // TODO: Implement edit branch modal
-    console.log('Edit branch:', branch.name);
+    // Extract branch ID from display format (BR-001 -> 1)
+    const branchId = branch.id.replace('BR-', '');
+    
+    this.branchRepository.get(branchId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (domainBranch: DomainBranch) => {
+          const dialogRef = this.dialog.open(AddBranchModalComponent, {
+            width: '900px',
+            maxHeight: '90vh',
+            disableClose: false,
+            data: { branch: domainBranch } // Pass branch data for editing
+          });
+
+          dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+              this.loadBranches(); // Reload branches after editing
+            }
+          });
+        },
+        error: (error: any) => {
+          console.error('Error loading branch for edit:', error);
+        }
+      });
   }
 
   deleteBranch(branch: Branch): void {
     if (confirm(`Are you sure you want to delete ${branch.name}?`)) {
-      this.branches = this.branches.filter(b => b.id !== branch.id);
-      this.filteredBranches = this.filteredBranches.filter(b => b.id !== branch.id);
+      // Extract branch ID from display format (BR-001 -> 1)
+      const branchId = branch.id.replace('BR-', '');
+      
+      this.branchRepository.delete(branchId, { description: `Deleted branch ${branch.name}` })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            console.log(`Branch ${branch.name} deleted successfully`);
+            this.loadBranches(); // Reload branches after deletion
+          },
+          error: (error: any) => {
+            console.error('Error deleting branch:', error);
+          }
+        });
     }
   }
 

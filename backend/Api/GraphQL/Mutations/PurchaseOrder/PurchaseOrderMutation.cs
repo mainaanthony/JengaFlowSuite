@@ -1,5 +1,4 @@
 using PurchaseOrder = Api.Models.PurchaseOrder;
-using PurchaseOrderMutationInput = Api.Models.PurchaseOrderMutationInput;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
@@ -19,23 +18,56 @@ namespace Api.GraphQL.Mutations
             [Service] IPurchaseOrderService service
         )
         {
-            input.PONumber.CheckRequired(nameof(input.PONumber));
+            // Validate required fields
             input.SupplierId.CheckRequired(nameof(input.SupplierId));
             input.CreatedByUserId.CheckRequired(nameof(input.CreatedByUserId));
 
+            if (!input.Items.HasValue || input.Items.Value == null || !input.Items.Value.Any())
+                throw new GraphQLException(new Error("At least one purchase order item is required"));
+
+            // Generate PO number
+            var poNumber = $"PO-{DateTime.UtcNow:yyyyMMddHHmmss}";
+
+            // Create purchase order entity
             var entity = new PurchaseOrder
             {
-                PONumber = input.PONumber.Value!,
+                PONumber = poNumber,
                 SupplierId = input.SupplierId.Value,
                 CreatedByUserId = input.CreatedByUserId.Value,
-                ApprovedByUserId = input.ApprovedByUserId.CheckForValue(null),
-                TotalAmount = input.TotalAmount.CheckForValue(0),
-                Status = input.Status.CheckForValue(Enums.OrderStatus.Pending),
+                Status = Enums.OrderStatus.Pending,
                 ExpectedDeliveryDate = input.ExpectedDeliveryDate.Value ?? DateTime.UtcNow.AddDays(7),
-                DeliveredDate = input.DeliveredDate.CheckForValue(null),
-                Notes = input.Notes.CheckForValue(null)
+                Notes = input.Notes.CheckForValue(null),
+                TotalAmount = 0 // Will be calculated below
             };
 
+            // Create purchase order items and calculate total
+            decimal totalAmount = 0;
+            foreach (var itemInput in input.Items.Value)
+            {
+                if (itemInput.ProductId <= 0)
+                    throw new GraphQLException(new Error("ProductId is required for all items"));
+                if (itemInput.Quantity <= 0)
+                    throw new GraphQLException(new Error("Quantity must be greater than zero"));
+                if (itemInput.UnitPrice < 0)
+                    throw new GraphQLException(new Error("UnitPrice cannot be negative"));
+
+                var itemTotal = itemInput.Quantity * itemInput.UnitPrice;
+                var poItem = new PurchaseOrderItem
+                {
+                    ProductId = itemInput.ProductId,
+                    Quantity = itemInput.Quantity,
+                    UnitPrice = itemInput.UnitPrice,
+                    TotalPrice = itemTotal
+                };
+
+                entity.Items.Add(poItem);
+                totalAmount += itemTotal;
+            }
+
+            // Set the calculated total
+            entity.TotalAmount = totalAmount;
+
+            // Save to database
             entity = await service.AddAsync(entity, logInfo);
             return entity;
         }

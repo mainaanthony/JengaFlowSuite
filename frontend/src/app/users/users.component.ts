@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormsModule, FormControl, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime } from 'rxjs';
+import { debounceTime, Subject, takeUntil } from 'rxjs';
 
 import { CardComponent } from '../shared/card/card.component';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
@@ -11,6 +11,7 @@ import { ButtonSolidComponent } from '../shared/button-solid/button-solid.compon
 import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../shared/app-table/app-table.component';
 import { ManageRolesModalComponent } from './manage-roles-modal/manage-roles-modal.component';
 import { AddUserModalComponent } from './add-user-modal/add-user-modal.component';
+import { UserRepository, RoleRepository, User as DomainUser, Role as DomainRole } from '../core/domain/domain.barrel';
 
 // Data Models
 interface User {
@@ -66,7 +67,9 @@ interface UserStat {
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss'
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+  
   // Active tab tracking
   activeTab: string = 'all-users';
   searchControl = new FormControl('');
@@ -75,114 +78,122 @@ export class UsersComponent implements OnInit {
   userColumns: ColumnConfig[] = [];
   userActions: TableAction[] = [];
   filteredUsers: User[] = [];
+  loading = false;
 
   // Stats
   stats: UserStat[] = [
-    { label: 'Total Users', value: 19, delta: '+2 this month', deltaType: 'positive' },
-    { label: 'Active Users', value: 16, delta: '84% of total users', deltaType: 'positive' },
-    { label: 'User Roles', value: 5, delta: 'Different permission levels', deltaType: 'positive' },
-    { label: 'Online Now', value: 7, delta: 'Currently active', deltaType: 'positive' }
+    { label: 'Total Users', value: 0, delta: '+2 this month', deltaType: 'positive' },
+    { label: 'Active Users', value: 0, delta: '84% of total users', deltaType: 'positive' },
+    { label: 'User Roles', value: 0, delta: 'Different permission levels', deltaType: 'positive' },
+    { label: 'Online Now', value: 0, delta: 'Currently active', deltaType: 'positive' }
   ];
 
   // Users list
-  users: User[] = [
-    {
-      id: 'USR-001',
-      initials: 'JM',
-      name: 'John Mwangi',
-      role: 'Owner',
-      branch: 'All Branches',
-      email: 'john.mwangi@jengaflow.com',
-      phone: '+254-700-123456',
-      status: 'active',
-      lastLogin: '2024-01-15 09:30'
-    },
-    {
-      id: 'USR-002',
-      initials: 'MN',
-      name: 'Mary Njeru',
-      role: 'Branch Manager',
-      branch: 'Main Branch',
-      email: 'mary.njeru@jengaflow.com',
-      phone: '+254-722-987654',
-      status: 'active',
-      lastLogin: '2024-01-15 08:45'
-    },
-    {
-      id: 'USR-003',
-      initials: 'PK',
-      name: 'Peter Kamau',
-      role: 'Sales Agent',
-      branch: 'Westlands',
-      email: 'peter.kamau@jengaflow.com',
-      phone: '+254-733-456789',
-      status: 'active',
-      lastLogin: '2024-01-14 17:20'
-    },
-    {
-      id: 'USR-004',
-      initials: 'GW',
-      name: 'Grace Wanjiku',
-      role: 'Accountant',
-      branch: 'All Branches',
-      email: 'grace.wanjiku@jengaflow.com',
-      phone: '+254-712-654321',
-      status: 'inactive',
-      lastLogin: '2024-01-10 14:15'
-    },
-    {
-      id: 'USR-005',
-      initials: 'DK',
-      name: 'Daniel Kipchoge',
-      role: 'Sales Agent',
-      branch: 'Eastleigh',
-      email: 'daniel.kipchoge@jengaflow.com',
-      phone: '+254-701-234567',
-      status: 'active',
-      lastLogin: '2024-01-15 10:02'
-    }
-  ];
+  users: User[] = [];
 
   // Roles
-  roles: Role[] = [
-    {
-      id: 'ROLE-001',
-      name: 'Owner',
-      description: 'Full system access and management',
-      userCount: 1,
-      permissions: ['All Permissions']
-    },
-    {
-      id: 'ROLE-002',
-      name: 'Branch Manager',
-      description: 'Manage specific branch operations',
-      userCount: 3,
-      permissions: ['Inventory Management', 'Sales Management', 'User Management', 'Reports']
-    },
-    {
-      id: 'ROLE-003',
-      name: 'Accountant',
-      description: 'Financial operations and tax management',
-      userCount: 2,
-      permissions: ['Financial Reports', 'Tax Management', 'Procurement', 'Audit Logs']
-    },
-    {
-      id: 'ROLE-004',
-      name: 'Sales Agent',
-      description: 'Handle sales and customer interactions',
-      userCount: 5,
-      permissions: ['POS System', 'Customer Management', 'Inventory View', 'Sales Reports']
-    },
-    {
-      id: 'ROLE-005',
-      name: 'Shop Attendant',
-      description: 'Basic sales and inventory operations',
-      userCount: 8,
-      permissions: ['POS System', 'Basic Inventory', 'Customer Service']
-    }
-  ];
+  roles: Role[] = [];
 
-  // Activity logs
+   // Users list
+  // users: User[] = [
+  //   {
+  //     id: 'USR-001',
+  //     initials: 'JM',
+  //     name: 'John Mwangi',
+  //     role: 'Owner',
+  //     branch: 'All Branches',
+  //     email: 'john.mwangi@jengaflow.com',
+  //     phone: '+254-700-123456',
+  //     status: 'active',
+  //     lastLogin: '2024-01-15 09:30'
+  //   },
+  //   {
+  //     id: 'USR-002',
+  //     initials: 'MN',
+  //     name: 'Mary Njeru',
+  //     role: 'Branch Manager',
+  //     branch: 'Main Branch',
+  //     email: 'mary.njeru@jengaflow.com',
+  //     phone: '+254-722-987654',
+  //     status: 'active',
+  //     lastLogin: '2024-01-15 08:45'
+  //   },
+  //   {
+  //     id: 'USR-003',
+  //     initials: 'PK',
+  //     name: 'Peter Kamau',
+  //     role: 'Sales Agent',
+  //     branch: 'Westlands',
+  //     email: 'peter.kamau@jengaflow.com',
+  //     phone: '+254-733-456789',
+  //     status: 'active',
+  //     lastLogin: '2024-01-14 17:20'
+  //   },
+  //   {
+  //     id: 'USR-004',
+  //     initials: 'GW',
+  //     name: 'Grace Wanjiku',
+  //     role: 'Accountant',
+  //     branch: 'All Branches',
+  //     email: 'grace.wanjiku@jengaflow.com',
+  //     phone: '+254-712-654321',
+  //     status: 'inactive',
+  //     lastLogin: '2024-01-10 14:15'
+  //   },
+  //   {
+  //     id: 'USR-005',
+  //     initials: 'DK',
+  //     name: 'Daniel Kipchoge',
+  //     role: 'Sales Agent',
+  //     branch: 'Eastleigh',
+  //     email: 'daniel.kipchoge@jengaflow.com',
+  //     phone: '+254-701-234567',
+  //     status: 'active',
+  //     lastLogin: '2024-01-15 10:02'
+  //   }
+  // ];
+
+  // // Roles
+  // roles: Role[] = [
+  //   {
+  //     id: 'ROLE-001',
+  //     name: 'Owner',
+  //     description: 'Full system access and management',
+  //     userCount: 1,
+  //     permissions: ['All Permissions']
+  //   },
+  //   {
+  //     id: 'ROLE-002',
+  //     name: 'Branch Manager',
+  //     description: 'Manage specific branch operations',
+  //     userCount: 3,
+  //     permissions: ['Inventory Management', 'Sales Management', 'User Management', 'Reports']
+  //   },
+  //   {
+  //     id: 'ROLE-003',
+  //     name: 'Accountant',
+  //     description: 'Financial operations and tax management',
+  //     userCount: 2,
+  //     permissions: ['Financial Reports', 'Tax Management', 'Procurement', 'Audit Logs']
+  //   },
+  //   {
+  //     id: 'ROLE-004',
+  //     name: 'Sales Agent',
+  //     description: 'Handle sales and customer interactions',
+  //     userCount: 5,
+  //     permissions: ['POS System', 'Customer Management', 'Inventory View', 'Sales Reports']
+  //   },
+  //   {
+  //     id: 'ROLE-005',
+  //     name: 'Shop Attendant',
+  //     description: 'Basic sales and inventory operations',
+  //     userCount: 8,
+  //     permissions: ['POS System', 'Basic Inventory', 'Customer Service']
+  //   }
+  // ];
+
+  // Activity logs - Dummy data commented out, TODO: Implement activity logging service
+  /*
   activityLogs: ActivityLog[] = [
     {
       id: 'LOG-001',
@@ -225,14 +236,98 @@ export class UsersComponent implements OnInit {
       status: 'success'
     }
   ];
+  */
+  activityLogs: ActivityLog[] = [];
 
-  constructor(private dialog: MatDialog) {
+  constructor(
+    private dialog: MatDialog,
+    private userRepository: UserRepository,
+    private roleRepository: RoleRepository
+  ) {
     this.initializeTableConfig();
   }
 
   ngOnInit() {
-    this.filteredUsers = [...this.users];
+    this.loadUsers();
+    this.loadRoles();
     this.setupSearch();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadUsers() {
+    this.loading = true;
+    this.userRepository.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (users: DomainUser[]) => {
+          this.users = users.map(user => this.mapDomainUserToUIUser(user));
+          this.filteredUsers = [...this.users];
+          this.updateStats();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading users:', error);
+          this.loading = false;
+        }
+      });
+  }
+
+  loadRoles() {
+    this.roleRepository.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (roles: DomainRole[]) => {
+          this.roles = roles.map(role => ({
+            id: role.id.toString(),
+            name: role.name,
+            description: role.description || '',
+            userCount: 0, // TODO: Calculate from users
+            permissions: [] // TODO: Parse from role permissions
+          }));
+        },
+        error: (error) => {
+          console.error('Error loading roles:', error);
+        }
+      });
+  }
+
+  mapDomainUserToUIUser(domainUser: DomainUser): User {
+    const initials = this.getInitials(domainUser.firstName, domainUser.lastName);
+    const fullName = `${domainUser.firstName} ${domainUser.lastName}`;
+    
+    return {
+      id: `USR-${domainUser.id.toString().padStart(3, '0')}`,
+      initials: initials,
+      name: fullName,
+      role: domainUser.role?.name || 'N/A',
+      branch: domainUser.branch?.name || 'N/A',
+      email: domainUser.email || 'N/A',
+      phone: domainUser.phone || 'N/A',
+      status: domainUser.isActive ? 'active' : 'inactive',
+      lastLogin: domainUser.lastLoginAt ? new Date(domainUser.lastLoginAt).toLocaleString() : 'Never'
+    };
+  }
+
+  getInitials(firstName?: string, lastName?: string): string {
+    const first = firstName?.charAt(0).toUpperCase() || '';
+    const last = lastName?.charAt(0).toUpperCase() || '';
+    return `${first}${last}`;
+  }
+
+  updateStats() {
+    const totalUsers = this.users.length;
+    const activeUsers = this.users.filter(u => u.status === 'active').length;
+    
+    this.stats = [
+      { label: 'Total Users', value: totalUsers, delta: '+2 this month', deltaType: 'positive' },
+      { label: 'Active Users', value: activeUsers, delta: `${Math.round((activeUsers / totalUsers) * 100)}% of total users`, deltaType: 'positive' },
+      { label: 'User Roles', value: this.roles.length, delta: 'Different permission levels', deltaType: 'positive' },
+      { label: 'Online Now', value: 0, delta: 'Currently active', deltaType: 'positive' }
+    ];
   }
 
   initializeTableConfig() {
@@ -359,44 +454,86 @@ export class UsersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Generate a new user ID
-        const newUserId = `USR-${String(this.users.length + 1).padStart(3, '0')}`;
-        
-        // Create new user object from modal result
-        const newUser: User = {
-          id: newUserId,
-          initials: result.firstName.charAt(0) + result.lastName.charAt(0),
-          name: `${result.firstName} ${result.lastName}`,
-          role: result.role,
-          branch: result.branchAssignment,
-          email: result.emailAddress,
-          phone: result.phoneNumber,
-          status: result.accountActive ? 'active' : 'inactive',
-          lastLogin: 'Never'
-        };
-
-        // Add the new user to the list
-        this.users.unshift(newUser);
-        this.filterUsers(this.searchControl.value || '');
-        console.log('New user added:', newUser.name);
-        // TODO: Save to backend API
+        this.loadUsers(); // Reload users after adding
       }
     });
   }
 
   editUser(user: User) {
-    console.log('Editing user:', user.name);
+    // Extract user ID from display format (USR-001 -> 1)
+    const userId = user.id.replace('USR-', '');
+    
+    this.userRepository.get(userId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (domainUser: DomainUser) => {
+          const dialogRef = this.dialog.open(AddUserModalComponent, {
+            width: '900px',
+            maxHeight: '90vh',
+            disableClose: false,
+            data: { user: domainUser } // Pass user data for editing
+          });
+
+          dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+              this.loadUsers(); // Reload users after editing
+            }
+          });
+        },
+        error: (error: any) => {
+          console.error('Error loading user for edit:', error);
+        }
+      });
   }
 
   deleteUser(user: User) {
-    console.log('Deleting user:', user.name);
-    this.users = this.users.filter(u => u.id !== user.id);
-    this.filterUsers(this.searchControl.value || '');
+    if (confirm(`Are you sure you want to delete user ${user.name}?`)) {
+      // Extract user ID from display format (USR-001 -> 1)
+      const userId = user.id.replace('USR-', '');
+      
+      this.userRepository.delete(userId, { description: `Deleted user ${user.name}` })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            console.log(`User ${user.name} deleted successfully`);
+            this.loadUsers(); // Reload users after deletion
+          },
+          error: (error: any) => {
+            console.error('Error deleting user:', error);
+          }
+        });
+    }
   }
 
   toggleUserStatus(user: User) {
-    user.status = user.status === 'active' ? 'inactive' : 'active';
-    console.log(`User ${user.name} status changed to ${user.status}`);
+    // Extract user ID from display format (USR-001 -> 1)
+    const userId = user.id.replace('USR-', '');
+    
+    this.userRepository.get(userId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (domainUser: DomainUser) => {
+          const updatedUser = {
+            ...domainUser,
+            isActive: !domainUser.isActive
+          };
+          
+          this.userRepository.update(updatedUser, { description: `Toggled status for user ${user.name}` })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: () => {
+                console.log(`User ${user.name} status toggled successfully`);
+                this.loadUsers(); // Reload users after status change
+              },
+              error: (error: any) => {
+                console.error('Error toggling user status:', error);
+              }
+            });
+        },
+        error: (error: any) => {
+          console.error('Error loading user for status toggle:', error);
+        }
+      });
   }
 
   // Role management

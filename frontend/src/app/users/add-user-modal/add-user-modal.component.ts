@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { UserRepository, RoleRepository, BranchRepository, User as DomainUser } from '../../core/domain/domain.barrel';
 
 interface Permission {
   id: string;
@@ -84,11 +85,23 @@ export class AddUserModalComponent implements OnInit {
   ];
 
   selectedPermissions: Set<string> = new Set();
+  editMode = false;
+  editingUserId?: number;
+  loading = false;
 
   constructor(
     private formBuilder: FormBuilder,
-    private dialogRef: MatDialogRef<AddUserModalComponent>
+    private dialogRef: MatDialogRef<AddUserModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { user?: DomainUser },
+    private userRepository: UserRepository,
+    private roleRepository: RoleRepository,
+    private branchRepository: BranchRepository
   ) {
+    this.editMode = !!data?.user;
+    if (this.editMode && data.user) {
+      this.editingUserId = data.user.id;
+    }
+
     this.basicInfoForm = this.formBuilder.group({
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
@@ -171,24 +184,37 @@ export class AddUserModalComponent implements OnInit {
   // Add user
   addUser() {
     if (this.basicInfoForm.valid && this.employmentForm.valid && this.additionalForm.valid) {
-      const userData: UserData = {
+      this.loading = true;
+
+      const userData: Partial<DomainUser> = {
         firstName: this.basicInfoForm.get('firstName')?.value,
         lastName: this.basicInfoForm.get('lastName')?.value,
         email: this.basicInfoForm.get('emailAddress')?.value,
         phone: this.basicInfoForm.get('phoneNumber')?.value,
-        employeeId: this.basicInfoForm.get('employeeId')?.value || this.generateEmployeeId(),
-        role: this.employmentForm.get('role')?.value,
-        department: this.employmentForm.get('department')?.value,
-        branch: this.employmentForm.get('branchAssignment')?.value,
-        startDate: this.employmentForm.get('startDate')?.value,
-        permissions: Array.from(this.selectedPermissions),
-        profilePictureUrl: this.additionalForm.get('profilePictureUrl')?.value,
-        additionalNotes: this.additionalForm.get('additionalNotes')?.value,
-        accountActive: this.additionalForm.get('accountActive')?.value
+        roleId: parseInt(this.employmentForm.get('role')?.value) || 1,
+        branchId: parseInt(this.employmentForm.get('branchAssignment')?.value) || 1,
+        isActive: this.additionalForm.get('accountActive')?.value ?? true
       };
 
-      console.log('Adding new user:', userData);
-      this.dialogRef.close(userData);
+      const logInfo = {
+        description: this.editMode ? `Updated user ${userData.firstName} ${userData.lastName}` : `Created user ${userData.firstName} ${userData.lastName}`
+      };
+
+      const operation = this.editMode
+        ? this.userRepository.update({ ...userData, id: this.editingUserId }, logInfo)
+        : this.userRepository.create(userData, logInfo);
+
+      operation.subscribe({
+        next: (result) => {
+          console.log(this.editMode ? 'User updated:' : 'User created:', result);
+          this.dialogRef.close(result);
+        },
+        error: (error) => {
+          console.error('Error saving user:', error);
+          alert('Failed to save user. Please try again.');
+          this.loading = false;
+        }
+      });
     }
   }
 

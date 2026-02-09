@@ -135,52 +135,6 @@ namespace Api.GraphQL.Inputs
         int MaxStockLevel
     );
 
-    public record CreatePurchaseOrderInput(
-        string PONumber,
-        int SupplierId,
-        int CreatedByUserId,
-        int? ApprovedByUserId,
-        decimal TotalAmount,
-        DateTime ExpectedDeliveryDate,
-        OrderStatus Status = OrderStatus.Pending,
-        string? Notes = null
-    );
-
-    public record UpdatePurchaseOrderInput(
-        int Id,
-        string PONumber,
-        int SupplierId,
-        int CreatedByUserId,
-        int? ApprovedByUserId,
-        decimal TotalAmount,
-        DateTime ExpectedDeliveryDate,
-        OrderStatus Status,
-        string? Notes
-    );
-
-    public record CreateSaleInput(
-        string SaleNumber,
-        int CustomerId,
-        int BranchId,
-        int AttendantUserId,
-        decimal TotalAmount,
-        PaymentMethod PaymentMethod = PaymentMethod.Cash,
-        OrderStatus Status = OrderStatus.Completed,
-        DateTime? SaleDate = null
-    );
-
-    public record UpdateSaleInput(
-        int Id,
-        string SaleNumber,
-        int CustomerId,
-        int BranchId,
-        int AttendantUserId,
-        decimal TotalAmount,
-        PaymentMethod PaymentMethod,
-        OrderStatus Status,
-        DateTime SaleDate
-    );
-
     public record CreateUserInput(
         string KeycloakId,
         string Username,

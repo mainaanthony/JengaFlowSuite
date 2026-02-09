@@ -32,3 +32,27 @@ public record DriverMutationInput
     [DefaultValue(true)]
     public Optional<bool> IsActive { get; set; }
 }
+
+// Simple input records for future use
+public record CreateDriverInput(
+    string Name,
+    string Phone,
+    string? LicenseNumber,
+    string Vehicle,
+    string? VehicleRegistration,
+    string Status = "Available",
+    decimal Rating = 0,
+    bool IsActive = true
+);
+
+public record UpdateDriverInput(
+    int Id,
+    string Name,
+    string Phone,
+    string? LicenseNumber,
+    string Vehicle,
+    string? VehicleRegistration,
+    string Status,
+    decimal Rating,
+    bool IsActive
+);

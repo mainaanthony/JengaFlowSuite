@@ -1,6 +1,20 @@
 import { gql } from 'apollo-angular';
 
 /**
+ * Purchase Order Item Fragment
+ */
+export const FRAGMENT_PURCHASE_ORDER_ITEM = gql`
+  fragment PurchaseOrderItemFields on PurchaseOrderItem {
+    id
+    purchaseOrderId
+    productId
+    quantity
+    unitPrice
+    totalPrice
+  }
+`;
+
+/**
  * Purchase Order Fragment
  */
 export const FRAGMENT_PURCHASE_ORDER = gql`
@@ -46,13 +60,17 @@ export const GET_PURCHASE_ORDERS = gql`
 `;
 
 /**
- * Add Purchase Order
+ * Add Purchase Order - accepts items array, backend calculates totals
  */
 export const ADD_PURCHASE_ORDER = gql`
   ${FRAGMENT_PURCHASE_ORDER}
-  mutation AddPurchaseOrder($input: PurchaseOrderMutationInput!) {
-    addPurchaseOrder(input: $input) {
+  ${FRAGMENT_PURCHASE_ORDER_ITEM}
+  mutation AddPurchaseOrder($input: PurchaseOrderMutationInput!, $logInfo: EntityLogInfo!) {
+    addPurchaseOrder(input: $input, logInfo: $logInfo) {
       ...PurchaseOrderFields
+      items {
+        ...PurchaseOrderItemFields
+      }
     }
   }
 `;

@@ -1,5 +1,4 @@
 using Api.Models;
-using Api.Models;
 using Api.Services;
 using HotChocolate;
 using HotChocolate.Types;

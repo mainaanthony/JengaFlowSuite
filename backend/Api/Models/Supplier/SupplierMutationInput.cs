@@ -32,3 +32,23 @@ public record SupplierMutationInput
     [property: DefaultValue(true)]
     Optional<bool> IsActive
 );
+
+// Simple input records for future use
+public record CreateSupplierInput(
+    string Name,
+    string? ContactPerson,
+    string Phone,
+    string Email,
+    string? Address,
+    bool IsActive = true
+);
+
+public record UpdateSupplierInput(
+    int Id,
+    string Name,
+    string? ContactPerson,
+    string Phone,
+    string Email,
+    string? Address,
+    bool IsActive
+);

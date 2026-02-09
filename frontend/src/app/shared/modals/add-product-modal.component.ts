@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ProductRepository, CategoryRepository, Product as DomainProduct } from '../../core/domain/domain.barrel';
 
 interface ProductVariant {
   id: string;
@@ -82,11 +83,22 @@ export class AddProductModalComponent implements OnInit {
   currentTag = '';
   tags: string[] = [];
 
+  editMode = false;
+  editingProductId?: number;
+  loading = false;
+
   constructor(
     public dialogRef: MatDialogRef<AddProductModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private fb: FormBuilder
+    @Inject(MAT_DIALOG_DATA) public data: { product?: DomainProduct },
+    private fb: FormBuilder,
+    private productRepository: ProductRepository,
+    private categoryRepository: CategoryRepository
   ) {
+    this.editMode = !!data?.product;
+    if (this.editMode && data.product) {
+      this.editingProductId = data.product.id;
+    }
+
     this.productForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
@@ -250,9 +262,38 @@ export class AddProductModalComponent implements OnInit {
       return;
     }
 
-    const productData = this.compileProductData();
-    console.log('Adding product:', productData);
-    this.dialogRef.close(productData);
+    this.loading = true;
+    const formData = this.productForm.value;
+
+    const productData: Partial<DomainProduct> = {
+      name: formData.name,
+      description: formData.description,
+      categoryId: parseInt(formData.category) || 1,
+      sku: formData.sku,
+      price: formData.sellingPrice,
+      brand: formData.brand,
+      isActive: true
+    };
+
+    const logInfo = {
+      description: this.editMode ? `Updated product ${productData.name}` : `Created product ${productData.name}`
+    };
+
+    const operation = this.editMode
+      ? this.productRepository.update({ ...productData, id: this.editingProductId }, logInfo)
+      : this.productRepository.create(productData, logInfo);
+
+    operation.subscribe({
+      next: (result) => {
+        console.log(this.editMode ? 'Product updated:' : 'Product created:', result);
+        this.dialogRef.close(result);
+      },
+      error: (error) => {
+        console.error('Error saving product:', error);
+        alert('Failed to save product. Please try again.');
+        this.loading = false;
+      }
+    });
   }
 
   compileProductData(): Product {

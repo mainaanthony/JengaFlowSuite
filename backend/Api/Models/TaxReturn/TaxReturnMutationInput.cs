@@ -33,3 +33,25 @@ public record TaxReturnMutationInput
     [DefaultValue(null)]
     public Optional<string?> ReferenceNumber { get; set; }
 }
+
+// Simple input records for future use
+public record CreateTaxReturnInput(
+    string Period,
+    TaxType TaxType,
+    decimal Amount,
+    DateTime DueDate,
+    TaxReturnStatus Status = TaxReturnStatus.Draft,
+    int? SubmittedByUserId = null,
+    string? ReferenceNumber = null
+);
+
+public record UpdateTaxReturnInput(
+    int Id,
+    string Period,
+    TaxType TaxType,
+    decimal Amount,
+    DateTime DueDate,
+    TaxReturnStatus Status,
+    int? SubmittedByUserId,
+    string? ReferenceNumber
+);

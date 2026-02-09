@@ -1,11 +1,19 @@
-import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
 import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
+import { 
+  PurchaseOrderRepository, 
+  SupplierRepository,
+  PurchaseOrder as DomainPurchaseOrder,
+  PurchaseOrderItem as DomainPurchaseOrderItem,
+  Supplier as DomainSupplier
+} from '../../core/domain/domain.barrel';
+import { OrderStatus } from '../../core/enums/enums.barrel';
 
 interface Supplier {
   id: string;
@@ -218,12 +226,16 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    public dialogRef: MatDialogRef<CreatePOModalComponent>
+    public dialogRef: MatDialogRef<CreatePOModalComponent>,
+    private purchaseOrderRepository: PurchaseOrderRepository,
+    private supplierRepository: SupplierRepository,
+    @Inject(MAT_DIALOG_DATA) public data?: { poId?: number }
   ) {}
 
   ngOnInit(): void {
     this.initializeForms();
     this.initializeDropdownOptions();
+    this.loadSuppliers();
   }
 
   ngAfterViewInit(): void {
@@ -646,15 +658,58 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    instance.loading = true;
-    const poData = this.compilePOData();
-    console.log('Creating PO:', poData);
-    
-    setTimeout(() => {
+    if (!this.items || this.items.length === 0) {
+      alert('Please add at least one item to the purchase order');
       instance.loading = false;
-      modalDialogRef.close();
-      this.dialogRef.close({ draft: false, data: poData });
-    }, 1000);
+      return;
+    }
+
+    instance.loading = true;
+
+    // Create purchase order with items - backend will calculate totals
+    const poData = {
+      supplierId: this.selectedSupplier ? parseInt(this.selectedSupplier.id) : 1,
+      createdByUserId: 1, // Should come from authenticated user
+      expectedDeliveryDate: new Date(this.poForm.get('expectedDelivery')?.value),
+      notes: this.reviewForm.get('publicNotes')?.value || '',
+      items: this.items.map(item => ({
+        productId: parseInt(item.id), // Assuming item.id is productId
+        quantity: item.quantity,
+        unitPrice: item.unitPrice
+      }))
+    };
+
+    this.purchaseOrderRepository.create(poData as any, { 
+      description: `Created PO for ${this.selectedSupplier?.name || 'supplier'}` 
+    }).subscribe({
+      next: (createdPO) => {
+        console.log('Purchase Order created with backend-calculated total:', createdPO.totalAmount);
+        instance.loading = false;
+        modalDialogRef.close(createdPO);
+        this.dialogRef.close(createdPO);
+      },
+      error: (err) => {
+        console.error('Failed to create purchase order:', err);
+        alert('Failed to create purchase order. Please try again.');
+        instance.loading = false;
+      }
+    });
+  }
+
+  loadSuppliers(): void {
+    this.supplierRepository.getAll().subscribe({
+      next: (suppliers: DomainSupplier[]) => {
+        this.suppliers = suppliers.map(s => ({
+          id: s.id.toString(),
+          name: s.name,
+          category: s.category || '',
+          paymentTerms: 'Net 30' // Default value, not in domain model
+        }));
+      },
+      error: (err: any) => {
+        console.error('Failed to load suppliers:', err);
+      }
+    });
   }
 
   private compilePOData(): PurchaseOrder {

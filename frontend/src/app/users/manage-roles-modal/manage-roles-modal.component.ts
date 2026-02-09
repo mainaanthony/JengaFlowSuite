@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { RoleRepository, Role as DomainRole } from '../../core/domain/domain.barrel';
 
 interface Permission {
   id: string;
@@ -112,10 +113,12 @@ export class ManageRolesModalComponent implements OnInit {
   // Create role form
   createRoleForm: FormGroup;
   selectedPermissions: Set<string> = new Set();
+  loading = false;
 
   constructor(
     private formBuilder: FormBuilder,
-    private dialogRef: MatDialogRef<ManageRolesModalComponent>
+    private dialogRef: MatDialogRef<ManageRolesModalComponent>,
+    private roleRepository: RoleRepository
   ) {
     this.createRoleForm = this.formBuilder.group({
       roleName: ['', [Validators.required]],
@@ -168,16 +171,28 @@ export class ManageRolesModalComponent implements OnInit {
   // Create role
   createRole() {
     if (this.createRoleForm.valid && this.selectedPermissions.size > 0) {
-      const newRole: RoleSubmission = {
-        id: this.generateRoleId(),
+      this.loading = true;
+
+      const roleData: Partial<DomainRole> = {
         name: this.createRoleForm.get('roleName')?.value,
-        description: this.createRoleForm.get('description')?.value,
-        permissions: Array.from(this.selectedPermissions),
-        createdAt: new Date().toISOString()
+        description: this.createRoleForm.get('description')?.value
       };
 
-      console.log('Creating new role:', newRole);
-      this.dialogRef.close(newRole);
+      const logInfo = {
+        description: `Created role ${roleData.name}`
+      };
+
+      this.roleRepository.create(roleData, logInfo).subscribe({
+        next: (result) => {
+          console.log('Role created:', result);
+          this.dialogRef.close(result);
+        },
+        error: (error) => {
+          console.error('Error creating role:', error);
+          alert('Failed to create role. Please try again.');
+          this.loading = false;
+        }
+      });
     }
   }
 

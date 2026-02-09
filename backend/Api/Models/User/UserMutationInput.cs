@@ -35,3 +35,29 @@ public record UserMutationInput
     [DefaultValue(0)]
     public Optional<int> RoleId { get; set; }
 }
+
+// Simple input records for future use
+public record CreateUserInput(
+    string KeycloakId,
+    string Username,
+    string Email,
+    string FirstName,
+    string LastName,
+    string? Phone,
+    int RoleId,
+    int BranchId,
+    bool IsActive = true
+);
+
+public record UpdateUserInput(
+    int Id,
+    string KeycloakId,
+    string Username,
+    string Email,
+    string FirstName,
+    string LastName,
+    string? Phone,
+    int RoleId,
+    int BranchId,
+    bool IsActive
+);

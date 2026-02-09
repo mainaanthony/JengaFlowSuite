@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { TaxReturnRepository, TaxReturn as DomainTaxReturn } from '../../core/domain/domain.barrel';
 
 interface VatCalculation {
   taxPeriod: string;
@@ -129,10 +130,12 @@ export class SubmitVatModalComponent implements OnInit {
   // Computed properties
   complianceStatus = 'Ready for Submission';
   complianceStatusClass = 'passed';
+  loading = false;
 
   constructor(
     private formBuilder: FormBuilder,
-    private dialogRef: MatDialogRef<SubmitVatModalComponent>
+    private dialogRef: MatDialogRef<SubmitVatModalComponent>,
+    private taxReturnRepository: TaxReturnRepository
   ) {
     this.reviewForm = this.formBuilder.group({});
     this.complianceForm = this.formBuilder.group({
@@ -210,24 +213,33 @@ export class SubmitVatModalComponent implements OnInit {
 
   submitVatReturn() {
     if (this.declarationForm.valid) {
-      const submission: VatSubmission = {
-        taxPeriod: this.vatCalculation.taxPeriod,
-        pinNumber: this.vatCalculation.pinNumber,
-        netVatDue: this.vatCalculation.netVatDue,
-        authorizedPerson: this.declarationForm.get('authorizedPerson')?.value,
-        positionTitle: this.declarationForm.get('positionTitle')?.value,
-        contactNumber: this.declarationForm.get('contactNumber')?.value,
-        additionalComments: this.declarationForm.get('additionalComments')?.value,
-        declarationConfirmed: this.declarationForm.get('declarationConfirmed')?.value,
-        taxPeriodStart: this.complianceForm.get('taxPeriodStart')?.value,
-        taxPeriodEnd: this.complianceForm.get('taxPeriodEnd')?.value,
-        submissionDate: new Date().toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit'
-        })
+      this.loading = true;
+
+      const taxReturnData: Partial<DomainTaxReturn> = {
+        period: this.vatCalculation.taxPeriod,
+        taxType: 'VATReturn' as any,
+        amount: this.vatCalculation.netVatDue,
+        status: 'Submitted' as any,
+        dueDate: new Date(this.vatCalculation.dueDate),
+        submittedDate: new Date(),
+        submittedByUserId: 1
       };
-      this.dialogRef.close(submission);
+
+      const logInfo = {
+        description: `Submitted VAT return for period ${taxReturnData.period}`
+      };
+
+      this.taxReturnRepository.create(taxReturnData, logInfo).subscribe({
+        next: (result) => {
+          console.log('VAT return submitted:', result);
+          this.dialogRef.close(result);
+        },
+        error: (error) => {
+          console.error('Error submitting VAT return:', error);
+          alert('Failed to submit VAT return. Please try again.');
+          this.loading = false;
+        }
+      });
     }
   }
 

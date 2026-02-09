@@ -1,11 +1,20 @@
-import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
 import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
+import { 
+  SaleRepository, 
+  ProductRepository,
+  Sale as DomainSale, 
+  SaleItem as DomainSaleItem,
+  Customer as DomainCustomer,
+  Product as DomainProduct
+} from '../../core/domain/domain.barrel';
+import { PaymentMethod, OrderStatus } from '../../core/enums/enums.barrel';
 
 interface Customer {
   id: string;
@@ -174,12 +183,15 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    public dialogRef: MatDialogRef<NewSaleModalComponent>
+    public dialogRef: MatDialogRef<NewSaleModalComponent>,
+    private saleRepository: SaleRepository,
+    private productRepository: ProductRepository,
+    @Inject(MAT_DIALOG_DATA) public data?: { saleId?: number }
   ) {}
 
   ngOnInit(): void {
     this.initializeForms();
-    this.filteredProducts = [...this.products];
+    this.loadProducts();
     this.filteredCustomers = [...this.customers];
   }
 
@@ -543,31 +555,57 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
 
     instance.loading = true;
 
-    // Simulate async operation
-    setTimeout(() => {
-      const saleData: SaleTransaction = {
-        id: 'TRX-' + Date.now(),
-        customerId: this.selectedCustomer!.id,
-        customerName: this.selectedCustomer!.name,
-        customerPhone: this.selectedCustomer!.phone,
-        cartItems: this.cart,
-        subtotal: this.totals.subtotal,
-        discountType: this.checkoutForm.get('discountType')?.value,
-        discountValue: parseFloat(this.checkoutForm.get('discountValue')?.value || 0),
-        discountAmount: this.totals.discountAmount,
-        taxAmount: this.totals.taxAmount,
-        total: this.totals.total,
-        paymentMethod: this.checkoutForm.get('paymentMethod')?.value,
-        amountPaid: parseFloat(this.checkoutForm.get('amountPaid')?.value || 0),
-        balance: this.getBalance(),
-        notes: this.checkoutForm.get('notes')?.value || '',
-        timestamp: new Date(),
-        attendant: 'Current User' // Will be replaced with actual user
-      };
+    // Create the sale with items - backend will calculate totals
+    const saleData = {
+      customerId: parseInt(this.selectedCustomer.id),
+      branchId: 1, // Default branch - should come from authenticated user context
+      attendantUserId: 1, // Should come from authenticated user
+      paymentMethod: this.checkoutForm.get('paymentMethod')?.value,
+      notes: this.checkoutForm.get('notes')?.value || '',
+      items: this.cart.map(item => ({
+        productId: parseInt(item.productId),
+        quantity: item.quantity,
+        unitPrice: item.price,
+        discount: 0 // Can be added if discount is  tracked
+      }))
+    };
 
-      instance.loading = false;
-      modalDialogRef.close(saleData);
-    }, 1000);
+    // Create the sale - backend calculates and returns authoritative totals
+    this.saleRepository.create(saleData as any, { 
+      description: `New sale for ${this.selectedCustomer.name}` 
+    }).subscribe({
+        next: (createdSale) => {
+          console.log('Sale created with backend-calculated total:', createdSale.totalAmount);
+          instance.loading = false;
+          modalDialogRef.close(createdSale);
+          this.dialogRef.close(createdSale);
+        },
+        error: (err: any) => {
+          console.error('Failed to create sale:', err);
+          alert('Failed to create sale. Please try again.');
+          instance.loading = false;
+        }
+      });
+  }
+
+  loadProducts(): void {
+    this.productRepository.getAll().subscribe({
+      next: (products: DomainProduct[]) => {
+        this.products = products.map(p => ({
+          id: p.id.toString(),
+          name: p.name,
+          sku: p.sku,
+          price: p.price,
+          stock: 0, // Not in domain model - would need inventory
+          category: '' // Would need to fetch category name
+        }));
+        this.filteredProducts = [...this.products];
+      },
+      error: (err: any) => {
+        console.error('Failed to load products:', err);
+        this.filteredProducts = [];
+      }
+    });
   }
 
   previousStep(): void {

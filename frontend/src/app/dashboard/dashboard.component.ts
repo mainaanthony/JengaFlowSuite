@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
@@ -7,6 +7,18 @@ import { CardComponent } from '../shared/card/card.component';
 import { MatIconModule } from '@angular/material/icon';
 import { GenerateReportModalComponent } from '../shared/modals/generate-report-modal.component';
 import { NewSaleModalComponent } from '../sales/new-sale-modal/new-sale-modal.component';
+import { Subject, forkJoin } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { 
+  ProductRepository, 
+  SaleRepository, 
+  PurchaseOrderRepository,
+  Product as DomainProduct,
+  Sale as DomainSale,
+  PurchaseOrder as DomainPurchaseOrder
+} from '../core/domain/domain.barrel';
+import { CreatePOModalComponent } from '../procurement/create-po-modal/create-po-modal.component';
+import { AddUserModalComponent } from '../users/add-user-modal/add-user-modal.component';
 
 interface PurchaseOrder {
   id: string;
@@ -37,32 +49,109 @@ interface LowStockItem {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
-  constructor(private dialog: MatDialog) {}
+export class DashboardComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+  loading = false;
 
-  purchaseOrders: PurchaseOrder[] = [
-    { id: 'PO-2024-001', supplier: 'ABC Hardware Suppliers', amount: 45600, status: 'Pending', date: '2024-01-15' },
-    { id: 'PO-2024-002', supplier: 'XYZ Supply Co', amount: 32400, status: 'Approved', date: '2024-01-14' }
-  ];
+  constructor(
+    private dialog: MatDialog,
+    private productRepository: ProductRepository,
+    private saleRepository: SaleRepository,
+    private purchaseOrderRepository: PurchaseOrderRepository
+  ) {}
 
-  lowStockItems: LowStockItem[] = [
-    { name: '25mm PVC Pipes', current: 5, total: 20, branch: 'Main Branch' },
-    { name: 'Wood Screws 2in', current: 8, total: 25, branch: 'Main Branch' }
-  ];
+  purchaseOrders: PurchaseOrder[] = [];
+  lowStockItems: LowStockItem[] = [];
 
   stats = {
-    totalRevenue: 'KES 2,847,000',
-    revenueChange: 12.3,
-    productsInStock: '1,247',
-    productsChange: -3.2,
-    ordersToday: 23,
-    ordersChange: 8.1,
-    lowStockItems: 12,
-    lowStockChange: 4
+    totalRevenue: 'KES 0',
+    revenueChange: 0,
+    productsInStock: '0',
+    productsChange: 0,
+    ordersToday: 0,
+    ordersChange: 0,
+    lowStockItems: 0,
+    lowStockChange: 0
   };
 
   ngOnInit() {
-    // Component initialized, data ready
+    this.loadDashboardData();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadDashboardData() {
+    this.loading = true;
+    
+    forkJoin({
+      products: this.productRepository.getAll(),
+      sales: this.saleRepository.getAll(),
+      purchaseOrders: this.purchaseOrderRepository.getAll()
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: ({ products, sales, purchaseOrders }) => {
+        this.processDashboardData(products, sales, purchaseOrders);
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading dashboard data:', err);
+        this.loading = false;
+      }
+    });
+  }
+
+  private processDashboardData(
+    products: DomainProduct[], 
+    sales: DomainSale[], 
+    purchaseOrders: DomainPurchaseOrder[]
+  ) {
+    // Calculate total revenue from sales
+    const totalRevenue = sales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
+    
+    // Count products in stock
+    const productsInStock = products.length;
+    
+    // Count today's orders (sales)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const ordersToday = sales.filter(sale => {
+      const saleDate = new Date(sale.saleDate);
+      saleDate.setHours(0, 0, 0, 0);
+      return saleDate.getTime() === today.getTime();
+    }).length;
+    
+    // Count low stock items (would need inventory data)
+    const lowStockCount = 0; // TODO: Calculate from inventory records when available
+    
+    // Map recent purchase orders
+    this.purchaseOrders = purchaseOrders
+      .slice(0, 5)
+      .map(po => ({
+        id: po.poNumber,
+        supplier: po.supplier?.name || 'N/A',
+        amount: po.totalAmount,
+        status: po.status,
+        date: new Date(po.expectedDeliveryDate).toLocaleDateString()
+      }));
+    
+    // Update stats
+    this.stats = {
+      totalRevenue: `KES ${totalRevenue.toLocaleString()}`,
+      revenueChange: 0, // TODO: Calculate compared to previous period
+      productsInStock: productsInStock.toString(),
+      productsChange: 0, // TODO: Calculate compared to previous period
+      ordersToday,
+      ordersChange: 0, // TODO: Calculate compared to yesterday
+      lowStockItems: lowStockCount,
+      lowStockChange: 0 // TODO: Calculate change
+    };
+    
+    // Low stock items placeholder
+    this.lowStockItems = [];
   }
 
   onSearch(query: string) {
@@ -80,7 +169,6 @@ export class DashboardComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('Report generated with data:', result);
-        alert(`Report "${result.title}" generated successfully!`);
       }
     });
   }
@@ -95,20 +183,41 @@ export class DashboardComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('Sale completed:', result);
-        alert(`Sale completed for ${result.customerName}! Total: KES ${result.total.toFixed(2)}`);
+        this.loadDashboardData(); // Reload data after sale
       }
     });
   }
 
   addProduct() {
-    console.log('Add Product clicked');
+    // Navigate to inventory page or open add product modal
+    console.log('Add Product clicked - Navigate to inventory');
   }
 
   createPO() {
-    console.log('Create PO clicked');
+    const dialogRef = this.dialog.open(CreatePOModalComponent, {
+      width: '1200px',
+      maxHeight: '90vh',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadDashboardData(); // Reload data after creating PO
+      }
+    });
   }
 
   addUser() {
-    console.log('Add User clicked');
+    const dialogRef = this.dialog.open(AddUserModalComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('User added:', result);
+      }
+    });
   }
 }

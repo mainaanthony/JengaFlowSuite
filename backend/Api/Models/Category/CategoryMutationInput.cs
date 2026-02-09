@@ -17,3 +17,17 @@ public record CategoryMutationInput
     [property: DefaultValue(true)]
     Optional<bool> IsActive
 );
+
+// Simple input records for future use
+public record CreateCategoryInput(
+    string Name,
+    string? Description,
+    bool IsActive = true
+);
+
+public record UpdateCategoryInput(
+    int Id,
+    string Name,
+    string? Description,
+    bool IsActive
+);

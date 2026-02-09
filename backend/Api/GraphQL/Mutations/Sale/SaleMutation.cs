@@ -17,23 +17,59 @@ namespace Api.GraphQL.Mutations
             [Service] ISaleService service
         )
         {
-            input.SaleNumber.CheckRequired(nameof(input.SaleNumber));
+            // Validate required fields
             input.CustomerId.CheckRequired(nameof(input.CustomerId));
             input.BranchId.CheckRequired(nameof(input.BranchId));
             input.AttendantUserId.CheckRequired(nameof(input.AttendantUserId));
 
+            if (!input.Items.HasValue || input.Items.Value == null || !input.Items.Value.Any())
+                throw new GraphQLException(new Error("At least one sale item is required"));
+
+            // Generate sale number
+            var saleNumber = $"SALE-{DateTime.UtcNow:yyyyMMddHHmmss}";
+
+            // Create sale entity
             var entity = new Sale
             {
-                SaleNumber = input.SaleNumber.Value!,
+                SaleNumber = saleNumber,
                 CustomerId = input.CustomerId.Value,
                 BranchId = input.BranchId.Value,
                 AttendantUserId = input.AttendantUserId.Value,
-                TotalAmount = input.TotalAmount.CheckForValue(0),
                 PaymentMethod = input.PaymentMethod.CheckForValue(Enums.PaymentMethod.Cash),
-                Status = input.Status.CheckForValue(Enums.OrderStatus.Completed),
-                SaleDate = DateTime.UtcNow
+                Status = Enums.OrderStatus.Completed,
+                SaleDate = DateTime.UtcNow,
+                TotalAmount = 0 // Will be calculated below
             };
 
+            // Create sale items and calculate total
+            decimal totalAmount = 0;
+            foreach (var itemInput in input.Items.Value)
+            {
+                if (itemInput.ProductId <= 0)
+                    throw new GraphQLException(new Error("ProductId is required for all items"));
+                if (itemInput.Quantity <= 0)
+                    throw new GraphQLException(new Error("Quantity must be greater than zero"));
+                if (itemInput.UnitPrice < 0)
+                    throw new GraphQLException(new Error("UnitPrice cannot be negative"));
+
+                var itemTotal = (itemInput.Quantity * itemInput.UnitPrice) - (itemInput.Discount ?? 0);
+                var saleItem = new SaleItem
+                {
+                    ProductId = itemInput.ProductId,
+                    Quantity = itemInput.Quantity,
+                    UnitPrice = itemInput.UnitPrice,
+                    Discount = itemInput.Discount,
+                    TotalPrice = itemTotal
+                };
+
+                entity.Items.Add(saleItem);
+                totalAmount += itemTotal;
+            }
+
+            // Set the calculated total
+            entity.TotalAmount = totalAmount;
+
+            // Save to database
             entity = await service.AddAsync(entity, logInfo);
             return entity;
         }
