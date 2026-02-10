@@ -5,7 +5,7 @@ export * from './branch/branch.barrel';
 export * from './product/product.barrel';
 export * from './category/category.barrel';
 export * from './sale/sale.barrel';
-export * from './customer/customer';
+export * from './customer/customer.barrel';
 export * from './supplier/supplier.barrel';
 export * from './driver/driver.barrel';
 export * from './delivery/delivery.barrel';

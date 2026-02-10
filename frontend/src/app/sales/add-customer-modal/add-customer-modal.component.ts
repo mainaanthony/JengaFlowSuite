@@ -7,6 +7,8 @@ import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component'
 import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
 import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
+import { CustomerRepository, Customer as DomainCustomer } from '../../core/domain/domain.barrel';
+import { CustomerType } from '../../core/enums/enums.barrel';
 
 interface CustomerData {
   // Personal Info
@@ -242,7 +244,8 @@ export class AddCustomerModalComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    public dialogRef: MatDialogRef<AddCustomerModalComponent>
+    public dialogRef: MatDialogRef<AddCustomerModalComponent>,
+    private customerRepository: CustomerRepository
   ) {}
 
   ngOnInit(): void {
@@ -412,15 +415,49 @@ export class AddCustomerModalComponent implements OnInit, AfterViewInit {
     const saveBtn = instance.rightButtons.find(b => b.action === 'save');
     if (saveBtn) saveBtn.loading = true;
 
-    // Simulate API call
-    setTimeout(() => {
-      const customerData: CustomerData = this.customerForm.value;
-      instance.showSuccessMessage = true;
-      instance.successMessage = 'Customer added successfully!';
-      
-      setTimeout(() => {
-        dialogRef.close(customerData);
-      }, 1500);
-    }, 800);
+    const formData = this.customerForm.value;
+    
+    // Map customer type string to enum
+    const customerType = formData.customerType === 'wholesale' 
+      ? CustomerType.Wholesale 
+      : formData.customerType === 'corporate'
+      ? CustomerType.Corporate
+      : CustomerType.Retail;
+
+    // Create customer object for repository
+    const customer: Partial<DomainCustomer> = {
+      name: `${formData.firstName} ${formData.lastName}`.trim(),
+      phone: formData.phone,
+      email: formData.email || null,
+      address: formData.streetAddress || null,
+      customerType: customerType,
+      isActive: true
+    };
+
+    const logInfo = {
+      userId: '1', // TODO: Get from auth service
+      timestamp: new Date().toISOString(),
+      action: 'CREATE',
+      ipAddress: '127.0.0.1'
+    };
+
+    this.customerRepository.create(customer, logInfo).subscribe({
+      next: (savedCustomer: Partial<DomainCustomer>) => {
+        instance.showSuccessMessage = true;
+        instance.successMessage = 'Customer added successfully!';
+        
+        setTimeout(() => {
+          dialogRef.close(savedCustomer);
+        }, 1500);
+      },
+      error: (error: any) => {
+        if (saveBtn) saveBtn.loading = false;
+        instance.showErrorMessage = true;
+        instance.errorMessage = error.message || 'Failed to add customer';
+        setTimeout(() => {
+          instance.showErrorMessage = false;
+        }, 3000);
+      }
+    });
   }
 }

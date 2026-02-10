@@ -7,6 +7,7 @@ import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component'
 import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
 import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
+import { DriverRepository, Driver as DomainDriver } from '../../core/domain/domain.barrel';
 
 interface Driver {
   id: string;
@@ -297,7 +298,8 @@ export class AddDriverModalComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    public dialogRef: MatDialogRef<AddDriverModalComponent>
+    public dialogRef: MatDialogRef<AddDriverModalComponent>,
+    private driverRepository: DriverRepository
   ) {}
 
   ngOnInit(): void {
@@ -518,21 +520,44 @@ export class AddDriverModalComponent implements OnInit, AfterViewInit {
     const saveBtn = instance.rightButtons.find(b => b.action === 'save');
     if (saveBtn) saveBtn.loading = true;
 
-    // Simulate API call
-    setTimeout(() => {
-      const driverData: Driver = {
-        id: 'DRV-' + Date.now(),
-        ...this.driverForm.value,
-        documents: this.uploadedFiles
-      };
-      
-      instance.showSuccessMessage = true;
-      instance.successMessage = 'Driver added successfully!';
-      
-      setTimeout(() => {
-        dialogRef.close(driverData);
-      }, 1500);
-    }, 800);
+    const formData = this.driverForm.value;
+    
+    const driver: Partial<DomainDriver> = {
+      name: `${formData.firstName} ${formData.lastName}`.trim(),
+      phone: formData.phone,
+      licenseNumber: formData.licenseNumber,
+      vehicle: formData.assignedVehicle || 'Unassigned',
+      vehicleRegistration: formData.vehicleType || null,
+      status: 'Available',
+      rating: 0,
+      isActive: true
+    };
+
+    const logInfo = {
+      userId: '1', // TODO: Get from auth service
+      timestamp: new Date().toISOString(),
+      action: 'CREATE',
+      ipAddress: '127.0.0.1'
+    };
+
+    this.driverRepository.create(driver, logInfo).subscribe({
+      next: (savedDriver: Partial<DomainDriver>) => {
+        instance.showSuccessMessage = true;
+        instance.successMessage = 'Driver added successfully!';
+        
+        setTimeout(() => {
+          dialogRef.close(savedDriver);
+        }, 1500);
+      },
+      error: (error: any) => {
+        if (saveBtn) saveBtn.loading = false;
+        instance.showErrorMessage = true;
+        instance.errorMessage = error.message || 'Failed to add driver';
+        setTimeout(() => {
+          instance.showErrorMessage = false;
+        }, 3000);
+      }
+    });
   }
 
   addDriver(): void {

@@ -7,6 +7,13 @@ import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component'
 import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
 import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
+import { 
+  DeliveryRepository, 
+  DriverRepository,
+  SaleRepository,
+  Delivery as DomainDelivery 
+} from '../../core/domain/domain.barrel';
+import { DeliveryStatus, Priority } from '../../core/enums/enums.barrel';
 
 interface DeliveryOrder {
   id: string;
@@ -275,7 +282,9 @@ export class ScheduleDeliveryModalComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    public dialogRef: MatDialogRef<ScheduleDeliveryModalComponent>
+    public dialogRef: MatDialogRef<ScheduleDeliveryModalComponent>,
+    private deliveryRepository: DeliveryRepository,
+    private driverRepository: DriverRepository
   ) {}
 
   ngOnInit(): void {
@@ -486,20 +495,47 @@ export class ScheduleDeliveryModalComponent implements OnInit, AfterViewInit {
     const saveBtn = instance.rightButtons.find(b => b.action === 'save');
     if (saveBtn) saveBtn.loading = true;
 
-    // Simulate API call
-    setTimeout(() => {
-      const deliveryData: DeliveryOrder = {
-        id: 'DEL-' + Date.now(),
-        ...this.deliveryForm.value
-      };
-      
-      instance.showSuccessMessage = true;
-      instance.successMessage = 'Delivery scheduled successfully!';
-      
-      setTimeout(() => {
-        dialogRef.close(deliveryData);
-      }, 1500);
-    }, 800);
+    const formData = this.deliveryForm.value;
+    
+    const delivery: Partial<DomainDelivery> = {
+      deliveryNumber: 'DEL-' + Date.now(),
+      saleId: formData.customerId ? parseInt(formData.customerId) : null,
+      customerId: parseInt(formData.customerId) || 0,
+      driverId: parseInt(formData.assignedDriver) || 0,
+      deliveryAddress: formData.deliveryAddress,
+      contactPhone: formData.contactPhone || null,
+      status: DeliveryStatus.Pending,
+      priority: formData.priority === 'High' ? Priority.High : formData.priority === 'Low' ? Priority.Low : Priority.Normal,
+      scheduledDate: new Date(formData.deliveryDate),
+      deliveredDate: null,
+      notes: formData.additionalNotes || null
+    };
+
+    const logInfo = {
+      userId: '1', // TODO: Get from auth service
+      timestamp: new Date().toISOString(),
+      action: 'CREATE',
+      ipAddress: '127.0.0.1'
+    };
+
+    this.deliveryRepository.create(delivery, logInfo).subscribe({
+      next: (savedDelivery: Partial<DomainDelivery>) => {
+        instance.showSuccessMessage = true;
+        instance.successMessage = 'Delivery scheduled successfully!';
+        
+        setTimeout(() => {
+          dialogRef.close(savedDelivery);
+        }, 1500);
+      },
+      error: (error: any) => {
+        if (saveBtn) saveBtn.loading = false;
+        instance.showErrorMessage = true;
+        instance.errorMessage = error.message || 'Failed to schedule delivery';
+        setTimeout(() => {
+          instance.showErrorMessage = false;
+        }, 3000);
+      }
+    });
   }
 
   scheduleDelivery(): void {

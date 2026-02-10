@@ -7,6 +7,16 @@ import { StepIndicatorComponent, Step } from '../../shared/step-indicator/step-i
 import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
 import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
+import { 
+  GoodsReceivedNoteRepository, 
+  PurchaseOrderRepository,
+  GoodsReceivedNote as DomainGRN,
+  GoodsReceivedNoteItem 
+} from '../../core/domain/domain.barrel';
+import { GoodsReceivedNoteStatus } from '../../core/enums/enums.barrel';
+import { Apollo } from 'apollo-angular';
+import { ADD_GOODS_RECEIVED_NOTE_ITEM } from '../../core/domain/goods-received-note/goods-received-note-item.queries';
+import { forkJoin } from 'rxjs';
 
 interface GRNItem {
   id: string;
@@ -141,7 +151,10 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    public dialogRef: MatDialogRef<CreateGrnModalComponent>
+    public dialogRef: MatDialogRef<CreateGrnModalComponent>,
+    private grnRepository: GoodsReceivedNoteRepository,
+    private purchaseOrderRepository: PurchaseOrderRepository,
+    private apollo: Apollo
   ) {}
 
   ngOnInit(): void {
@@ -200,8 +213,47 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
 
   private saveGRN(): void {
     if (this.grnForm.valid) {
-      console.log('Creating GRN:', this.grnForm.value);
-      this.dialogRef.close(this.grnForm.value);
+      const formData = this.grnForm.value;
+      
+      const grn: Partial<DomainGRN> = {
+        grnNumber: formData.grnNumber,
+        purchaseOrderId: parseInt(formData.purchaseOrder) || 0,
+        receivedByUserId: 1, // TODO: Get from auth service
+        receivedDate: new Date(formData.receivedDate),
+        notes: formData.generalNotes || null,
+        status: GoodsReceivedNoteStatus.FullyReceived
+      };
+
+      const logInfo = {
+        userId: '1', // TODO: Get from auth service
+        timestamp: new Date().toISOString(),
+        action: 'CREATE',
+        ipAddress: '127.0.0.1'
+      };
+
+      this.grnRepository.create(grn, logInfo).subscribe({
+        next: (savedGRN: Partial<DomainGRN>) => {
+          // Save items if there are any
+          if (this.items.length > 0 && savedGRN.id) {
+            this.saveGRNItems(savedGRN.id, logInfo).subscribe({
+              next: () => {
+                this.dialogRef.close(savedGRN);
+              },
+              error: (itemError: any) => {
+                console.error('Error creating GRN items:', itemError);
+                alert('GRN created but failed to save items: ' + (itemError.message || 'Unknown error'));
+                this.dialogRef.close(savedGRN);
+              }
+            });
+          } else {
+            this.dialogRef.close(savedGRN);
+          }
+        },
+        error: (error: any) => {
+          console.error('Error creating GRN:', error);
+          alert('Failed to create GRN: ' + (error.message || 'Unknown error'));
+        }
+      });
     }
   }
 
@@ -364,6 +416,25 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
     };
 
     this.dialogRef.close(grnData);
+  }
+
+  private saveGRNItems(grnId: number, logInfo: any) {
+    const itemMutations = this.items.map(item => {
+      const input = {
+        goodsReceivedNoteId: grnId,
+        productId: parseInt(item.id),
+        quantityOrdered: item.ordered,
+        quantityReceived: item.received,
+        remarks: item.notes || null
+      };
+
+      return this.apollo.mutate({
+        mutation: ADD_GOODS_RECEIVED_NOTE_ITEM,
+        variables: { input, logInfo }
+      });
+    });
+
+    return forkJoin(itemMutations);
   }
 
   closeDialog(): void {

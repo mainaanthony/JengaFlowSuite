@@ -8,6 +8,17 @@ import { StepIndicatorComponent, Step } from '../../shared/step-indicator/step-i
 import { InputTextComponent } from '../../shared/input-text/input-text.component';
 import { InputDropdownComponent, DropdownOption } from '../../shared/input-dropdown/input-dropdown.component';
 import { ItemSelectorComponent, SelectorItem, ItemSelectorConfig } from '../../shared/item-selector/item-selector.component';
+import { 
+  StockTransferRepository, 
+  BranchRepository,
+  ProductRepository,
+  StockTransfer as DomainStockTransfer,
+  StockTransferItem 
+} from '../../core/domain/domain.barrel';
+import { StockTransferStatus } from '../../core/enums/enums.barrel';
+import { Apollo } from 'apollo-angular';
+import { ADD_STOCK_TRANSFER_ITEM } from '../../core/domain/stock-transfer/stock-transfer-item.queries';
+import { forkJoin } from 'rxjs';
 
 interface Product {
   id: string;
@@ -140,7 +151,11 @@ export class StockTransferModalComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private dialogRef: MatDialogRef<StockTransferModalComponent>
+    private dialogRef: MatDialogRef<StockTransferModalComponent>,
+    private stockTransferRepository: StockTransferRepository,
+    private branchRepository: BranchRepository,
+    private productRepository: ProductRepository,
+    private apollo: Apollo
   ) {
     this.initializeForms();
     this.initializeProducts();
@@ -269,25 +284,66 @@ export class StockTransferModalComponent implements OnInit {
 
   submitTransfer() {
     if (this.canProceedToStep(3)) {
-      const transferData: TransferData = {
-        fromBranch: this.transferDetailsForm.get('fromBranch')?.value,
-        toBranch: this.transferDetailsForm.get('toBranch')?.value,
-        transferType: this.transferDetailsForm.get('transferType')?.value,
-        priorityLevel: this.transferDetailsForm.get('priorityLevel')?.value,
-        requestedBy: this.transferDetailsForm.get('requestedBy')?.value,
-        expectedDate: this.transferDetailsForm.get('expectedDate')?.value,
-        reason: this.transferDetailsForm.get('reason')?.value,
-        additionalNotes: this.transferDetailsForm.get('additionalNotes')?.value,
-        selectedProducts: this.selectedProductItems.map(item => ({
-          id: item.id,
-          name: item.title,
-          sku: item.subtitle || '',
-          quantity: item.quantity || 1,
-          price: item.price || 0
-        }))
+      const formValues = this.transferDetailsForm.value;
+      
+      const stockTransfer: Partial<DomainStockTransfer> = {
+        transferNumber: 'STR-' + Date.now(),
+        fromBranchId: formValues.fromBranch?.id ? parseInt(formValues.fromBranch.id.toString().replace('BR-', '')) : 0,
+        toBranchId: formValues.toBranch?.id ? parseInt(formValues.toBranch.id.toString().replace('BR-', '')) : 0,
+        requestedByUserId: 1, // TODO: Get from auth service
+        status: StockTransferStatus.Pending,
+        requestedDate: new Date(),
+        completedDate: null,
+        notes: formValues.reason + (formValues.additionalNotes ? '\n' + formValues.additionalNotes : '')
       };
 
-      this.dialogRef.close(transferData);
+      const logInfo = {
+        userId: '1', // TODO: Get from auth service
+        timestamp: new Date().toISOString(),
+        action: 'CREATE',
+        ipAddress: '127.0.0.1'
+      };
+
+      this.stockTransferRepository.create(stockTransfer, logInfo).subscribe({
+        next: (savedTransfer: Partial<DomainStockTransfer>) => {
+          // Save items if there are any
+          if (this.selectedProductItems.length > 0 && savedTransfer.id) {
+            this.saveTransferItems(savedTransfer.id, logInfo).subscribe({
+              next: () => {
+                const transferData: TransferData = {
+                  fromBranch: formValues.fromBranch,
+                  toBranch: formValues.toBranch,
+                  transferType: formValues.transferType,
+                  priorityLevel: formValues.priorityLevel,
+                  requestedBy: formValues.requestedBy,
+                  expectedDate: formValues.expectedDate,
+                  reason: formValues.reason,
+                  additionalNotes: formValues.additionalNotes,
+                  selectedProducts: this.selectedProductItems.map(item => ({
+                    id: item.id,
+                    name: item.title,
+                    sku: item.subtitle || '',
+                    quantity: item.quantity || 1,
+                    price: item.price || 0
+                  }))
+                };
+                this.dialogRef.close({ ...transferData, id: savedTransfer.id });
+              },
+              error: (itemError: any) => {
+                console.error('Error creating stock transfer items:', itemError);
+                alert('Stock transfer created but failed to save items: ' + (itemError.message || 'Unknown error'));
+                this.dialogRef.close(savedTransfer);
+              }
+            });
+          } else {
+            this.dialogRef.close(savedTransfer);
+          }
+        },
+        error: (error: any) => {
+          console.error('Error creating stock transfer:', error);
+          alert('Failed to create stock transfer: ' + (error.message || 'Unknown error'));
+        }
+      });
     }
   }
 
@@ -311,6 +367,24 @@ export class StockTransferModalComponent implements OnInit {
 
   getPriorityLabel(value: any): string {
     return value?.label || value || '';
+  }
+
+  private saveTransferItems(transferId: number, logInfo: any) {
+    const itemMutations = this.selectedProductItems.map(item => {
+      const input = {
+        stockTransferId: transferId,
+        productId: parseInt(item.id),
+        quantityRequested: item.quantity || 1,
+        quantityTransferred: null
+      };
+
+      return this.apollo.mutate({
+        mutation: ADD_STOCK_TRANSFER_ITEM,
+        variables: { input, logInfo }
+      });
+    });
+
+    return forkJoin(itemMutations);
   }
 
   getPriorityBadgeClass(priority: any): string {

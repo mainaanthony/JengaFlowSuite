@@ -15,8 +15,11 @@ export interface StockTransferItem {
   /** Product ID */
   productId: number;
 
-  /** Quantity */
-  quantity: number;
+  /** Quantity Requested */
+  quantityRequested: number;
+
+  /** Quantity Transferred */
+  quantityTransferred?: number | null;
 
   /** Created At */
   createdAt?: Date;

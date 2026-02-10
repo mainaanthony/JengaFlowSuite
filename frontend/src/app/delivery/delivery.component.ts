@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
@@ -7,9 +7,16 @@ import { CardComponent } from '../shared/card/card.component';
 import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '../shared/app-table/app-table.component';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime } from 'rxjs';
+import { debounceTime, Subject, takeUntil } from 'rxjs';
 import { AddDriverModalComponent } from './add-driver-modal/add-driver-modal.component';
 import { ScheduleDeliveryModalComponent } from './schedule-delivery-modal/schedule-delivery-modal.component';
+import { 
+  DeliveryRepository, 
+  DriverRepository,
+  Delivery as DomainDelivery,
+  Driver as DomainDriver 
+} from '../core/domain/domain.barrel';
+import { DeliveryStatus, Priority } from '../core/enums/enums.barrel';
 
 interface Delivery {
   id: string;
@@ -18,7 +25,7 @@ interface Delivery {
   address: string;
   driver: string;
   driverVehicle: string;
-  status: 'In Transit' | 'Delivered' | 'Pending';
+  status: 'In Transit' | 'Delivered' | 'Pending' | 'Cancelled';
   priority: 'High' | 'Normal' | 'Low';
   scheduled: string;
 }
@@ -28,7 +35,7 @@ interface Driver {
   name: string;
   phone: string;
   vehicle: string;
-  status: 'Available' | 'On Delivery';
+  status: 'Available' | 'On Delivery' | 'Off Duty' | string;
   activeDeliveries: number;
   rating: number;
 }
@@ -49,9 +56,11 @@ interface Driver {
   templateUrl: './delivery.component.html',
   styleUrls: ['./delivery.component.scss']
 })
-export class DeliveryComponent implements OnInit {
+export class DeliveryComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   searchControl = new FormControl('');
   activeTab: 'active-deliveries' | 'drivers' | 'route-optimization' = 'active-deliveries';
+  loading = false;
 
   // Table configuration
   deliveryColumns: ColumnConfig[] = [];
@@ -60,84 +69,114 @@ export class DeliveryComponent implements OnInit {
   driverActions: TableAction[] = [];
 
   stats = {
-    activeDeliveries: 8,
-    activeDeliveriesChange: 3,
-    todaysDeliveries: 15,
-    todaysDeliveriesChange: 12,
-    availableDrivers: 5,
+    activeDeliveries: 0,
+    activeDeliveriesChange: 0,
+    todaysDeliveries: 0,
+    todaysDeliveriesChange: 0,
+    availableDrivers: 0,
     availableDriversChange: 0,
-    avgDeliveryTime: '2.3hrs',
-    avgDeliveryTimeChange: -15
+    avgDeliveryTime: '0hrs',
+    avgDeliveryTimeChange: 0
   };
 
-  constructor(private dialog: MatDialog) {
+  constructor(
+    private dialog: MatDialog,
+    private deliveryRepository: DeliveryRepository,
+    private driverRepository: DriverRepository
+  ) {
     this.initializeTableConfig();
   }
 
-  deliveries: Delivery[] = [
-    {
-      id: 'DEL-2024-001',
-      orderId: 'ORD-2024-003',
-      customer: 'ABC Construction',
-      address: '123 Moi Avenue, Nairobi',
-      driver: 'James Mwangi',
-      driverVehicle: 'KCA 123A',
-      status: 'In Transit',
-      priority: 'High',
-      scheduled: '2024-01-15 14:00'
-    },
-    {
-      id: 'DEL-2024-002',
-      orderId: 'ORD-2024-004',
-      customer: 'Kiambu Builders',
-      address: '45 Industrial Area, Kiambu',
-      driver: 'Mary Wanjiku',
-      driverVehicle: 'KBZ 456B',
-      status: 'Delivered',
-      priority: 'Normal',
-      scheduled: '2024-01-15 10:30'
-    },
-    {
-      id: 'DEL-2024-003',
-      orderId: 'ORD-2024-005',
-      customer: 'Home Depot Ltd',
-      address: '67 Tom Mboya Street, CBD',
-      driver: 'Peter Kamau',
-      driverVehicle: 'KCD 789C',
-      status: 'Pending',
-      priority: 'Low',
-      scheduled: '2024-01-16 09:00'
-    }
-  ];
-
-  drivers: Driver[] = [
-    {
-      id: 'DRV-001',
-      name: 'James Mwangi',
-      phone: '+254-700-123456',
-      vehicle: 'KCA 123A',
-      status: 'Available',
-      activeDeliveries: 0,
-      rating: 4.8
-    },
-    {
-      id: 'DRV-002',
-      name: 'Mary Wanjiku',
-      phone: '+254-722-987654',
-      vehicle: 'KBZ 456B',
-      status: 'On Delivery',
-      activeDeliveries: 1,
-      rating: 4.9
-    }
-  ];
+  deliveries: Delivery[] = [];
+  drivers: Driver[] = [];
 
   filteredDeliveries: Delivery[] = [];
   filteredDrivers: Driver[] = [];
 
   ngOnInit() {
-    this.filteredDeliveries = this.deliveries;
-    this.filteredDrivers = this.drivers;
+    this.loadDeliveries();
+    this.loadDrivers();
     this.setupSearch();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadDeliveries(): void {
+    this.loading = true;
+    this.deliveryRepository.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (deliveries: DomainDelivery[]) => {
+          this.deliveries = deliveries.map(d => ({
+            id: d.deliveryNumber,
+            orderId: d.saleId?.toString() || 'N/A',
+            customer: 'Customer', // TODO: Join with customer data
+            address: d.deliveryAddress,
+            driver: 'Driver', // TODO: Join with driver data
+            driverVehicle: 'Vehicle', // TODO: Join with driver vehicle
+            status: d.status === DeliveryStatus.Pending ? 'Pending' : 
+                    d.status === DeliveryStatus.InTransit ? 'In Transit' : 
+                    d.status === DeliveryStatus.Delivered ? 'Delivered' : 'Cancelled',
+            priority: d.priority === Priority.High ? 'High' : 
+                      d.priority === Priority.Low ? 'Low' : 'Normal',
+            scheduled: d.scheduledDate.toString()
+          }));
+          this.filteredDeliveries = this.deliveries;
+          this.updateStats();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading deliveries:', error);
+          this.filteredDeliveries = [];
+          this.loading = false;
+        }
+      });
+  }
+
+  private loadDrivers(): void {
+    this.driverRepository.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (drivers: DomainDriver[]) => {
+          this.drivers = drivers.map(d => ({
+            id: d.id.toString(),
+            name: d.name,
+            phone: d.phone,
+            vehicle: d.vehicle || 'N/A',
+            status: d.status || 'Available',
+            activeDeliveries: 0, // TODO: Calculate from deliveries
+            rating: d.rating || 4.5
+          }));
+          this.filteredDrivers = this.drivers;
+        },
+        error: (error) => {
+          console.error('Error loading drivers:', error);
+          this.filteredDrivers = [];
+        }
+      });
+  }
+
+  private updateStats(): void {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    this.stats.activeDeliveries = this.deliveries.length;
+    this.stats.todaysDeliveries = this.deliveries.filter(d => {
+      const scheduledDate = new Date(d.scheduled);
+      scheduledDate.setHours(0, 0, 0, 0);
+      return scheduledDate.getTime() === today.getTime();
+    }).length;
+    this.stats.availableDrivers = this.drivers.filter(d => d.status === 'Available').length;
+    
+    // TODO: Calculate these from actual data
+    this.stats.activeDeliveriesChange = 0;
+    this.stats.todaysDeliveriesChange = 0;
+    this.stats.availableDriversChange = 0;
+    this.stats.avgDeliveryTime = '0hrs';
+    this.stats.avgDeliveryTimeChange = 0;
   }
 
   initializeTableConfig(): void {
@@ -361,7 +400,7 @@ export class DeliveryComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('Driver added:', result);
-        // Handle the new driver data (e.g., save to backend, update UI)
+        this.loadDrivers();
       }
     });
   }
@@ -376,18 +415,7 @@ export class DeliveryComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('Delivery scheduled:', result);
-        // Handle the scheduled delivery data (e.g., save to backend, update UI)
-        this.deliveries.push({
-          id: `DEL-${Date.now()}`,
-          orderId: `ORD-${Date.now()}`,
-          customer: result.customerName,
-          address: result.deliveryAddress,
-          driver: result.assignedDriver,
-          driverVehicle: result.assignedVehicle,
-          status: 'Pending',
-          priority: result.priority,
-          scheduled: `${result.deliveryDate} ${result.preferredTime || '09:00'}`
-        });
+        this.loadDeliveries();
       }
     });
   }
