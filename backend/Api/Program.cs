@@ -76,12 +76,40 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Apply pending migrations automatically on startup
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    if (context.Database.GetPendingMigrations().Any())
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
+    try
     {
-        context.Database.Migrate();
+        var context = services.GetRequiredService<AppDbContext>();
+        var pendingMigrations = context.Database.GetPendingMigrations().ToList();
+
+        if (pendingMigrations.Any())
+        {
+            logger.LogInformation("Found {Count} pending migration(s). Applying migrations...", pendingMigrations.Count);
+            foreach (var migration in pendingMigrations)
+            {
+                logger.LogInformation("  - {Migration}", migration);
+            }
+
+            context.Database.Migrate();
+            logger.LogInformation("Successfully applied all pending migrations");
+        }
+        else
+        {
+            logger.LogInformation("Database is up to date. No pending migrations");
+        }
+
+        // Optionally seed data here
+        // await SeedData.Initialize(services);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while migrating the database");
+        throw; // Re-throw to prevent app from starting with incorrect schema
     }
 }
 

@@ -16,8 +16,21 @@ services:
     environment:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: ${SA_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      MSSQL_PID: "Developer"
     ports: ["1438:1433"]
+    volumes:
+      - sqldb_data:/var/opt/mssql
+      - ./sqlserver/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+      - ./sqlserver/entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
+    command: /bin/bash -c "chmod +x /usr/local/bin/entrypoint.sh && /usr/local/bin/entrypoint.sh"
     networks: [devnet]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $${SA_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   otel:
     image: otel/opentelemetry-collector:0.99.0
@@ -30,3 +43,7 @@ services:
 networks:
   devnet:
     driver: bridge
+
+volumes:
+  sqldb_data:
+    driver: local
