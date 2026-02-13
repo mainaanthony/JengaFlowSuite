@@ -9,7 +9,7 @@ sleep 30s
 
 # Run initialization script
 echo "Running database initialization script..."
-/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -v DB_NAME="$DB_NAME" -i /docker-entrypoint-initdb.d/init-db.sql
+/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -C -v DB_NAME="$DB_NAME" -i /docker-entrypoint-initdb.d/init-db.sql
 
 echo "Database initialization completed!"
 

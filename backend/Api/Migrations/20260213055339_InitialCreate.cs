@@ -710,8 +710,8 @@ namespace Api.Migrations
                 columns: new[] { "Id", "Address", "City", "Code", "CreatedAt", "CreatedBy", "Email", "IsActive", "Name", "Phone", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { 1, "123 Main Street", "Nairobi", "HQ001", new DateTime(2026, 2, 11, 10, 37, 26, 472, DateTimeKind.Utc).AddTicks(7684), null, "headoffice@jengaflow.com", true, "Head Office", "+254700000001", null, null },
-                    { 2, "456 Westlands Avenue", "Nairobi", "WL001", new DateTime(2026, 2, 11, 10, 37, 26, 472, DateTimeKind.Utc).AddTicks(7693), null, "westlands@jengaflow.com", true, "Westlands Branch", "+254700000002", null, null }
+                    { 1, "123 Main Street", "Nairobi", "HQ001", new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8341), null, "headoffice@jengaflow.com", true, "Head Office", "+254700000001", null, null },
+                    { 2, "456 Westlands Avenue", "Nairobi", "WL001", new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8345), null, "westlands@jengaflow.com", true, "Westlands Branch", "+254700000002", null, null }
                 });
 
             migrationBuilder.InsertData(
@@ -720,8 +720,8 @@ namespace Api.Migrations
                 columns: new[] { "Id", "Brand", "CategoryId", "CreatedAt", "CreatedBy", "Description", "IsActive", "Name", "Price", "SKU", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { 1, null, null, new DateTime(2026, 2, 11, 10, 37, 26, 472, DateTimeKind.Utc).AddTicks(7005), null, null, true, "Keyboard", 35.50m, "", null, null },
-                    { 2, null, null, new DateTime(2026, 2, 11, 10, 37, 26, 472, DateTimeKind.Utc).AddTicks(7014), null, null, true, "Mouse", 15.00m, "", null, null }
+                    { 1, null, null, new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8151), null, null, true, "Keyboard", 35.50m, "KB-001", null, null },
+                    { 2, null, null, new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8155), null, null, true, "Mouse", 15.00m, "MS-001", null, null }
                 });
 
             migrationBuilder.InsertData(
@@ -730,11 +730,11 @@ namespace Api.Migrations
                 columns: new[] { "Id", "CreatedAt", "CreatedBy", "Description", "Name", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 2, 11, 10, 37, 26, 472, DateTimeKind.Utc).AddTicks(7851), null, "System administrator with full access", "Admin", null, null },
-                    { 2, new DateTime(2026, 2, 11, 10, 37, 26, 472, DateTimeKind.Utc).AddTicks(7854), null, "Branch manager with management access", "Manager", null, null },
-                    { 3, new DateTime(2026, 2, 11, 10, 37, 26, 472, DateTimeKind.Utc).AddTicks(7859), null, "Sales representative", "Sales", null, null },
-                    { 4, new DateTime(2026, 2, 11, 10, 37, 26, 472, DateTimeKind.Utc).AddTicks(7864), null, "Inventory management staff", "Inventory", null, null },
-                    { 5, new DateTime(2026, 2, 11, 10, 37, 26, 472, DateTimeKind.Utc).AddTicks(7869), null, "Point of sale cashier", "Cashier", null, null }
+                    { 1, new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8492), null, "System administrator with full access", "Admin", null, null },
+                    { 2, new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8494), null, "Branch manager with management access", "Manager", null, null },
+                    { 3, new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8496), null, "Sales representative", "Sales", null, null },
+                    { 4, new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8497), null, "Inventory management staff", "Inventory", null, null },
+                    { 5, new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8499), null, "Point of sale cashier", "Cashier", null, null }
                 });
 
             migrationBuilder.CreateIndex(

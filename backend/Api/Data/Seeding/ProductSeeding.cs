@@ -10,16 +10,20 @@ public static partial class DataSeeding
         builder.Entity<Product>().HasData(
           new Product
           {
-            Id = 1,
-            Name = "Keyboard",
-            Price = 35.50m,
-            CreatedAt = DateTime.UtcNow },
+              Id = 1,
+              Name = "Keyboard",
+              SKU = "KB-001",
+              Price = 35.50m,
+              CreatedAt = DateTime.UtcNow
+          },
           new Product
           {
               Id = 2,
               Name = "Mouse",
+              SKU = "MS-001",
               Price = 15.00m,
-              CreatedAt = DateTime.UtcNow }
+              CreatedAt = DateTime.UtcNow
+          }
         );
     }
 }
