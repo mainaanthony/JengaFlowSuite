@@ -41,10 +41,10 @@ export class PurchaseOrderRepository extends BaseRepository<PurchaseOrder> {
    */
   override getAll(): Observable<PurchaseOrder[]> {
     return this.apollo
-      .watchQuery<{ purchaseOrders: PurchaseOrder[] }>({
+      .watchQuery<{ purchaseOrders: { nodes: PurchaseOrder[] } }>({
         query: GET_PURCHASE_ORDERS,
       })
-      .valueChanges.pipe(map((result) => result.data.purchaseOrders));
+      .valueChanges.pipe(map((result) => result.data.purchaseOrders.nodes));
   }
 
   /**

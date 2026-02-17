@@ -19,7 +19,9 @@ const FRAGMENT_CATEGORY = gql`
 const GET_CATEGORIES = gql`
   query getCategories {
     categories(order: { name: ASC }) {
-      ...CategoryFields
+      nodes {
+        ...CategoryFields
+      }
     }
   }
   ${FRAGMENT_CATEGORY}

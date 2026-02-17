@@ -38,27 +38,27 @@ export class SupplierRepository extends BaseRepository<Supplier> {
 
   override getAll(): Observable<Supplier[]> {
     return this.apollo
-      .watchQuery<{ suppliers: Supplier[] }>({
+      .watchQuery<{ suppliers: { nodes: Supplier[] } }>({
         query: GET_SUPPLIERS,
       })
-      .valueChanges.pipe(map((result) => result.data.suppliers));
+      .valueChanges.pipe(map((result) => result.data.suppliers.nodes));
   }
 
   getAllSuppliers(): Observable<Supplier[]> {
     return this.apollo
-      .watchQuery<{ suppliers: Supplier[] }>({
+      .watchQuery<{ suppliers: { nodes: Supplier[] } }>({
         query: GET_ALL_SUPPLIERS,
       })
-      .valueChanges.pipe(map((result) => result.data.suppliers));
+      .valueChanges.pipe(map((result) => result.data.suppliers.nodes));
   }
 
   searchSuppliers(search: string): Observable<Supplier[]> {
     return this.apollo
-      .query<{ suppliers: Supplier[] }>({
+      .query<{ suppliers: { nodes: Supplier[] } }>({
         query: SEARCH_SUPPLIERS,
         variables: { search },
       })
-      .pipe(map((result) => result.data.suppliers));
+      .pipe(map((result) => result.data.suppliers.nodes));
   }
 
   override create(

@@ -42,10 +42,10 @@ export class RoleRepository extends BaseRepository<Role> {
    */
   override getAll(): Observable<Role[]> {
     return this.apollo
-      .watchQuery<{ roles: Role[] }>({
+      .watchQuery<{ roles: { nodes: Role[] } }>({
         query: GET_ROLES,
       })
-      .valueChanges.pipe(map((result) => result.data.roles));
+      .valueChanges.pipe(map((result) => result.data.roles.nodes));
   }
 
   /**

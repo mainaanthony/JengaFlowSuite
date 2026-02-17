@@ -5,6 +5,7 @@ using Api.Repositories;
 using Api.Repositories.Implementations;
 using Api.Services;
 using Api.Services.Implementations;
+using HotChocolate.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,9 +61,22 @@ builder.Services.AddScoped<IGoodsReceivedNoteService, GoodsReceivedNoteService>(
 builder.Services.AddScoped<IGoodsReceivedNoteItemService, GoodsReceivedNoteItemService>();
 builder.Services.AddScoped<ITaxReturnService, TaxReturnService>();
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 // Register GraphQL
 builder.Services
     .AddGraphQLServer()
+    .AddQueryType<Api.GraphQL.Query>()
     .AddProjections()
     .AddFiltering()
     .AddSorting()
@@ -116,7 +130,12 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseCors("AllowFrontend");
+
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
-app.MapGraphQL("/graphql");
+app.MapGraphQL("/graphql").WithOptions(new GraphQLServerOptions
+{
+    Tool = { Enable = true }
+});
 
 app.Run();

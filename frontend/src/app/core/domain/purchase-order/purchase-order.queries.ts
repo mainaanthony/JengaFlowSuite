@@ -29,9 +29,10 @@ export const FRAGMENT_PURCHASE_ORDER = gql`
     expectedDeliveryDate
     deliveredDate
     notes
+    createdBy
     createdAt
+    updatedBy
     updatedAt
-    deletedAt
   }
 `;
 
@@ -54,7 +55,9 @@ export const GET_PURCHASE_ORDERS = gql`
   ${FRAGMENT_PURCHASE_ORDER}
   query GetPurchaseOrders {
     purchaseOrders {
-      ...PurchaseOrderFields
+      nodes {
+        ...PurchaseOrderFields
+      }
     }
   }
 `;

@@ -25,7 +25,9 @@ const FRAGMENT_DRIVER = gql`
 const GET_DRIVERS = gql`
   query getDrivers {
     drivers(where: { isActive: { eq: true } }, order: { name: ASC }) {
-      ...DriverFields
+      nodes {
+        ...DriverFields
+      }
     }
   }
   ${FRAGMENT_DRIVER}
@@ -40,7 +42,9 @@ const GET_AVAILABLE_DRIVERS = gql`
       where: { isActive: { eq: true }, status: { eq: "Available" } }
       order: { name: ASC }
     ) {
-      ...DriverFields
+      nodes {
+        ...DriverFields
+      }
     }
   }
   ${FRAGMENT_DRIVER}

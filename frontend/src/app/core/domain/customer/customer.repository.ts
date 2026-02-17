@@ -37,27 +37,27 @@ export class CustomerRepository extends BaseRepository<Customer> {
 
   override getAll(): Observable<Customer[]> {
     return this.apollo
-      .watchQuery<{ customers: Customer[] }>({
+      .watchQuery<{ customers: { nodes: Customer[] } }>({
         query: GET_CUSTOMERS,
       })
-      .valueChanges.pipe(map((result) => result.data.customers));
+      .valueChanges.pipe(map((result) => result.data.customers.nodes));
   }
 
   getAllCustomers(): Observable<Customer[]> {
     return this.apollo
-      .watchQuery<{ customers: Customer[] }>({
+      .watchQuery<{ customers: { nodes: Customer[] } }>({
         query: GET_ALL_CUSTOMERS,
       })
-      .valueChanges.pipe(map((result) => result.data.customers));
+      .valueChanges.pipe(map((result) => result.data.customers.nodes));
   }
 
   searchCustomers(search: string): Observable<Customer[]> {
     return this.apollo
-      .watchQuery<{ customers: Customer[] }>({
+      .watchQuery<{ customers: { nodes: Customer[] } }>({
         query: SEARCH_CUSTOMERS,
         variables: { search },
       })
-      .valueChanges.pipe(map((result) => result.data.customers));
+      .valueChanges.pipe(map((result) => result.data.customers.nodes));
   }
 
   override create(customer: Partial<Customer>, logInfo: EntityLogInfo): Observable<Partial<Customer>> {

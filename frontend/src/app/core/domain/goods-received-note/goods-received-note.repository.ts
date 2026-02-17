@@ -41,10 +41,10 @@ export class GoodsReceivedNoteRepository extends BaseRepository<GoodsReceivedNot
    */
   override getAll(): Observable<GoodsReceivedNote[]> {
     return this.apollo
-      .watchQuery<{ goodsReceivedNotes: GoodsReceivedNote[] }>({
+      .watchQuery<{ goodsReceivedNotes: { nodes: GoodsReceivedNote[] } }>({
         query: GET_GOODS_RECEIVED_NOTES,
       })
-      .valueChanges.pipe(map((result) => result.data.goodsReceivedNotes));
+      .valueChanges.pipe(map((result) => result.data.goodsReceivedNotes.nodes));
   }
 
   /**

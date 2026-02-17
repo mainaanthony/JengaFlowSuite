@@ -23,7 +23,9 @@ const FRAGMENT_CUSTOMER = gql`
 const GET_CUSTOMERS = gql`
   query getCustomers {
     customers(where: { isActive: { eq: true } }, order: { name: ASC }) {
-      ...CustomerFields
+      nodes {
+        ...CustomerFields
+      }
     }
   }
   ${FRAGMENT_CUSTOMER}
@@ -35,7 +37,9 @@ const GET_CUSTOMERS = gql`
 const GET_ALL_CUSTOMERS = gql`
   query getAllCustomers {
     customers(order: { name: ASC }) {
-      ...CustomerFields
+      nodes {
+        ...CustomerFields
+      }
     }
   }
   ${FRAGMENT_CUSTOMER}
@@ -69,7 +73,9 @@ const SEARCH_CUSTOMERS = gql`
       }
       order: { name: ASC }
     ) {
-      ...CustomerFields
+      nodes {
+        ...CustomerFields
+      }
     }
   }
   ${FRAGMENT_CUSTOMER}

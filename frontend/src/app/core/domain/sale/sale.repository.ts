@@ -45,10 +45,10 @@ export class SaleRepository extends BaseRepository<Sale> {
    */
   override getAll(): Observable<Sale[]> {
     return this.apollo
-      .watchQuery<{ sales: Sale[] }>({
+      .watchQuery<{ sales: { nodes: Sale[] } }>({
         query: GET_SALES,
       })
-      .valueChanges.pipe(map((result) => result.data.sales));
+      .valueChanges.pipe(map((result) => result.data.sales.nodes));
   }
 
   /**

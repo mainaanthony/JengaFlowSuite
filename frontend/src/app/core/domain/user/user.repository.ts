@@ -54,10 +54,10 @@ export class UserRepository extends BaseRepository<User> {
    */
   override getAll(): Observable<User[]> {
     return this.apollo
-      .watchQuery<{ users: User[] }>({
+      .watchQuery<{ users: { nodes: User[] } }>({
         query: GET_USERS,
       })
-      .valueChanges.pipe(map((result) => result.data.users));
+      .valueChanges.pipe(map((result) => result.data.users.nodes));
   }
 
   /**

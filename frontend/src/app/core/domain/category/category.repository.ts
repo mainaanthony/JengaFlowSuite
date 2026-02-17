@@ -42,10 +42,10 @@ export class CategoryRepository extends BaseRepository<Category> {
    */
   override getAll(): Observable<Category[]> {
     return this.apollo
-      .watchQuery<{ categories: Category[] }>({
+      .watchQuery<{ categories: { nodes: Category[] } }>({
         query: GET_CATEGORIES,
       })
-      .valueChanges.pipe(map((result) => result.data.categories));
+      .valueChanges.pipe(map((result) => result.data.categories.nodes));
   }
 
   /**

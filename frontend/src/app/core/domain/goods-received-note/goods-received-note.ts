@@ -69,7 +69,4 @@ export interface GoodsReceivedNote {
 
   /** Updated At */
   updatedAt?: Date;
-
-  /** Deleted At */
-  deletedAt?: Date | null;
 }

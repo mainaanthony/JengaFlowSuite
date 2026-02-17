@@ -41,10 +41,10 @@ export class TaxReturnRepository extends BaseRepository<TaxReturn> {
    */
   override getAll(): Observable<TaxReturn[]> {
     return this.apollo
-      .watchQuery<{ taxReturns: TaxReturn[] }>({
+      .watchQuery<{ taxReturns: { nodes: TaxReturn[] } }>({
         query: GET_TAX_RETURNS,
       })
-      .valueChanges.pipe(map((result) => result.data.taxReturns));
+      .valueChanges.pipe(map((result) => result.data.taxReturns.nodes));
   }
 
   /**

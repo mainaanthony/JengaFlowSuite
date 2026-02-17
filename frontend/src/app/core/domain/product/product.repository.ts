@@ -45,10 +45,10 @@ export class ProductRepository extends BaseRepository<Product> {
    */
   override getAll(): Observable<Product[]> {
     return this.apollo
-      .watchQuery<{ products: Product[] }>({
+      .watchQuery<{ products: { nodes: Product[] } }>({
         query: GET_PRODUCTS,
       })
-      .valueChanges.pipe(map((result) => result.data.products));
+      .valueChanges.pipe(map((result) => result.data.products.nodes));
   }
 
   /**
@@ -56,10 +56,10 @@ export class ProductRepository extends BaseRepository<Product> {
    */
   getAllProducts(): Observable<Product[]> {
     return this.apollo
-      .watchQuery<{ products: Product[] }>({
+      .watchQuery<{ products: { nodes: Product[] } }>({
         query: GET_ALL_PRODUCTS,
       })
-      .valueChanges.pipe(map((result) => result.data.products));
+      .valueChanges.pipe(map((result) => result.data.products.nodes));
   }
 
   /**

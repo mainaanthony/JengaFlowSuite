@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 HOST="${DB_HOST:-sqldb}"
-PORT="${DB_PORT:-1438}"
+PORT="${DB_PORT:-1433}"
 echo "Waiting for SQL Server at $HOST:$PORT ..."
 for i in $(seq 1 60); do
   if nc -z "$HOST" "$PORT" >/dev/null 2>&1; then

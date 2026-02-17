@@ -40,16 +40,18 @@ const FRAGMENT_DELIVERY = gql`
 const GET_DELIVERIES = gql`
   query getDeliveries {
     deliveries(order: { scheduledDate: DESC }) {
-      ...DeliveryFields
-      customer {
-        id
-        name
-        phone
-      }
-      driver {
-        id
-        name
-        phone
+      nodes {
+        ...DeliveryFields
+        customer {
+          id
+          name
+          phone
+        }
+        driver {
+          id
+          name
+          phone
+        }
       }
     }
   }
@@ -95,10 +97,12 @@ const GET_DELIVERY = gql`
 const GET_DELIVERIES_BY_DRIVER = gql`
   query getDeliveriesByDriver($driverId: Int!) {
     deliveries(where: { driverId: { eq: $driverId } }, order: { scheduledDate: DESC }) {
-      ...DeliveryFields
-      customer {
-        id
-        name
+      nodes {
+        ...DeliveryFields
+        customer {
+          id
+          name
+        }
       }
     }
   }
@@ -111,14 +115,16 @@ const GET_DELIVERIES_BY_DRIVER = gql`
 const GET_DELIVERIES_BY_STATUS = gql`
   query getDeliveriesByStatus($status: DeliveryStatus!) {
     deliveries(where: { status: { eq: $status } }, order: { scheduledDate: ASC }) {
-      ...DeliveryFields
-      customer {
-        id
-        name
-      }
-      driver {
-        id
-        name
+      nodes {
+        ...DeliveryFields
+        customer {
+          id
+          name
+        }
+        driver {
+          id
+          name
+        }
       }
     }
   }

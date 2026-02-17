@@ -40,7 +40,4 @@ export interface TaxReturn {
 
   /** Updated At */
   updatedAt?: Date;
-
-  /** Deleted At */
-  deletedAt?: Date | null;
 }

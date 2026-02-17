@@ -39,20 +39,22 @@ const FRAGMENT_SALE = gql`
 const GET_SALES = gql`
   query getSales {
     sales(order: { saleDate: DESC }) {
-      ...SaleFields
-      customer {
-        id
-        name
-        email
-      }
-      branch {
-        id
-        name
-      }
-      attendantUser {
-        id
-        firstName
-        lastName
+      nodes {
+        ...SaleFields
+        customer {
+          id
+          name
+          email
+        }
+        branch {
+          id
+          name
+        }
+        attendantUser {
+          id
+          firstName
+          lastName
+        }
       }
     }
   }

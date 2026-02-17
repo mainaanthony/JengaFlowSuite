@@ -27,16 +27,18 @@ const FRAGMENT_USER = gql`
 const GET_USERS = gql`
   query getUsers {
     users(where: { isActive: { eq: true } }) {
-      ...UserFields
-      branch {
-        id
-        name
-        code
-      }
-      role {
-        id
-        name
-        description
+      nodes {
+        ...UserFields
+        branch {
+          id
+          name
+          code
+        }
+        role {
+          id
+          name
+          description
+        }
       }
     }
   }

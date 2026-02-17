@@ -24,10 +24,12 @@ const FRAGMENT_PRODUCT = gql`
 const GET_PRODUCTS = gql`
   query getProducts {
     products(where: { isActive: { eq: true } }, order: { name: ASC }) {
-      ...ProductFields
-      category {
-        id
-        name
+      nodes {
+        ...ProductFields
+        category {
+          id
+          name
+        }
       }
     }
   }
@@ -40,10 +42,12 @@ const GET_PRODUCTS = gql`
 const GET_ALL_PRODUCTS = gql`
   query getAllProducts {
     products(order: { name: ASC }) {
-      ...ProductFields
-      category {
-        id
-        name
+      nodes {
+        ...ProductFields
+        category {
+          id
+          name
+        }
       }
     }
   }

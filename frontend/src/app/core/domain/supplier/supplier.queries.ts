@@ -25,7 +25,9 @@ const FRAGMENT_SUPPLIER = gql`
 const GET_SUPPLIERS = gql`
   query getSuppliers {
     suppliers(where: { isActive: { eq: true } }, order: { name: ASC }) {
-      ...SupplierFields
+      nodes {
+        ...SupplierFields
+      }
     }
   }
   ${FRAGMENT_SUPPLIER}
@@ -37,7 +39,9 @@ const GET_SUPPLIERS = gql`
 const GET_ALL_SUPPLIERS = gql`
   query getAllSuppliers {
     suppliers(order: { name: ASC }) {
-      ...SupplierFields
+      nodes {
+        ...SupplierFields
+      }
     }
   }
   ${FRAGMENT_SUPPLIER}
@@ -71,7 +75,9 @@ const SEARCH_SUPPLIERS = gql`
       }
       order: { name: ASC }
     ) {
-      ...SupplierFields
+      nodes {
+        ...SupplierFields
+      }
     }
   }
   ${FRAGMENT_SUPPLIER}

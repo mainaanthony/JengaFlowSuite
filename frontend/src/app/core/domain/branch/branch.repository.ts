@@ -43,10 +43,10 @@ export class BranchRepository extends BaseRepository<Branch> {
    */
   override getAll(): Observable<Branch[]> {
     return this.apollo
-      .watchQuery<{ branches: Branch[] }>({
+      .watchQuery<{ branches: { nodes: Branch[] } }>({
         query: GET_BRANCHES,
       })
-      .valueChanges.pipe(map((result) => result.data.branches));
+      .valueChanges.pipe(map((result) => result.data.branches.nodes));
   }
 
   /**
@@ -54,10 +54,10 @@ export class BranchRepository extends BaseRepository<Branch> {
    */
   getAllBranches(): Observable<Branch[]> {
     return this.apollo
-      .watchQuery<{ branches: Branch[] }>({
+      .watchQuery<{ branches: { nodes: Branch[] } }>({
         query: GET_ALL_BRANCHES,
       })
-      .valueChanges.pipe(map((result) => result.data.branches));
+      .valueChanges.pipe(map((result) => result.data.branches.nodes));
   }
 
   /**

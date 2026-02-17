@@ -39,28 +39,28 @@ export class DeliveryRepository extends BaseRepository<Delivery> {
 
   override getAll(): Observable<Delivery[]> {
     return this.apollo
-      .watchQuery<{ deliveries: Delivery[] }>({
+      .watchQuery<{ deliveries: { nodes: Delivery[] } }>({
         query: GET_DELIVERIES,
       })
-      .valueChanges.pipe(map((result) => result.data.deliveries));
+      .valueChanges.pipe(map((result) => result.data.deliveries.nodes));
   }
 
   getDeliveriesByDriver(driverId: number): Observable<Delivery[]> {
     return this.apollo
-      .query<{ deliveries: Delivery[] }>({
+      .query<{ deliveries: { nodes: Delivery[] } }>({
         query: GET_DELIVERIES_BY_DRIVER,
         variables: { driverId },
       })
-      .pipe(map((result) => result.data.deliveries));
+      .pipe(map((result) => result.data.deliveries.nodes));
   }
 
   getDeliveriesByStatus(status: DeliveryStatus): Observable<Delivery[]> {
     return this.apollo
-      .query<{ deliveries: Delivery[] }>({
+      .query<{ deliveries: { nodes: Delivery[] } }>({
         query: GET_DELIVERIES_BY_STATUS,
         variables: { status },
       })
-      .pipe(map((result) => result.data.deliveries));
+      .pipe(map((result) => result.data.deliveries.nodes));
   }
 
   override create(

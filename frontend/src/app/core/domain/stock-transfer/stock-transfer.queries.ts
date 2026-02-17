@@ -38,24 +38,26 @@ const FRAGMENT_STOCK_TRANSFER = gql`
 const GET_STOCK_TRANSFERS = gql`
   query getStockTransfers {
     stockTransfers(order: { requestedDate: DESC }) {
-      ...StockTransferFields
-      fromBranch {
-        id
-        name
-      }
-      toBranch {
-        id
-        name
-      }
-      requestedByUser {
-        id
-        firstName
-        lastName
-      }
-      approvedByUser {
-        id
-        firstName
-        lastName
+      nodes {
+        ...StockTransferFields
+        fromBranch {
+          id
+          name
+        }
+        toBranch {
+          id
+          name
+        }
+        requestedByUser {
+          id
+          firstName
+          lastName
+        }
+        approvedByUser {
+          id
+          firstName
+          lastName
+        }
       }
     }
   }
@@ -115,14 +117,16 @@ const GET_STOCK_TRANSFERS_BY_BRANCH = gql`
       }
       order: { requestedDate: DESC }
     ) {
-      ...StockTransferFields
-      fromBranch {
-        id
-        name
-      }
-      toBranch {
-        id
-        name
+      nodes {
+        ...StockTransferFields
+        fromBranch {
+          id
+          name
+        }
+        toBranch {
+          id
+          name
+        }
       }
     }
   }
@@ -135,14 +139,16 @@ const GET_STOCK_TRANSFERS_BY_BRANCH = gql`
 const GET_STOCK_TRANSFERS_BY_STATUS = gql`
   query getStockTransfersByStatus($status: StockTransferStatus!) {
     stockTransfers(where: { status: { eq: $status } }, order: { requestedDate: DESC }) {
-      ...StockTransferFields
-      fromBranch {
-        id
-        name
-      }
-      toBranch {
-        id
-        name
+      nodes {
+        ...StockTransferFields
+        fromBranch {
+          id
+          name
+        }
+        toBranch {
+          id
+          name
+        }
       }
     }
   }

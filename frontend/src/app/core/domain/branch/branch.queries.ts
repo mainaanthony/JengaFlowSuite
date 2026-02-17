@@ -24,7 +24,9 @@ const FRAGMENT_BRANCH = gql`
 const GET_BRANCHES = gql`
   query getBranches {
     branches(where: { isActive: { eq: true } }, order: { name: ASC }) {
-      ...BranchFields
+      nodes {
+        ...BranchFields
+      }
     }
   }
   ${FRAGMENT_BRANCH}
@@ -36,7 +38,9 @@ const GET_BRANCHES = gql`
 const GET_ALL_BRANCHES = gql`
   query getAllBranches {
     branches(order: { name: ASC }) {
-      ...BranchFields
+      nodes {
+        ...BranchFields
+      }
     }
   }
   ${FRAGMENT_BRANCH}

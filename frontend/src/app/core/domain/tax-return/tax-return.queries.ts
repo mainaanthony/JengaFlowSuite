@@ -5,25 +5,19 @@ import { gql } from 'apollo-angular';
  */
 export const FRAGMENT_TAX_RETURN = gql`
   fragment TaxReturnFields on TaxReturn {
-    taxReturnId
+    id
+    period
     taxType
-    returnPeriodStart
-    returnPeriodEnd
-    filingDate
-    dueDate
-    totalTaxableAmount
-    totalTaxAmount
+    amount
     status
-    submittedBy
-    approvedBy
-    approvedDate
+    dueDate
+    submittedDate
+    submittedByUserId
     referenceNumber
-    remarks
-    branchId
     createdBy
     createdAt
-    modifiedBy
-    modifiedAt
+    updatedBy
+    updatedAt
   }
 `;
 
@@ -45,7 +39,9 @@ export const GET_TAX_RETURN = gql`
 export const GET_TAX_RETURNS = gql`
   query GetTaxReturns {
     taxReturns {
-      ...TaxReturnFields
+      nodes {
+        ...TaxReturnFields
+      }
     }
   }
   ${FRAGMENT_TAX_RETURN}

@@ -19,7 +19,9 @@ const FRAGMENT_ROLE = gql`
 const GET_ROLES = gql`
   query getRoles {
     roles(order: { name: ASC }) {
-      ...RoleFields
+      nodes {
+        ...RoleFields
+      }
     }
   }
   ${FRAGMENT_ROLE}

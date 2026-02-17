@@ -39,28 +39,28 @@ export class StockTransferRepository extends BaseRepository<StockTransfer> {
 
   override getAll(): Observable<StockTransfer[]> {
     return this.apollo
-      .watchQuery<{ stockTransfers: StockTransfer[] }>({
+      .watchQuery<{ stockTransfers: { nodes: StockTransfer[] } }>({
         query: GET_STOCK_TRANSFERS,
       })
-      .valueChanges.pipe(map((result) => result.data.stockTransfers));
+      .valueChanges.pipe(map((result) => result.data.stockTransfers.nodes));
   }
 
   getStockTransfersByBranch(branchId: number): Observable<StockTransfer[]> {
     return this.apollo
-      .query<{ stockTransfers: StockTransfer[] }>({
+      .query<{ stockTransfers: { nodes: StockTransfer[] } }>({
         query: GET_STOCK_TRANSFERS_BY_BRANCH,
         variables: { branchId },
       })
-      .pipe(map((result) => result.data.stockTransfers));
+      .pipe(map((result) => result.data.stockTransfers.nodes));
   }
 
   getStockTransfersByStatus(status: StockTransferStatus): Observable<StockTransfer[]> {
     return this.apollo
-      .query<{ stockTransfers: StockTransfer[] }>({
+      .query<{ stockTransfers: { nodes: StockTransfer[] } }>({
         query: GET_STOCK_TRANSFERS_BY_STATUS,
         variables: { status },
       })
-      .pipe(map((result) => result.data.stockTransfers));
+      .pipe(map((result) => result.data.stockTransfers.nodes));
   }
 
   override create(

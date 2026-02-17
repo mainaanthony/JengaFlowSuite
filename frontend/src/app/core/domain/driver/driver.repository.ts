@@ -37,18 +37,18 @@ export class DriverRepository extends BaseRepository<Driver> {
 
   override getAll(): Observable<Driver[]> {
     return this.apollo
-      .watchQuery<{ drivers: Driver[] }>({
+      .watchQuery<{ drivers: { nodes: Driver[] } }>({
         query: GET_DRIVERS,
       })
-      .valueChanges.pipe(map((result) => result.data.drivers));
+      .valueChanges.pipe(map((result) => result.data.drivers.nodes));
   }
 
   getAvailableDrivers(): Observable<Driver[]> {
     return this.apollo
-      .query<{ drivers: Driver[] }>({
+      .query<{ drivers: { nodes: Driver[] } }>({
         query: GET_AVAILABLE_DRIVERS,
       })
-      .pipe(map((result) => result.data.drivers));
+      .pipe(map((result) => result.data.drivers.nodes));
   }
 
   override create(

@@ -82,7 +82,4 @@ export interface PurchaseOrder {
 
   /** Updated At */
   updatedAt?: Date;
-
-  /** Deleted At */
-  deletedAt?: Date | null;
 }

@@ -5,21 +5,16 @@ import { gql } from 'apollo-angular';
  */
 export const FRAGMENT_GOODS_RECEIVED_NOTE_ITEM = gql`
   fragment GoodsReceivedNoteItemFields on GoodsReceivedNoteItem {
-    goodsReceivedNoteItemId
+    id
     goodsReceivedNoteId
-    purchaseOrderItemId
     productId
+    quantityOrdered
     quantityReceived
-    quantityRejected
-    unitPrice
-    totalAmount
-    expiryDate
-    batchNumber
     remarks
     createdBy
     createdAt
-    modifiedBy
-    modifiedAt
+    updatedBy
+    updatedAt
   }
 `;
 
@@ -28,22 +23,17 @@ export const FRAGMENT_GOODS_RECEIVED_NOTE_ITEM = gql`
  */
 export const FRAGMENT_GOODS_RECEIVED_NOTE = gql`
   fragment GoodsReceivedNoteFields on GoodsReceivedNote {
-    goodsReceivedNoteId
+    id
     grnNumber
     purchaseOrderId
-    supplierId
-    branchId
+    receivedByUserId
     receivedDate
+    notes
     status
-    totalAmount
-    remarks
-    receivedBy
-    approvedBy
-    approvedDate
     createdBy
     createdAt
-    modifiedBy
-    modifiedAt
+    updatedBy
+    updatedAt
     items {
       ...GoodsReceivedNoteItemFields
     }
@@ -69,7 +59,9 @@ export const GET_GOODS_RECEIVED_NOTE = gql`
 export const GET_GOODS_RECEIVED_NOTES = gql`
   query GetGoodsReceivedNotes {
     goodsReceivedNotes {
-      ...GoodsReceivedNoteFields
+      nodes {
+        ...GoodsReceivedNoteFields
+      }
     }
   }
   ${FRAGMENT_GOODS_RECEIVED_NOTE}
