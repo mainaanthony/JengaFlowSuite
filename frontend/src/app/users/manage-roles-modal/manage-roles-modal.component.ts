@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { RoleRepository, Role as DomainRole } from '../../core/domain/domain.barrel';
+import { RoleRepository, Role as DomainRole, UserRepository } from '../../core/domain/domain.barrel';
 
 interface Permission {
   id: string;
@@ -118,7 +118,8 @@ export class ManageRolesModalComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<ManageRolesModalComponent>,
-    private roleRepository: RoleRepository
+    private roleRepository: RoleRepository,
+    private userRepository: UserRepository
   ) {
     this.createRoleForm = this.formBuilder.group({
       roleName: ['', [Validators.required]],
@@ -173,12 +174,20 @@ export class ManageRolesModalComponent implements OnInit {
     if (this.createRoleForm.valid && this.selectedPermissions.size > 0) {
       this.loading = true;
 
+      const currentUser = this.userRepository.getCurrentUser();
+      if (!currentUser || !currentUser.id) {
+        alert('Unable to determine current user. Please log in again.');
+        this.loading = false;
+        return;
+      }
+
       const roleData: Partial<DomainRole> = {
         name: this.createRoleForm.get('roleName')?.value,
         description: this.createRoleForm.get('description')?.value
       };
 
       const logInfo = {
+        userId: currentUser.id.toString(),
         description: `Created role ${roleData.name}`
       };
 

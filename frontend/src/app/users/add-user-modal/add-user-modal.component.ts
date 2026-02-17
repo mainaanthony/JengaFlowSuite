@@ -186,6 +186,13 @@ export class AddUserModalComponent implements OnInit {
     if (this.basicInfoForm.valid && this.employmentForm.valid && this.additionalForm.valid) {
       this.loading = true;
 
+      const currentUser = this.userRepository.getCurrentUser();
+      if (!currentUser || !currentUser.id) {
+        alert('Unable to determine current user. Please log in again.');
+        this.loading = false;
+        return;
+      }
+
       const userData: Partial<DomainUser> = {
         firstName: this.basicInfoForm.get('firstName')?.value,
         lastName: this.basicInfoForm.get('lastName')?.value,
@@ -197,6 +204,7 @@ export class AddUserModalComponent implements OnInit {
       };
 
       const logInfo = {
+        userId: currentUser.id.toString(),
         description: this.editMode ? `Updated user ${userData.firstName} ${userData.lastName}` : `Created user ${userData.firstName} ${userData.lastName}`
       };
 

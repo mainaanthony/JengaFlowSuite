@@ -6,6 +6,10 @@ import { APP_INITIALIZER } from '@angular/core';
 import { APP_ROUTES} from '../src/app/app.routes'
 import { initKeycloak } from './app/keycloak.init';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { Apollo, APOLLO_OPTIONS } from 'apollo-angular';
+import { HttpLink } from 'apollo-angular/http';
+import { InMemoryCache, ApolloClientOptions } from '@apollo/client/core';
+import { inject } from '@angular/core';
 
 // Handle chunk loading errors (typically caused by cache issues after deployment)
 window.addEventListener('error', (event) => {
@@ -30,6 +34,32 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(APP_ROUTES, withComponentInputBinding()),
     provideHttpClient(withInterceptors([keycloakInterceptor])),
+    Apollo,
+    {
+      provide: APOLLO_OPTIONS,
+      useFactory: (): ApolloClientOptions<any> => {
+        const httpLink = inject(HttpLink);
+        return {
+          link: httpLink.create({
+            uri: 'http://localhost:5001/graphql',
+          }),
+          cache: new InMemoryCache(),
+          defaultOptions: {
+            watchQuery: {
+              fetchPolicy: 'cache-and-network',
+              errorPolicy: 'all',
+            },
+            query: {
+              fetchPolicy: 'network-only',
+              errorPolicy: 'all',
+            },
+            mutate: {
+              errorPolicy: 'all',
+            },
+          },
+        };
+      },
+    },
     { provide: APP_INITIALIZER, useFactory: initKeycloak, multi: true },
   ]
 }).catch(err => console.error(err));
