@@ -28,11 +28,11 @@ export class CustomerRepository extends BaseRepository<Customer> {
 
   override get(id: string): Observable<Customer> {
     return this.apollo
-      .query<{ customers: Customer[] }>({
+      .query<{ customers: { nodes: Customer[] } }>({
         query: GET_CUSTOMER,
         variables: { id: parseInt(id) },
       })
-      .pipe(map((result) => result.data.customers[0]));
+      .pipe(map((result) => result.data.customers.nodes[0]));
   }
 
   override getAll(): Observable<Customer[]> {

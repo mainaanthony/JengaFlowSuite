@@ -29,11 +29,11 @@ export class SupplierRepository extends BaseRepository<Supplier> {
 
   override get(id: string): Observable<Supplier> {
     return this.apollo
-      .query<{ suppliers: Supplier[] }>({
+      .query<{ suppliers: { nodes: Supplier[] } }>({
         query: GET_SUPPLIER,
         variables: { id: parseInt(id) },
       })
-      .pipe(map((result) => result.data.suppliers[0]));
+      .pipe(map((result) => result.data.suppliers.nodes[0]));
   }
 
   override getAll(): Observable<Supplier[]> {

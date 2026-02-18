@@ -53,7 +53,9 @@ const GET_ALL_SUPPLIERS = gql`
 const GET_SUPPLIER = gql`
   query getSupplier($id: Int!) {
     suppliers(where: { id: { eq: $id } }) {
-      ...SupplierFields
+      nodes {
+        ...SupplierFields
+      }
     }
   }
   ${FRAGMENT_SUPPLIER}

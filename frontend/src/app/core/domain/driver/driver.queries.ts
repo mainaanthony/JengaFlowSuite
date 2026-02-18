@@ -56,7 +56,9 @@ const GET_AVAILABLE_DRIVERS = gql`
 const GET_DRIVER = gql`
   query getDriver($id: Int!) {
     drivers(where: { id: { eq: $id } }) {
-      ...DriverFields
+      nodes {
+        ...DriverFields
+      }
     }
   }
   ${FRAGMENT_DRIVER}

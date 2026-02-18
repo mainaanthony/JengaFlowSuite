@@ -70,34 +70,35 @@ const GET_STOCK_TRANSFERS = gql`
 const GET_STOCK_TRANSFER = gql`
   query getStockTransfer($id: Int!) {
     stockTransfers(where: { id: { eq: $id } }) {
-      ...StockTransferFields
-      fromBranch {
-        id
-        name
-        code
-      }
-      toBranch {
-        id
-        name
-        code
-      }
-      requestedByUser {
-        id
-        firstName
-        lastName
-        email
-      }
-      approvedByUser {
-        id
-        firstName
-        lastName
-      }
-      items {
-        ...StockTransferItemFields
-        product {
+      nodes {
+        ...StockTransferFields
+        fromBranch {
           id
           name
-          sku
+          code
+        }
+        toBranch {
+          id
+          name
+          code
+        }
+        requestedByUser {
+          id
+          firstName
+          lastName
+          email
+        }
+        approvedByUser {
+          id
+          firstName
+          lastName
+        }
+        items {
+          ...StockTransferItemFields
+          product {
+            id
+            name
+            sku
         }
       }
     }

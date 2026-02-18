@@ -33,7 +33,9 @@ const GET_CATEGORIES = gql`
 const GET_CATEGORY = gql`
   query getCategory($id: Int!) {
     categories(where: { id: { eq: $id } }) {
-      ...CategoryFields
+      nodes {
+        ...CategoryFields
+      }
     }
   }
   ${FRAGMENT_CATEGORY}

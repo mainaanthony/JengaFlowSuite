@@ -64,25 +64,27 @@ const GET_DELIVERIES = gql`
 const GET_DELIVERY = gql`
   query getDelivery($id: Int!) {
     deliveries(where: { id: { eq: $id } }) {
-      ...DeliveryFields
-      customer {
-        id
-        name
-        phone
-        address
-      }
-      driver {
-        id
-        name
-        phone
-        vehicle
-      }
-      items {
-        ...DeliveryItemFields
-        product {
+      nodes {
+        ...DeliveryFields
+        customer {
           id
           name
-          sku
+          phone
+          address
+        }
+        driver {
+          id
+          name
+          phone
+          vehicle
+        }
+        items {
+          ...DeliveryItemFields
+          product {
+            id
+            name
+            sku
+          }
         }
       }
     }

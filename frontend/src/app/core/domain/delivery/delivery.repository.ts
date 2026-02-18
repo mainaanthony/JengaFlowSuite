@@ -30,11 +30,11 @@ export class DeliveryRepository extends BaseRepository<Delivery> {
 
   override get(id: string): Observable<Delivery> {
     return this.apollo
-      .query<{ deliveries: Delivery[] }>({
+      .query<{ deliveries: { nodes: Delivery[] } }>({
         query: GET_DELIVERY,
         variables: { id: parseInt(id) },
       })
-      .pipe(map((result) => result.data.deliveries[0]));
+      .pipe(map((result) => result.data.deliveries.nodes[0]));
   }
 
   override getAll(): Observable<Delivery[]> {

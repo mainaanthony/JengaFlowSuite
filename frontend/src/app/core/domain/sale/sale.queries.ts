@@ -67,32 +67,34 @@ const GET_SALES = gql`
 const GET_SALE = gql`
   query getSale($id: Int!) {
     sales(where: { id: { eq: $id } }) {
-      ...SaleFields
-      customer {
-        id
-        name
-        email
-        phone
-        customerType
-      }
-      branch {
-        id
-        name
-        code
-      }
-      attendantUser {
-        id
-        firstName
-        lastName
-        email
-      }
-      items {
-        ...SaleItemFields
-        product {
+      nodes {
+        ...SaleFields
+        customer {
           id
           name
-          sku
-          price
+          email
+          phone
+          customerType
+        }
+        branch {
+          id
+          name
+          code
+        }
+        attendantUser {
+          id
+          firstName
+          lastName
+          email
+        }
+        items {
+          ...SaleItemFields
+          product {
+            id
+            name
+            sku
+            price
+          }
         }
       }
     }

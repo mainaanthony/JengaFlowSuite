@@ -51,20 +51,22 @@ const GET_USERS = gql`
 const GET_USER = gql`
   query getUser($id: Int!) {
     users(where: { id: { eq: $id } }) {
-      ...UserFields
-      branch {
-        id
-        name
-        code
-        address
-        city
-        phone
-        email
-      }
-      role {
-        id
-        name
-        description
+      nodes {
+        ...UserFields
+        branch {
+          id
+          name
+          code
+          address
+          city
+          phone
+          email
+        }
+        role {
+          id
+          name
+          description
+        }
       }
     }
   }
@@ -77,16 +79,18 @@ const GET_USER = gql`
 const GET_USER_BY_KEYCLOAK_ID = gql`
   query getUserByKeycloakId($keycloakId: String!) {
     users(where: { keycloakId: { eq: $keycloakId } }) {
-      ...UserFields
-      branch {
-        id
-        name
-        code
-      }
-      role {
-        id
-        name
-        description
+      nodes {
+        ...UserFields
+        branch {
+          id
+          name
+          code
+        }
+        role {
+          id
+          name
+          description
+        }
       }
     }
   }
@@ -99,10 +103,12 @@ const GET_USER_BY_KEYCLOAK_ID = gql`
 const GET_USERS_BY_BRANCH = gql`
   query getUsersByBranch($branchId: Int!) {
     users(where: { branchId: { eq: $branchId }, isActive: { eq: true } }) {
-      ...UserFields
-      role {
-        id
-        name
+      nodes {
+        ...UserFields
+        role {
+          id
+          name
+        }
       }
     }
   }
@@ -115,10 +121,12 @@ const GET_USERS_BY_BRANCH = gql`
 const GET_USERS_BY_ROLE = gql`
   query getUsersByRole($roleId: Int!) {
     users(where: { roleId: { eq: $roleId }, isActive: { eq: true } }) {
-      ...UserFields
-      branch {
-        id
-        name
+      nodes {
+        ...UserFields
+        branch {
+          id
+          name
+        }
       }
     }
   }

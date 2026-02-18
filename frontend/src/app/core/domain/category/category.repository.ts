@@ -30,11 +30,11 @@ export class CategoryRepository extends BaseRepository<Category> {
    */
   override get(id: string): Observable<Category> {
     return this.apollo
-      .query<{ categories: Category[] }>({
+      .query<{ categories: { nodes: Category[] } }>({
         query: GET_CATEGORY,
         variables: { id: parseInt(id) },
       })
-      .pipe(map((result) => result.data.categories[0]));
+      .pipe(map((result) => result.data.categories.nodes[0]));
   }
 
   /**

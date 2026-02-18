@@ -33,11 +33,11 @@ export class SaleRepository extends BaseRepository<Sale> {
    */
   override get(id: string): Observable<Sale> {
     return this.apollo
-      .query<{ sales: Sale[] }>({
+      .query<{ sales: { nodes: Sale[] } }>({
         query: GET_SALE,
         variables: { id: parseInt(id) },
       })
-      .pipe(map((result) => result.data.sales[0]));
+      .pipe(map((result) => result.data.sales.nodes[0]));
   }
 
   /**

@@ -31,11 +31,11 @@ export class BranchRepository extends BaseRepository<Branch> {
    */
   override get(id: string): Observable<Branch> {
     return this.apollo
-      .query<{ branches: Branch[] }>({
+      .query<{ branches: { nodes: Branch[] } }>({
         query: GET_BRANCH,
         variables: { id: parseInt(id) },
       })
-      .pipe(map((result) => result.data.branches[0]));
+      .pipe(map((result) => result.data.branches.nodes[0]));
   }
 
   /**

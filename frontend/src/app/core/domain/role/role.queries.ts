@@ -33,12 +33,14 @@ const GET_ROLES = gql`
 const GET_ROLE = gql`
   query getRole($id: Int!) {
     roles(where: { id: { eq: $id } }) {
-      ...RoleFields
-      users {
-        id
-        firstName
-        lastName
-        email
+      nodes {
+        ...RoleFields
+        users {
+          id
+          firstName
+          lastName
+          email
+        }
       }
     }
   }

@@ -51,7 +51,9 @@ const GET_ALL_CUSTOMERS = gql`
 const GET_CUSTOMER = gql`
   query getCustomer($id: Int!) {
     customers(where: { id: { eq: $id } }) {
-      ...CustomerFields
+      nodes {
+        ...CustomerFields
+      }
     }
   }
   ${FRAGMENT_CUSTOMER}

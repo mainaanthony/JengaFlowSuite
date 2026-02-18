@@ -30,11 +30,11 @@ export class RoleRepository extends BaseRepository<Role> {
    */
   override get(id: string): Observable<Role> {
     return this.apollo
-      .query<{ roles: Role[] }>({
+      .query<{ roles: { nodes: Role[] } }>({
         query: GET_ROLE,
         variables: { id: parseInt(id) },
       })
-      .pipe(map((result) => result.data.roles[0]));
+      .pipe(map((result) => result.data.roles.nodes[0]));
   }
 
   /**

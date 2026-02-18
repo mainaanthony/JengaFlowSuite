@@ -42,11 +42,11 @@ export class UserRepository extends BaseRepository<User> {
    */
   override get(id: string): Observable<User> {
     return this.apollo
-      .query<{ users: User[] }>({
+      .query<{ users: { nodes: User[] } }>({
         query: GET_USER,
         variables: { id: parseInt(id) },
       })
-      .pipe(map((result) => result.data.users[0]));
+      .pipe(map((result) => result.data.users.nodes[0]));
   }
 
   /**
@@ -65,11 +65,11 @@ export class UserRepository extends BaseRepository<User> {
    */
   getUserByKeycloakId(keycloakId: string): Observable<User> {
     return this.apollo
-      .query<{ users: User[] }>({
+      .query<{ users: { nodes: User[] } }>({
         query: GET_USER_BY_KEYCLOAK_ID,
         variables: { keycloakId },
       })
-      .pipe(map((result) => result.data.users[0]));
+      .pipe(map((result) => result.data.users.nodes[0]));
   }
 
   /**
@@ -77,11 +77,11 @@ export class UserRepository extends BaseRepository<User> {
    */
   getUsersByBranch(branchId: number): Observable<User[]> {
     return this.apollo
-      .query<{ users: User[] }>({
+      .query<{ users: { nodes: User[] } }>({
         query: GET_USERS_BY_BRANCH,
         variables: { branchId },
       })
-      .pipe(map((result) => result.data.users));
+      .pipe(map((result) => result.data.users.nodes));
   }
 
   /**
@@ -89,11 +89,11 @@ export class UserRepository extends BaseRepository<User> {
    */
   getUsersByRole(roleId: number): Observable<User[]> {
     return this.apollo
-      .query<{ users: User[] }>({
+      .query<{ users: { nodes: User[] } }>({
         query: GET_USERS_BY_ROLE,
         variables: { roleId },
       })
-      .pipe(map((result) => result.data.users));
+      .pipe(map((result) => result.data.users.nodes));
   }
 
   /**

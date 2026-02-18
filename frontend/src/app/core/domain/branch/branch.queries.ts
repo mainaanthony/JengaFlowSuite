@@ -52,12 +52,14 @@ const GET_ALL_BRANCHES = gql`
 const GET_BRANCH = gql`
   query getBranch($id: Int!) {
     branches(where: { id: { eq: $id } }) {
-      ...BranchFields
-      users {
-        id
-        firstName
-        lastName
-        email
+      nodes {
+        ...BranchFields
+        users {
+          id
+          firstName
+          lastName
+          email
+        }
       }
     }
   }

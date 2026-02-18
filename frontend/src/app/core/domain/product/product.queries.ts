@@ -60,11 +60,13 @@ const GET_ALL_PRODUCTS = gql`
 const GET_PRODUCT = gql`
   query getProduct($id: Int!) {
     products(where: { id: { eq: $id } }) {
-      ...ProductFields
-      category {
-        id
-        name
-        description
+      nodes {
+        ...ProductFields
+        category {
+          id
+          name
+          description
+        }
       }
     }
   }
@@ -80,7 +82,9 @@ const GET_PRODUCTS_BY_CATEGORY = gql`
       where: { categoryId: { eq: $categoryId }, isActive: { eq: true } }
       order: { name: ASC }
     ) {
-      ...ProductFields
+      nodes {
+        ...ProductFields
+      }
     }
   }
   ${FRAGMENT_PRODUCT}
@@ -102,10 +106,12 @@ const SEARCH_PRODUCTS = gql`
       }
       order: { name: ASC }
     ) {
-      ...ProductFields
-      category {
-        id
-        name
+      nodes {
+        ...ProductFields
+        category {
+          id
+          name
+        }
       }
     }
   }

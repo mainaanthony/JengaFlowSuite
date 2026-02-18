@@ -33,11 +33,11 @@ export class ProductRepository extends BaseRepository<Product> {
    */
   override get(id: string): Observable<Product> {
     return this.apollo
-      .query<{ products: Product[] }>({
+      .query<{ products: { nodes: Product[] } }>({
         query: GET_PRODUCT,
         variables: { id: parseInt(id) },
       })
-      .pipe(map((result) => result.data.products[0]));
+      .pipe(map((result) => result.data.products.nodes[0]));
   }
 
   /**
@@ -67,11 +67,11 @@ export class ProductRepository extends BaseRepository<Product> {
    */
   getProductsByCategory(categoryId: number): Observable<Product[]> {
     return this.apollo
-      .query<{ products: Product[] }>({
+      .query<{ products: { nodes: Product[] } }>({
         query: GET_PRODUCTS_BY_CATEGORY,
         variables: { categoryId },
       })
-      .pipe(map((result) => result.data.products));
+      .pipe(map((result) => result.data.products.nodes));
   }
 
   /**
@@ -79,11 +79,11 @@ export class ProductRepository extends BaseRepository<Product> {
    */
   searchProducts(search: string): Observable<Product[]> {
     return this.apollo
-      .query<{ products: Product[] }>({
+      .query<{ products: { nodes: Product[] } }>({
         query: SEARCH_PRODUCTS,
         variables: { search },
       })
-      .pipe(map((result) => result.data.products));
+      .pipe(map((result) => result.data.products.nodes));
   }
 
   /**

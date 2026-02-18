@@ -28,11 +28,11 @@ export class DriverRepository extends BaseRepository<Driver> {
 
   override get(id: string): Observable<Driver> {
     return this.apollo
-      .query<{ drivers: Driver[] }>({
+      .query<{ drivers: { nodes: Driver[] } }>({
         query: GET_DRIVER,
         variables: { id: parseInt(id) },
       })
-      .pipe(map((result) => result.data.drivers[0]));
+      .pipe(map((result) => result.data.drivers.nodes[0]));
   }
 
   override getAll(): Observable<Driver[]> {

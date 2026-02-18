@@ -30,11 +30,11 @@ export class StockTransferRepository extends BaseRepository<StockTransfer> {
 
   override get(id: string): Observable<StockTransfer> {
     return this.apollo
-      .query<{ stockTransfers: StockTransfer[] }>({
+      .query<{ stockTransfers: { nodes: StockTransfer[] } }>({
         query: GET_STOCK_TRANSFER,
         variables: { id: parseInt(id) },
       })
-      .pipe(map((result) => result.data.stockTransfers[0]));
+      .pipe(map((result) => result.data.stockTransfers.nodes[0]));
   }
 
   override getAll(): Observable<StockTransfer[]> {
