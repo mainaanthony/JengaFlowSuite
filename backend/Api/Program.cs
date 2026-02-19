@@ -77,6 +77,7 @@ builder.Services.AddCors(options =>
 builder.Services
     .AddGraphQLServer()
     .AddQueryType<Api.GraphQL.Query>()
+    .AddMutationType<Api.GraphQL.Mutation>()
     .AddProjections()
     .AddFiltering()
     .AddSorting()

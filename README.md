@@ -1,46 +1,80 @@
 # JengaFlowSuite
 
-This repository contains a small microservice stack used for development and testing. The recommended entrypoint for local development is the `dev-environment` folder which uses Docker Compose to bring up Keycloak, SQL Server, the backend, frontend, and supporting services.
+This repository contains a microservice stack for JengaFlow development and testing. The recommended entrypoint for local development is the `dev-environment` folder which uses Docker Compose to bring up Keycloak, SQL Server, the backend, frontend, and supporting services.
 
-TL;DR quick start
+## 🚀 Quick Start
 
-1. From the project root run:
+**Easiest way (Windows):**
 
 ```powershell
 cd dev-environment
-docker compose build
-docker compose up
+.\start.ps1
 ```
 
-2. Open the frontend at `http://localhost:3000` and the backend at `http://localhost:5000`.
+This will:
+- ✅ Start all Docker containers
+- ✅ Wait for services to be ready
+- ✅ Automatically open Frontend, GraphQL, and Swagger in your browser
 
-Environment files
+**Manual start:**
 
-The compose files use environment variable interpolation. Example `.env` files are provided next to the folders that need them. Copy each `.env.example` to `.env` and edit values before running compose.
-
-- `dev-environment/.env.example` — values used by the dev compose stack (ports, Keycloak admin, SQL SA password, etc.)
-- `infra/.env.example` — infra-level values
-- `infra/keycloak/.env.example` — keycloak-specific variables (admin username/password, dev user password)
-- `frontend/.env.example` — frontend-port or other frontend-specific variables
-
-Keycloak credentials (development)
-
-The development stack imports a realm and creates a `dev` realm. Example default credentials used in the example files:
-
-- Keycloak admin: `administrator` / `SuperSecretAdmin123`
-- Dev user: `dev` / `pa$$123`
-
-These are only for local development. Replace them before deploying to any shared environment.
-
-Backend notes
-
-- The backend uses `ConnectionStrings__Default` environment variable to connect to the SQL Server database. Example value (used in examples):
-
-```
-Server=sqldb,1422;Database=AppDb;User ID=sa;Password=Pa$$w0rd;TrustServerCertificate=true;
+```powershell
+cd dev-environment
+docker compose up --build
 ```
 
-- The backend contains GraphQL (see `backend/GraphQL/Query.cs`) and exposes a GraphQL endpoint. It also has Swagger/OpenAPI available when running locally — visit `http://localhost:5000/swagger` (or use the backend's `/graphql` route for GraphQL queries).
+Then open:
+- Frontend: http://localhost:4200
+- GraphQL: http://localhost:5001/graphql
+- Swagger: http://localhost:5001/swagger
+
+For more startup options, see [dev-environment/README_STARTUP.md](./dev-environment/README_STARTUP.md)
+
+## 🌐 Available Services
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Frontend | http://localhost:4200 | Angular application |
+| Backend API | http://localhost:5001 | .NET Core API |
+| GraphQL | http://localhost:5001/graphql | GraphQL playground |
+| Swagger | http://localhost:5001/swagger | API documentation |
+| Keycloak | http://localhost:8080 | Authentication server |
+| Go Service | http://localhost:8081 | Go microservice |
+| SQL Server | localhost:1438 | Database |
+
+## 🔐 Default Credentials (Development Only)
+
+**Keycloak Admin:**
+- Username: `admin`
+- Password: `admin123`
+
+**Development User:**
+- Username: `devuser`
+- Password: `REDACTED`
+
+**SQL Server:**
+- User: `sa`
+- Password: `YourStrong!Passw0rd`
+
+⚠️ **These are only for local development. Replace them before deploying to any shared environment.**
+
+## 📁 Environment Files
+
+The compose files use environment variable interpolation. An `.env` file is provided in `dev-environment/`. Edit values before running compose if needed.
+
+## Backend Notes
+
+## Backend Notes
+
+- The backend uses `ConnectionStrings__Default` environment variable to connect to the SQL Server database. Default value:
+
+```
+Server=sqldb,1433;Database=JengaFlowDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
+```
+
+- The backend exposes GraphQL at `/graphql` and Swagger documentation at `/swagger`
+- Visit http://localhost:5001/graphql for GraphQL Playground
+- Visit http://localhost:5001/swagger for Swagger/OpenAPI documentation
 
 - `appsettings.json` and `appsettings.Development.json` are present in `backend/Api`. You can set or override any settings via environment variables (ASP.NET configuration binding supports `ConnectionStrings__Default` etc.).
 
