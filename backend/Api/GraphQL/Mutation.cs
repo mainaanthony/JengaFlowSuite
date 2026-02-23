@@ -1,11 +1,12 @@
 namespace Api.GraphQL
 {
     /// <summary>
-    /// Base mutation type - extended by mutation classes marked with [MutationType]
+    /// Root Mutation type
+    /// Extended by mutation classes using [ExtendObjectType("Mutation")]
     /// </summary>
     public class Mutation
     {
-        // This class serves as the base for all mutation extensions
-        // Actual mutation methods are defined in classes marked with [MutationType]
+        // Placeholder method to satisfy GraphQL schema requirements
+        public string Version() => "1.0";
     }
 }

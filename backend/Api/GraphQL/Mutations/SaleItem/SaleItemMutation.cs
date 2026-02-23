@@ -2,21 +2,24 @@ using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class SaleItemMutation
     {
         public static async Task<SaleItem> AddSaleItemAsync(
             SaleItemMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] ISaleItemService service
+            [Service] ISaleItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.SaleId.CheckRequired(nameof(input.SaleId));
             input.ProductId.CheckRequired(nameof(input.ProductId));
             input.Quantity.CheckRequired(nameof(input.Quantity));
@@ -38,10 +41,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<SaleItem> UpdateSaleItemAsync(
             SaleItemMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] ISaleItemService service
+            [Service] ISaleItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -62,10 +67,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteSaleItemAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] ISaleItemService service
+            [Service] ISaleItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"SaleItem with ID {id} not found"));

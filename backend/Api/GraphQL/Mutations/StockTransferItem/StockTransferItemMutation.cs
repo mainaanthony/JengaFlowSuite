@@ -2,21 +2,24 @@ using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class StockTransferItemMutation
     {
         public static async Task<StockTransferItem> AddStockTransferItemAsync(
             StockTransferItemMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IStockTransferItemService service
+            [Service] IStockTransferItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.StockTransferId.CheckRequired(nameof(input.StockTransferId));
             input.ProductId.CheckRequired(nameof(input.ProductId));
             input.QuantityRequested.CheckRequired(nameof(input.QuantityRequested));
@@ -35,10 +38,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<StockTransferItem> UpdateStockTransferItemAsync(
             StockTransferItemMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IStockTransferItemService service
+            [Service] IStockTransferItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -57,10 +62,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteStockTransferItemAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] IStockTransferItemService service
+            [Service] IStockTransferItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"StockTransferItem with ID {id} not found"));

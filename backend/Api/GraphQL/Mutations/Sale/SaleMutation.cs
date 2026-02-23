@@ -2,21 +2,24 @@ using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class SaleMutation
     {
         public static async Task<Sale> AddSaleAsync(
             SaleMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] ISaleService service
+            [Service] ISaleService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             // Validate required fields
             input.CustomerId.CheckRequired(nameof(input.CustomerId));
             input.BranchId.CheckRequired(nameof(input.BranchId));
@@ -76,10 +79,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<Sale> UpdateSaleAsync(
             SaleMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] ISaleService service
+            [Service] ISaleService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -101,10 +106,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteSaleAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] ISaleService service
+            [Service] ISaleService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"Sale with ID {id} not found"));

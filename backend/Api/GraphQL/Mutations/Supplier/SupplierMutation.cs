@@ -2,21 +2,24 @@ using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class SupplierMutation
     {
         public static async Task<Supplier> AddSupplierAsync(
             SupplierMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] ISupplierService service
+            [Service] ISupplierService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Name.CheckRequired(nameof(input.Name));
 
             var entity = new Supplier
@@ -37,10 +40,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<Supplier> UpdateSupplierAsync(
             SupplierMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] ISupplierService service
+            [Service] ISupplierService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -63,10 +68,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteSupplierAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] ISupplierService service
+            [Service] ISupplierService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"Supplier with ID {id} not found"));

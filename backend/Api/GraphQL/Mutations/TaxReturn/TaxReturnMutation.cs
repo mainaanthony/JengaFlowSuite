@@ -2,21 +2,24 @@ using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class TaxReturnMutation
     {
         public static async Task<TaxReturn> AddTaxReturnAsync(
             TaxReturnMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] ITaxReturnService service
+            [Service] ITaxReturnService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Period.CheckRequired(nameof(input.Period));
 
             var entity = new TaxReturn
@@ -37,10 +40,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<TaxReturn> UpdateTaxReturnAsync(
             TaxReturnMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] ITaxReturnService service
+            [Service] ITaxReturnService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -64,10 +69,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteTaxReturnAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] ITaxReturnService service
+            [Service] ITaxReturnService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"TaxReturn with ID {id} not found"));

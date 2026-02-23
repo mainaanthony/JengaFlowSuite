@@ -2,21 +2,24 @@ using Api.Services;
 using Api.Core;
 using Api.Core.Models;
 using Api.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class BranchMutation
     {
         public static async Task<Branch> AddBranchAsync(
             BranchMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IBranchService service
+            [Service] IBranchService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Name.CheckRequired(nameof(input.Name));
             input.Code.CheckRequired(nameof(input.Code));
 
@@ -37,10 +40,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<Branch> UpdateBranchAsync(
             BranchMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IBranchService service
+            [Service] IBranchService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -62,10 +67,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteBranchAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] IBranchService service
+            [Service] IBranchService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"Branch with ID {id} not found"));

@@ -2,21 +2,24 @@ using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class DeliveryItemMutation
     {
         public static async Task<DeliveryItem> AddDeliveryItemAsync(
             DeliveryItemMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IDeliveryItemService service
+            [Service] IDeliveryItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.DeliveryId.CheckRequired(nameof(input.DeliveryId));
             input.ProductId.CheckRequired(nameof(input.ProductId));
             input.Quantity.CheckRequired(nameof(input.Quantity));
@@ -34,10 +37,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<DeliveryItem> UpdateDeliveryItemAsync(
             DeliveryItemMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IDeliveryItemService service
+            [Service] IDeliveryItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -55,10 +60,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteDeliveryItemAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] IDeliveryItemService service
+            [Service] IDeliveryItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"DeliveryItem with ID {id} not found"));

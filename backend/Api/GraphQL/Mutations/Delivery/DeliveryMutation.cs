@@ -2,21 +2,24 @@ using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class DeliveryMutation
     {
         public static async Task<Delivery> AddDeliveryAsync(
             DeliveryMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IDeliveryService service
+            [Service] IDeliveryService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.DeliveryNumber.CheckRequired(nameof(input.DeliveryNumber));
             input.CustomerId.CheckRequired(nameof(input.CustomerId));
             input.DriverId.CheckRequired(nameof(input.DriverId));
@@ -43,10 +46,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<Delivery> UpdateDeliveryAsync(
             DeliveryMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IDeliveryService service
+            [Service] IDeliveryService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -73,10 +78,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteDeliveryAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] IDeliveryService service
+            [Service] IDeliveryService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"Delivery with ID {id} not found"));

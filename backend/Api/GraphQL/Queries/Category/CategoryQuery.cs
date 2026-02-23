@@ -5,7 +5,7 @@ using HotChocolate.Types;
 
 namespace Api.GraphQL.Queries
 {
-    [QueryType]
+    [ExtendObjectType("Query")]
     public static class CategoryQuery
     {
         [UsePaging]

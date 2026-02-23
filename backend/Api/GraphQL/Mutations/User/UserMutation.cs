@@ -1,6 +1,7 @@
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
@@ -8,15 +9,17 @@ using Api.Models;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class UserMutation
     {
         public static async Task<User> AddUserAsync(
             UserMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IUserService service
+            [Service] IUserService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.KeycloakId.CheckRequired(nameof(input.KeycloakId));
             input.Username.CheckRequired(nameof(input.Username));
             input.Email.CheckRequired(nameof(input.Email));
@@ -44,10 +47,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<User> UpdateUserAsync(
             UserMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IUserService service
+            [Service] IUserService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -71,10 +76,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteUserAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] IUserService service
+            [Service] IUserService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"User with ID {id} not found"));

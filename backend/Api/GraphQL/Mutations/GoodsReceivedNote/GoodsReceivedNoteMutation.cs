@@ -2,21 +2,24 @@ using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class GoodsReceivedNoteMutation
     {
         public static async Task<GoodsReceivedNote> AddGoodsReceivedNoteAsync(
             GoodsReceivedNoteMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IGoodsReceivedNoteService service
+            [Service] IGoodsReceivedNoteService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.GRNNumber.CheckRequired(nameof(input.GRNNumber));
             input.PurchaseOrderId.CheckRequired(nameof(input.PurchaseOrderId));
             input.ReceivedByUserId.CheckRequired(nameof(input.ReceivedByUserId));
@@ -37,10 +40,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<GoodsReceivedNote> UpdateGoodsReceivedNoteAsync(
             GoodsReceivedNoteMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IGoodsReceivedNoteService service
+            [Service] IGoodsReceivedNoteService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -62,10 +67,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteGoodsReceivedNoteAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] IGoodsReceivedNoteService service
+            [Service] IGoodsReceivedNoteService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"GoodsReceivedNote with ID {id} not found"));

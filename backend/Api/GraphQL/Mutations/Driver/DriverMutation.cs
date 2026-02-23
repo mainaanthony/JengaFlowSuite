@@ -2,21 +2,24 @@ using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class DriverMutation
     {
         public static async Task<Driver> AddDriverAsync(
             DriverMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IDriverService service
+            [Service] IDriverService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Name.CheckRequired(nameof(input.Name));
             input.Phone.CheckRequired(nameof(input.Phone));
             input.Vehicle.CheckRequired(nameof(input.Vehicle));
@@ -39,10 +42,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<Driver> UpdateDriverAsync(
             DriverMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IDriverService service
+            [Service] IDriverService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -65,10 +70,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteDriverAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] IDriverService service
+            [Service] IDriverService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"Driver with ID {id} not found"));

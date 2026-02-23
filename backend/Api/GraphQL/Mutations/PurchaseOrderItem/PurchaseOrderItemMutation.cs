@@ -2,21 +2,24 @@ using Api.Models;
 using Api.Services;
 using Api.Core;
 using Api.Core.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class PurchaseOrderItemMutation
     {
         public static async Task<PurchaseOrderItem> AddPurchaseOrderItemAsync(
             PurchaseOrderItemMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IPurchaseOrderItemService service
+            [Service] IPurchaseOrderItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.PurchaseOrderId.CheckRequired(nameof(input.PurchaseOrderId));
             input.ProductId.CheckRequired(nameof(input.ProductId));
             input.Quantity.CheckRequired(nameof(input.Quantity));
@@ -37,10 +40,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<PurchaseOrderItem> UpdatePurchaseOrderItemAsync(
             PurchaseOrderItemMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IPurchaseOrderItemService service
+            [Service] IPurchaseOrderItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -60,10 +65,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeletePurchaseOrderItemAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] IPurchaseOrderItemService service
+            [Service] IPurchaseOrderItemService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"PurchaseOrderItem with ID {id} not found"));

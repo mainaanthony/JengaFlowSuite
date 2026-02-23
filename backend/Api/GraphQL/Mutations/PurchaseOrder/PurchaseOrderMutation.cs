@@ -3,21 +3,24 @@ using Api.Services;
 using Api.Core;
 using Api.Core.Models;
 using Api.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class PurchaseOrderMutation
     {
         public static async Task<PurchaseOrder> AddPurchaseOrderAsync(
             PurchaseOrderMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IPurchaseOrderService service
+            [Service] IPurchaseOrderService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             // Validate required fields
             input.SupplierId.CheckRequired(nameof(input.SupplierId));
             input.CreatedByUserId.CheckRequired(nameof(input.CreatedByUserId));
@@ -74,10 +77,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<PurchaseOrder> UpdatePurchaseOrderAsync(
             PurchaseOrderMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] IPurchaseOrderService service
+            [Service] IPurchaseOrderService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -102,10 +107,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeletePurchaseOrderAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] IPurchaseOrderService service
+            [Service] IPurchaseOrderService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"PurchaseOrder with ID {id} not found"));

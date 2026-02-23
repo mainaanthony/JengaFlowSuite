@@ -5,6 +5,7 @@ using Api.Repositories;
 using Api.Repositories.Implementations;
 using Api.Services;
 using Api.Services.Implementations;
+using Api.GraphQL;
 using HotChocolate.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,9 @@ var conn = Environment.GetEnvironmentVariable("ConnectionStrings__Default")
           ?? builder.Configuration.GetConnectionString("Default");
 
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(conn));
+
+// Register HttpContextAccessor for audit logging
+builder.Services.AddHttpContextAccessor();
 
 // Register Generic Repository
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -74,14 +78,7 @@ builder.Services.AddCors(options =>
 });
 
 // Register GraphQL
-builder.Services
-    .AddGraphQLServer()
-    .AddQueryType<Api.GraphQL.Query>()
-    .AddMutationType<Api.GraphQL.Mutation>()
-    .AddProjections()
-    .AddFiltering()
-    .AddSorting()
-    .ModifyRequestOptions(o => o.IncludeExceptionDetails = true);
+builder.Services.AddGraphQLConfig(builder.Environment);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

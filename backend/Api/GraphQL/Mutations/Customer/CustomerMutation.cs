@@ -2,21 +2,24 @@ using Api.Services;
 using Api.Core;
 using Api.Core.Models;
 using Api.Models;
+using Api.Helpers;
 using HotChocolate;
 using HotChocolate.Types;
 using System.Text.Json;
 
 namespace Api.GraphQL.Mutations
 {
-    [MutationType]
+    [ExtendObjectType("Mutation")]
     public static class CustomerMutation
     {
         public static async Task<Customer> AddCustomerAsync(
             CustomerMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] ICustomerService service
+            [Service] ICustomerService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Name.CheckRequired(nameof(input.Name));
             input.CustomerType.CheckRequired(nameof(input.CustomerType));
 
@@ -36,10 +39,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<Customer> UpdateCustomerAsync(
             CustomerMutationInput input,
-            EntityLogInfo logInfo,
-            [Service] ICustomerService service
+            [Service] ICustomerService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             input.Id.CheckRequired(nameof(input.Id));
 
             var entity = await service.GetByIdAsync(input.Id.Value)
@@ -60,10 +65,12 @@ namespace Api.GraphQL.Mutations
 
         public static async Task<bool> DeleteCustomerAsync(
             int id,
-            EntityLogInfo logInfo,
-            [Service] ICustomerService service
+            [Service] ICustomerService service,
+            [Service] IHttpContextAccessor httpContextAccessor
         )
         {
+            var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
+
             var result = await service.DeleteAsync(id, logInfo);
             if (!result)
                 throw new GraphQLException(new Error($"Customer with ID {id} not found"));
