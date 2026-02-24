@@ -99,11 +99,6 @@ export class SaleRepository extends BaseRepository<Sale> {
         mutation: ADD_SALE,
         variables: { 
           input: data,
-          logInfo: {
-            changedBy: logInfo.userId || 'system',
-            changeTrigger: logInfo.category || 'UI',
-            changeReason: logInfo.description
-          }
         },
         refetchQueries: [{ query: GET_SALES }],
       })
@@ -127,7 +122,7 @@ export class SaleRepository extends BaseRepository<Sale> {
     return this.apollo
       .mutate<{ updateSale: Sale }>({
         mutation: UPDATE_SALE,
-        variables: { input: { ...sale, updatedBy: logInfo.userId } },
+        variables: { input: sale },
       })
       .pipe(
         map((result) => {

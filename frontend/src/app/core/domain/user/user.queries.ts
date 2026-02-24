@@ -98,6 +98,28 @@ const GET_USER_BY_KEYCLOAK_ID = gql`
 `;
 
 /**
+ * Get current authenticated user (auto-provisions if doesn't exist)
+ */
+const GET_CURRENT_USER = gql`
+  query getCurrentUser {
+    currentUser {
+      ...UserFields
+      branch {
+        id
+        name
+        code
+      }
+      role {
+        id
+        name
+        description
+      }
+    }
+  }
+  ${FRAGMENT_USER}
+`;
+
+/**
  * Get users by branch ID query
  */
 const GET_USERS_BY_BRANCH = gql`
@@ -203,6 +225,7 @@ export {
   GET_USERS,
   GET_USER,
   GET_USER_BY_KEYCLOAK_ID,
+  GET_CURRENT_USER,
   GET_USERS_BY_BRANCH,
   GET_USERS_BY_ROLE,
   ADD_USER,

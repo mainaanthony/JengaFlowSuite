@@ -20,7 +20,7 @@ export const FRAGMENT_GOODS_RECEIVED_NOTE_ITEM = gql`
  * Mutation to add a new goods received note item
  */
 export const ADD_GOODS_RECEIVED_NOTE_ITEM = gql`
-  mutation AddGoodsReceivedNoteItem($input: GoodsReceivedNoteItemMutationInput!, $logInfo: EntityLogInfoInput!) {
+  mutation AddGoodsReceivedNoteItem($input: GoodsReceivedNoteItemMutationInput!) {
     addGoodsReceivedNoteItem(input: $input, logInfo: $logInfo) {
       ...GoodsReceivedNoteItemFields
     }
@@ -32,7 +32,7 @@ export const ADD_GOODS_RECEIVED_NOTE_ITEM = gql`
  * Mutation to update an existing goods received note item
  */
 export const UPDATE_GOODS_RECEIVED_NOTE_ITEM = gql`
-  mutation UpdateGoodsReceivedNoteItem($input: GoodsReceivedNoteItemMutationInput!, $logInfo: EntityLogInfoInput!) {
+  mutation UpdateGoodsReceivedNoteItem($input: GoodsReceivedNoteItemMutationInput!) {
     updateGoodsReceivedNoteItem(input: $input, logInfo: $logInfo) {
       ...GoodsReceivedNoteItemFields
     }
@@ -44,7 +44,7 @@ export const UPDATE_GOODS_RECEIVED_NOTE_ITEM = gql`
  * Mutation to delete a goods received note item
  */
 export const DELETE_GOODS_RECEIVED_NOTE_ITEM = gql`
-  mutation DeleteGoodsReceivedNoteItem($id: Int!, $logInfo: EntityLogInfoInput!) {
+  mutation DeleteGoodsReceivedNoteItem($id: Int!) {
     deleteGoodsReceivedNoteItem(id: $id, logInfo: $logInfo)
   }
 `;

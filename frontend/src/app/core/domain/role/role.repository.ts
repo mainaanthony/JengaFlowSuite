@@ -58,7 +58,7 @@ export class RoleRepository extends BaseRepository<Role> {
     return this.apollo
       .mutate<{ addRole: Role }>({
         mutation: ADD_ROLE,
-        variables: { input: { ...data, createdBy: logInfo.userId } },
+        variables: { input: data },
         refetchQueries: [{ query: GET_ROLES }],
       })
       .pipe(
@@ -81,7 +81,7 @@ export class RoleRepository extends BaseRepository<Role> {
     return this.apollo
       .mutate<{ updateRole: Role }>({
         mutation: UPDATE_ROLE,
-        variables: { input: { ...role, updatedBy: logInfo.userId } },
+        variables: { input: role },
       })
       .pipe(
         map((result) => {

@@ -87,7 +87,7 @@ const SEARCH_CUSTOMERS = gql`
  * Add customer mutation
  */
 const ADD_CUSTOMER = gql`
-  mutation addCustomer($input: CustomerMutationInput!, $logInfo: EntityLogInfo!) {
+  mutation addCustomer($input: CustomerMutationInput!) {
     addCustomer(input: $input, logInfo: $logInfo) {
       ...CustomerFields
     }
@@ -99,7 +99,7 @@ const ADD_CUSTOMER = gql`
  * Update customer mutation
  */
 const UPDATE_CUSTOMER = gql`
-  mutation updateCustomer($input: CustomerMutationInput!, $logInfo: EntityLogInfo!) {
+  mutation updateCustomer($input: CustomerMutationInput!) {
     updateCustomer(input: $input, logInfo: $logInfo) {
       ...CustomerFields
     }
@@ -111,7 +111,7 @@ const UPDATE_CUSTOMER = gql`
  * Delete customer mutation
  */
 const DELETE_CUSTOMER = gql`
-  mutation deleteCustomer($id: Int!, $logInfo: EntityLogInfo!) {
+  mutation deleteCustomer($id: Int!) {
     deleteCustomer(id: $id, logInfo: $logInfo)
   }
 `;

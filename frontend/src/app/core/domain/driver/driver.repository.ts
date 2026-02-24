@@ -58,7 +58,7 @@ export class DriverRepository extends BaseRepository<Driver> {
     return this.apollo
       .mutate<{ addDriver: Driver }>({
         mutation: ADD_DRIVER,
-        variables: { input: { ...data, createdBy: logInfo.userId } },
+        variables: { input: data },
         refetchQueries: [{ query: GET_DRIVERS }],
       })
       .pipe(
@@ -78,7 +78,7 @@ export class DriverRepository extends BaseRepository<Driver> {
     return this.apollo
       .mutate<{ updateDriver: Driver }>({
         mutation: UPDATE_DRIVER,
-        variables: { input: { ...driver, updatedBy: logInfo.userId } },
+        variables: { input: driver },
       })
       .pipe(
         map((result) => {

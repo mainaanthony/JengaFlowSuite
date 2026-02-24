@@ -172,7 +172,7 @@ const GET_SALES_BY_DATE_RANGE = gql`
  * Add sale mutation - accepts items array, backend calculates totals
  */
 const ADD_SALE = gql`
-  mutation addSale($input: SaleMutationInput!, $logInfo: EntityLogInfo!) {
+  mutation addSale($input: SaleMutationInput!) {
     addSale(input: $input, logInfo: $logInfo) {
       ...SaleFields
       items {

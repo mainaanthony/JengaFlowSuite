@@ -68,7 +68,7 @@ export const GET_PURCHASE_ORDERS = gql`
 export const ADD_PURCHASE_ORDER = gql`
   ${FRAGMENT_PURCHASE_ORDER}
   ${FRAGMENT_PURCHASE_ORDER_ITEM}
-  mutation AddPurchaseOrder($input: PurchaseOrderMutationInput!, $logInfo: EntityLogInfo!) {
+  mutation AddPurchaseOrder($input: PurchaseOrderMutationInput!) {
     addPurchaseOrder(input: $input, logInfo: $logInfo) {
       ...PurchaseOrderFields
       items {

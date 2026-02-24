@@ -70,7 +70,7 @@ export class StockTransferRepository extends BaseRepository<StockTransfer> {
     return this.apollo
       .mutate<{ addStockTransfer: StockTransfer }>({
         mutation: ADD_STOCK_TRANSFER,
-        variables: { input: { ...data, createdBy: logInfo.userId } },
+        variables: { input: data },
         refetchQueries: [{ query: GET_STOCK_TRANSFERS }],
       })
       .pipe(
@@ -90,7 +90,7 @@ export class StockTransferRepository extends BaseRepository<StockTransfer> {
     return this.apollo
       .mutate<{ updateStockTransfer: StockTransfer }>({
         mutation: UPDATE_STOCK_TRANSFER,
-        variables: { input: { ...stockTransfer, updatedBy: logInfo.userId } },
+        variables: { input: stockTransfer },
       })
       .pipe(
         map((result) => {

@@ -57,7 +57,7 @@ export class TaxReturnRepository extends BaseRepository<TaxReturn> {
     return this.apollo
       .mutate<{ addTaxReturn: TaxReturn }>({
         mutation: ADD_TAX_RETURN,
-        variables: { input: { ...data, createdBy: logInfo.userId } },
+        variables: { input: data },
         refetchQueries: [{ query: GET_TAX_RETURNS }],
       })
       .pipe(
@@ -80,7 +80,7 @@ export class TaxReturnRepository extends BaseRepository<TaxReturn> {
     return this.apollo
       .mutate<{ updateTaxReturn: TaxReturn }>({
         mutation: UPDATE_TAX_RETURN,
-        variables: { input: { ...taxReturn, updatedBy: logInfo.userId } },
+        variables: { input: taxReturn },
       })
       .pipe(
         map((result) => {

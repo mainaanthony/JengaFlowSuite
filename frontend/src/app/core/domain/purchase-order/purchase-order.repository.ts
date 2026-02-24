@@ -87,7 +87,7 @@ export class PurchaseOrderRepository extends BaseRepository<PurchaseOrder> {
     return this.apollo
       .mutate<{ updatePurchaseOrder: PurchaseOrder }>({
         mutation: UPDATE_PURCHASE_ORDER,
-        variables: { input: { ...purchaseOrder, updatedBy: logInfo.userId } },
+        variables: { input: purchaseOrder },
       })
       .pipe(
         map((result) => {

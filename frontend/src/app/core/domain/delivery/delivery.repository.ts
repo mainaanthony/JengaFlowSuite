@@ -70,7 +70,7 @@ export class DeliveryRepository extends BaseRepository<Delivery> {
     return this.apollo
       .mutate<{ addDelivery: Delivery }>({
         mutation: ADD_DELIVERY,
-        variables: { input: { ...data, createdBy: logInfo.userId } },
+        variables: { input: data },
         refetchQueries: [{ query: GET_DELIVERIES }],
       })
       .pipe(
@@ -90,7 +90,7 @@ export class DeliveryRepository extends BaseRepository<Delivery> {
     return this.apollo
       .mutate<{ updateDelivery: Delivery }>({
         mutation: UPDATE_DELIVERY,
-        variables: { input: { ...delivery, updatedBy: logInfo.userId } },
+        variables: { input: delivery },
       })
       .pipe(
         map((result) => {

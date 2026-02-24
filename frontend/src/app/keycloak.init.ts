@@ -21,18 +21,16 @@ export function initKeycloak(): () => Promise<boolean> {
 
     if (authenticated && keycloak.tokenParsed?.sub) {
       try {
-        // Get the Keycloak user ID (sub claim)
-        const keycloakId = keycloak.tokenParsed.sub;
-        
-        // Fetch the user from the database using the Keycloak ID
-        const user = await firstValueFrom(userRepository.getUserByKeycloakId(keycloakId));
+        // Get current user from backend (auto-provisions if doesn't exist)
+        // Backend extracts user info from JWT token and creates user if needed
+        const user = await firstValueFrom(userRepository.loadCurrentUserFromServer());
         
         // Set the current user in the repository
         if (user) {
           userRepository.setCurrentUser(user);
           console.log('Current user loaded:', user);
         } else {
-          console.warn('User not found in database for Keycloak ID:', keycloakId);
+          console.warn('Unable to load user from backend');
         }
       } catch (error) {
         console.error('Error loading current user:', error);

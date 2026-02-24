@@ -31,6 +31,13 @@ namespace Api.Services.Implementations
 
         public async Task<Product> AddAsync(Product entity, EntityLogInfo logInfo)
         {
+            // Check for duplicate SKU
+            var existingProduct = await GetBySKUAsync(entity.SKU);
+            if (existingProduct != null)
+            {
+                throw new InvalidOperationException($"A product with SKU '{entity.SKU}' already exists.");
+            }
+
             entity.CreatedAt = DateTime.UtcNow;
             entity.CreatedBy = logInfo.ChangedBy;
             return await _repository.AddAsync(entity);
@@ -41,6 +48,13 @@ namespace Api.Services.Implementations
             var exists = await _repository.ExistsAsync(entity.Id);
             if (!exists)
                 throw new KeyNotFoundException($"Product with id {entity.Id} not found");
+
+            // Check for duplicate SKU (excluding the current product being updated)
+            var existingProduct = await GetBySKUAsync(entity.SKU);
+            if (existingProduct != null && existingProduct.Id != entity.Id)
+            {
+                throw new InvalidOperationException($"Another product with SKU '{entity.SKU}' already exists.");
+            }
 
             entity.UpdatedAt = DateTime.UtcNow;
             entity.UpdatedBy = logInfo.ChangedBy;

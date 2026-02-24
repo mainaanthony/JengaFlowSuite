@@ -9,6 +9,7 @@ import {
   GET_USER,
   GET_USERS,
   GET_USER_BY_KEYCLOAK_ID,
+  GET_CURRENT_USER,
   GET_USERS_BY_BRANCH,
   GET_USERS_BY_ROLE,
   ADD_USER,
@@ -69,7 +70,34 @@ export class UserRepository extends BaseRepository<User> {
         query: GET_USER_BY_KEYCLOAK_ID,
         variables: { keycloakId },
       })
-      .pipe(map((result) => result.data.users.nodes[0]));
+      .pipe(
+        map((result) => {
+          if (result.data?.users?.nodes && result.data.users.nodes.length > 0) {
+            return result.data.users.nodes[0];
+          }
+          throw new Error(`User not found for Keycloak ID: ${keycloakId}`);
+        })
+      );
+  }
+
+  /**
+   * Load current authenticated user from backend using JWT token
+   * Auto-provisions user if they don't exist in database
+   */
+  loadCurrentUserFromServer(): Observable<User> {
+    return this.apollo
+      .query<{ currentUser: User }>({
+        query: GET_CURRENT_USER,
+        fetchPolicy: 'network-only', // Always fetch fresh from server
+      })
+      .pipe(
+        map((result) => {
+          if (result.data?.currentUser) {
+            return result.data.currentUser;
+          }
+          throw new Error('Unable to get current user from server');
+        })
+      );
   }
 
   /**
@@ -106,7 +134,7 @@ export class UserRepository extends BaseRepository<User> {
     return this.apollo
       .mutate<{ addUser: User }>({
         mutation: ADD_USER,
-        variables: { input: { ...data, createdBy: logInfo.userId } },
+        variables: { input: data },
         refetchQueries: [{ query: GET_USERS }],
       })
       .pipe(
@@ -129,7 +157,7 @@ export class UserRepository extends BaseRepository<User> {
     return this.apollo
       .mutate<{ updateUser: User }>({
         mutation: UPDATE_USER,
-        variables: { input: { ...user, updatedBy: logInfo.userId } },
+        variables: { input: user },
       })
       .pipe(
         map((result) => {

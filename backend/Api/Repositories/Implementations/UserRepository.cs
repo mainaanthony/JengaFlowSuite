@@ -20,6 +20,14 @@ namespace Api.Repositories.Implementations
             return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<User?> GetByKeycloakIdAsync(string keycloakId)
+        {
+            return await _dbSet
+                .Include(u => u.Role)
+                .Include(u => u.Branch)
+                .FirstOrDefaultAsync(u => u.KeycloakId == keycloakId);
+        }
+
         public async Task<IEnumerable<User>> GetActiveAsync()
         {
             return await _dbSet.Where(u => u.IsActive).ToListAsync();

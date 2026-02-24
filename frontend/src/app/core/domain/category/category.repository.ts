@@ -58,7 +58,7 @@ export class CategoryRepository extends BaseRepository<Category> {
     return this.apollo
       .mutate<{ addCategory: Category }>({
         mutation: ADD_CATEGORY,
-        variables: { input: { ...data, createdBy: logInfo.userId } },
+        variables: { input: data },
         refetchQueries: [{ query: GET_CATEGORIES }],
       })
       .pipe(
@@ -81,7 +81,7 @@ export class CategoryRepository extends BaseRepository<Category> {
     return this.apollo
       .mutate<{ updateCategory: Category }>({
         mutation: UPDATE_CATEGORY,
-        variables: { input: { ...category, updatedBy: logInfo.userId } },
+        variables: { input: category },
       })
       .pipe(
         map((result) => {

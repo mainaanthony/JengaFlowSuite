@@ -70,7 +70,7 @@ export class BranchRepository extends BaseRepository<Branch> {
     return this.apollo
       .mutate<{ addBranch: Branch }>({
         mutation: ADD_BRANCH,
-        variables: { input: { ...data, createdBy: logInfo.userId } },
+        variables: { input: data },
         refetchQueries: [{ query: GET_BRANCHES }],
       })
       .pipe(
@@ -93,7 +93,7 @@ export class BranchRepository extends BaseRepository<Branch> {
     return this.apollo
       .mutate<{ updateBranch: Branch }>({
         mutation: UPDATE_BRANCH,
-        variables: { input: { ...branch, updatedBy: logInfo.userId } },
+        variables: { input: branch },
       })
       .pipe(
         map((result) => {

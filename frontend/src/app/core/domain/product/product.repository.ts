@@ -96,7 +96,7 @@ export class ProductRepository extends BaseRepository<Product> {
     return this.apollo
       .mutate<{ addProduct: Product }>({
         mutation: ADD_PRODUCT,
-        variables: { input: { ...data, createdBy: logInfo.userId } },
+        variables: { input: data },
         refetchQueries: [{ query: GET_PRODUCTS }],
       })
       .pipe(
@@ -119,7 +119,7 @@ export class ProductRepository extends BaseRepository<Product> {
     return this.apollo
       .mutate<{ updateProduct: Product }>({
         mutation: UPDATE_PRODUCT,
-        variables: { input: { ...product, updatedBy: logInfo.userId } },
+        variables: { input: product },
       })
       .pipe(
         map((result) => {

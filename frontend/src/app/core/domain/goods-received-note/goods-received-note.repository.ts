@@ -57,7 +57,7 @@ export class GoodsReceivedNoteRepository extends BaseRepository<GoodsReceivedNot
     return this.apollo
       .mutate<{ addGoodsReceivedNote: GoodsReceivedNote }>({
         mutation: ADD_GOODS_RECEIVED_NOTE,
-        variables: { input: { ...data, createdBy: logInfo.userId } },
+        variables: { input: data },
         refetchQueries: [{ query: GET_GOODS_RECEIVED_NOTES }],
       })
       .pipe(
@@ -80,7 +80,7 @@ export class GoodsReceivedNoteRepository extends BaseRepository<GoodsReceivedNot
     return this.apollo
       .mutate<{ updateGoodsReceivedNote: GoodsReceivedNote }>({
         mutation: UPDATE_GOODS_RECEIVED_NOTE,
-        variables: { input: { ...goodsReceivedNote, updatedBy: logInfo.userId } },
+        variables: { input: goodsReceivedNote },
       })
       .pipe(
         map((result) => {
