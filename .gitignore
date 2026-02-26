@@ -1,0 +1,27 @@
+# Environment variables - NEVER commit real secrets
+.env
+**/.env
+!**/.env.example
+
+# ASP.NET development settings (may contain local connection strings)
+backend/Api/appsettings.Development.json
+
+# Build outputs
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/.angular/
+
+# IDE
+.vs/
+.vscode/settings.json
+*.user
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db

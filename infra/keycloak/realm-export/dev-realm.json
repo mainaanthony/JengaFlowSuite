@@ -9,13 +9,7 @@
       "firstName": "Dev",
       "lastName": "User",
       "email": "dev@jengaflow.com",
-      "credentials": [
-        {
-          "type": "password",
-          "value": "REDACTED",
-          "temporary": false
-        }
-      ],
+      "credentials": [],
       "requiredActions": []
     }
   ],
