@@ -12,9 +12,6 @@ import {
   DELETE_PURCHASE_ORDER,
 } from './purchase-order.queries';
 
-console.log('[PurchaseOrderRepository] Module loading...');
-console.log('[PurchaseOrderRepository] GET_PURCHASE_ORDERS query:', GET_PURCHASE_ORDERS?.loc?.source?.body?.substring(0, 100));
-
 /**
  * Purchase Order Repository
  * Handles all purchase order-related data operations

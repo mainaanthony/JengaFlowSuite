@@ -1,4 +1,6 @@
-import { Customer, Branch,User } from '../domain.barrel';
+import { Customer } from '../customer/customer';
+import { Branch } from '../branch/branch';
+import { User } from '../user/user';
 import { PaymentMethod, OrderStatus } from '../../enums/enums.barrel';
 
 /**

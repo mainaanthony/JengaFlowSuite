@@ -1,4 +1,5 @@
-import { Inventory, User} from '../domain.barrel';
+import { Inventory } from '../inventory/inventory';
+import { User } from '../user/user';
 
 /**
  * Represents a Branch/Location

@@ -1,5 +1,3 @@
-console.log('[DashboardComponent] === MODULE STARTING TO LOAD ===' );
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -12,7 +10,6 @@ import { NewSaleModalComponent } from '../sales/new-sale-modal/new-sale-modal.co
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-console.log('[DashboardComponent] About to import domain.barrel...');
 import { 
   ProductRepository, 
   SaleRepository, 
@@ -21,12 +18,9 @@ import {
   Sale as DomainSale,
   PurchaseOrder as DomainPurchaseOrder
 } from '../core/domain/domain.barrel';
-console.log('[DashboardComponent] domain.barrel imported successfully');
 
 import { CreatePOModalComponent } from '../procurement/create-po-modal/create-po-modal.component';
 import { AddUserModalComponent } from '../users/add-user-modal/add-user-modal.component';
-
-console.log('[DashboardComponent] All imports completed');
 
 interface PurchaseOrder {
   id: string;

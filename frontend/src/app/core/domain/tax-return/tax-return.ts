@@ -1,4 +1,4 @@
-import { User } from '../domain.barrel';
+import { User } from '../user/user';
 import { TaxReturnStatus, TaxType } from '../../enums/enums.barrel';
 
 /**

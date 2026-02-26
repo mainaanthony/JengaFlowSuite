@@ -1,5 +1,6 @@
 import { GoodsReceivedNoteStatus } from '../../enums/goods-received-note-status';
-import { PurchaseOrder, User } from '../domain.barrel';
+import { PurchaseOrder } from '../purchase-order/purchase-order';
+import { User } from '../user/user';
 
 /**
  * Represents a Goods Received Note Item

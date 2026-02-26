@@ -1,5 +1,7 @@
 import { DeliveryStatus, Priority } from '../../enums/enums.barrel';
-import { Sale, Customer, Driver } from '../domain.barrel';
+import { Sale } from '../sale/sale';
+import { Customer } from '../customer/customer';
+import { Driver } from '../driver/driver';
 
 /**
  * Represents a Delivery Item

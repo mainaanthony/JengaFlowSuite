@@ -1,4 +1,5 @@
-import { Branch, Role } from "../domain.barrel";
+import { Branch } from "../branch/branch";
+import { Role } from "../role/role";
 
 /**
  * Represents a User Account

@@ -1,4 +1,4 @@
-import { User } from "../domain.barrel";
+import { User } from "../user/user";
 
 /**
  * Represents a Role

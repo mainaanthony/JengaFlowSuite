@@ -16,9 +16,6 @@ import {
   DELETE_SALE,
 } from './sale.queries';
 
-console.log('[SaleRepository] Module loading...');
-console.log('[SaleRepository] GET_SALES query:', GET_SALES?.loc?.source?.body?.substring(0, 100));
-
 /**
  * Sale Repository
  * Handles all sale-related data operations

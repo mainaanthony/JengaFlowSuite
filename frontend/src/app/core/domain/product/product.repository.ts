@@ -16,9 +16,6 @@ import {
   DELETE_PRODUCT,
 } from './product.queries';
 
-console.log('[ProductRepository] Module loading...');
-console.log('[ProductRepository] GET_PRODUCTS query:', GET_PRODUCTS?.loc?.source?.body?.substring(0, 100));
-
 /**
  * Product Repository
  * Handles all product-related data operations

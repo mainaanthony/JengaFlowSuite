@@ -1,4 +1,4 @@
-import { Category } from "../domain.barrel";
+import { Category } from "../category/category";
 
 /**
  * Represents a Product
