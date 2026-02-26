@@ -20,19 +20,30 @@ namespace Api.GraphQL.Mutations
         {
             var logInfo = EntityLogInfoHelper.GetLogInfo(httpContextAccessor);
 
-            input.KeycloakId.CheckRequired(nameof(input.KeycloakId));
-            input.Username.CheckRequired(nameof(input.Username));
             input.Email.CheckRequired(nameof(input.Email));
             input.FirstName.CheckRequired(nameof(input.FirstName));
             input.LastName.CheckRequired(nameof(input.LastName));
             input.BranchId.CheckRequired(nameof(input.BranchId));
             input.RoleId.CheckRequired(nameof(input.RoleId));
 
+            var email = input.Email.Value!;
+
+            // Auto-generate username from email if not provided
+            var username = input.Username.HasValue && !string.IsNullOrWhiteSpace(input.Username.Value)
+                ? input.Username.Value!
+                : email.Split('@')[0];
+
+            // Auto-generate a placeholder KeycloakId if not provided
+            // This will be updated when the user first logs in via Keycloak
+            var keycloakId = input.KeycloakId.HasValue && !string.IsNullOrWhiteSpace(input.KeycloakId.Value)
+                ? input.KeycloakId.Value!
+                : $"pending-{Guid.NewGuid()}";
+
             var entity = new User
             {
-                KeycloakId = input.KeycloakId.Value!,
-                Username = input.Username.Value!,
-                Email = input.Email.Value!,
+                KeycloakId = keycloakId,
+                Username = username,
+                Email = email,
                 FirstName = input.FirstName.Value!,
                 LastName = input.LastName.Value!,
                 Phone = input.Phone.CheckForValue(null),

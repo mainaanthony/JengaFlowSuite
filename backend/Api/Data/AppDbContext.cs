@@ -58,6 +58,8 @@ namespace Api.Data
             modelBuilder.ApplyConfiguration(new Configurations.TaxReturnConfiguration());
 
             // Seed data
+            CategorySeeding.AddCategorySeeding(modelBuilder);
+            SupplierSeeding.AddSupplierSeeding(modelBuilder);
             DataSeeding.AddProductSeeding(modelBuilder);
             BranchSeeding.AddBranchSeeding(modelBuilder);
             RoleSeeding.AddRoleSeeding(modelBuilder);

@@ -99,6 +99,7 @@ const GET_STOCK_TRANSFER = gql`
             id
             name
             sku
+          }
         }
       }
     }

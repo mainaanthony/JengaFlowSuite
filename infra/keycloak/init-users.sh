@@ -64,10 +64,13 @@ fi
 USER_ID=$(curl -s -X GET "$KEYCLOAK_URL/admin/realms/$REALM_NAME/users?username=devuser" \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq -r '.[0].id')
 
+# Build JSON payload safely using jq to handle special characters in password
+PASSWORD_JSON=$(jq -n --arg pw "$DEV_USER_PASSWORD" '{"type": "password", "value": $pw, "temporary": false}')
+
 RESET_RESPONSE=$(curl -s -w "%{http_code}" -X PUT "$KEYCLOAK_URL/admin/realms/$REALM_NAME/users/$USER_ID/reset-password" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
-  -d "{\"type\": \"password\", \"value\": \"${DEV_USER_PASSWORD}\", \"temporary\": false}")
+  -d "$PASSWORD_JSON")
 
 RESET_CODE="${RESET_RESPONSE: -3}"
 if [ "$RESET_CODE" = "204" ]; then

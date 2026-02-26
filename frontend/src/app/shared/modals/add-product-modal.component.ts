@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ProductRepository, CategoryRepository, Product as DomainProduct } from '../../core/domain/domain.barrel';
+import { Category } from '../../core/domain/category/category';
 
 interface ProductVariant {
   id: string;
@@ -54,7 +55,7 @@ export class AddProductModalComponent implements OnInit {
   productForm: FormGroup;
 
   // Tab data
-  categories = ['Electronics', 'Building Materials', 'Furniture', 'Hardware', 'Plumbing', 'Paint & Chemicals'];
+  categories: Category[] = [];
   brands = ['Samsung', 'LG', 'Sony', 'Generic Brand', 'Premium Brand', 'Budget Brand'];
   storageLocations = ['Warehouse A', 'Warehouse B', 'Store Shelf', 'Back Room', 'Cold Storage'];
   suppliers = ['Supplier A', 'Supplier B', 'Supplier C', 'Local Distributor', 'International Supplier'];
@@ -125,7 +126,21 @@ export class AddProductModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadCategories();
     this.initializeFormData();
+  }
+
+  loadCategories(): void {
+    this.categoryRepository.getAll().subscribe({
+      next: (cats) => {
+        this.categories = cats;
+      },
+      error: (err) => {
+        console.error('Failed to load categories:', err);
+        // Fallback so the form still works
+        this.categories = [];
+      }
+    });
   }
 
   initializeFormData(): void {
@@ -268,7 +283,7 @@ export class AddProductModalComponent implements OnInit {
     const productData: Partial<DomainProduct> = {
       name: formData.name,
       description: formData.description,
-      categoryId: parseInt(formData.category) || 1,
+      categoryId: formData.category ? parseInt(formData.category) : undefined,
       sku: formData.sku,
       price: formData.sellingPrice,
       brand: formData.brand,
