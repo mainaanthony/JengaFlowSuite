@@ -35,21 +35,17 @@ USER_EXISTS=$(curl -s -X GET "$KEYCLOAK_URL/admin/realms/$REALM_NAME/users?usern
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq '. | length')
 
 if [ "$USER_EXISTS" -eq 0 ]; then
-  # Create user
+  # Create user (without password - will be set below)
   CREATE_RESPONSE=$(curl -s -w "%{http_code}" -X POST "$KEYCLOAK_URL/admin/realms/$REALM_NAME/users" \
     -H "Authorization: Bearer $ADMIN_TOKEN" \
     -H "Content-Type: application/json" \
     -d "{
       \"username\": \"devuser\",
+      \"email\": \"dev@jengaflow.com\",
       \"enabled\": true,
       \"emailVerified\": true,
       \"firstName\": \"Dev\",
-      \"lastName\": \"User\",
-      \"credentials\": [{
-        \"type\": \"password\",
-        \"value\": \"${DEV_USER_PASSWORD}\",
-        \"temporary\": false
-      }]
+      \"lastName\": \"User\"
     }")
   
   HTTP_CODE="${CREATE_RESPONSE: -3}"
@@ -58,9 +54,26 @@ if [ "$USER_EXISTS" -eq 0 ]; then
   else
     echo "❌ Failed to create user. HTTP Code: $HTTP_CODE"
     echo "Response: ${CREATE_RESPONSE%???}"
+    exit 1
   fi
 else
-  echo "ℹ️ Dev user already exists, skipping creation"
+  echo "ℹ️ Dev user already exists"
+fi
+
+# Always set/reset the password from env var (safe - never hardcoded)
+USER_ID=$(curl -s -X GET "$KEYCLOAK_URL/admin/realms/$REALM_NAME/users?username=devuser" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" | jq -r '.[0].id')
+
+RESET_RESPONSE=$(curl -s -w "%{http_code}" -X PUT "$KEYCLOAK_URL/admin/realms/$REALM_NAME/users/$USER_ID/reset-password" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{\"type\": \"password\", \"value\": \"${DEV_USER_PASSWORD}\", \"temporary\": false}")
+
+RESET_CODE="${RESET_RESPONSE: -3}"
+if [ "$RESET_CODE" = "204" ]; then
+  echo "✅ Dev user password set successfully"
+else
+  echo "❌ Failed to set password. HTTP Code: $RESET_CODE"
 fi
 
 echo "User initialization complete!"
