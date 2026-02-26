@@ -72,17 +72,41 @@ builder.Services.AddScoped<ITaxReturnService, TaxReturnService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = builder.Configuration["Keycloak:Authority"];
-        options.Audience = builder.Configuration["Keycloak:Audience"];
+        // For Docker: use internal URL for metadata, but accept external issuer in tokens
+        var metadataAddress = Environment.GetEnvironmentVariable("Keycloak__MetadataAddress")
+            ?? builder.Configuration["Keycloak:MetadataAddress"]
+            ?? $"{builder.Configuration["Keycloak:Authority"]}/.well-known/openid-configuration";
+
+        var validIssuer = Environment.GetEnvironmentVariable("Keycloak__ValidIssuer")
+            ?? builder.Configuration["Keycloak:ValidIssuer"]
+            ?? builder.Configuration["Keycloak:Authority"];
+
+        options.MetadataAddress = metadataAddress;
         options.RequireHttpsMetadata = false; // For development with HTTP
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Keycloak:ValidIssuer"],
-            ValidateAudience = true,
+            ValidIssuer = validIssuer,
+            ValidateAudience = false, // Keycloak audiences can vary; disable for dev
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+
+        // Log JWT validation events for debugging
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"JWT Authentication failed: {context.Exception.Message}");
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine($"JWT Token validated for: {context.Principal?.Identity?.Name}");
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -152,6 +176,10 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseCors("AllowFrontend");
+
+// Enable JWT authentication and authorization middleware
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapGraphQL("/graphql").WithOptions(new GraphQLServerOptions

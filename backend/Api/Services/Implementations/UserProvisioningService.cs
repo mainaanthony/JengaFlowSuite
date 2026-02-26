@@ -30,7 +30,7 @@ public class UserProvisioningService : IUserProvisioningService
         string? firstName,
         string? lastName)
     {
-        // Try to find existing user
+        // Try to find existing user by KeycloakId
         var user = await _userRepository.GetByKeycloakIdAsync(keycloakId);
 
         if (user != null)
@@ -40,6 +40,27 @@ public class UserProvisioningService : IUserProvisioningService
             await _userRepository.UpdateAsync(user);
             _logger.LogInformation("User {Username} logged in. KeycloakId: {KeycloakId}", username, keycloakId);
             return user;
+        }
+
+        // User not found by KeycloakId - check if user exists by email
+        // This handles the case where user was seeded or Keycloak ID changed
+        var existingUserByEmail = await _userRepository.GetByEmailAsync(email);
+        
+        if (existingUserByEmail != null)
+        {
+            _logger.LogInformation(
+                "Found existing user by email {Email}. Updating KeycloakId from {OldKeycloakId} to {NewKeycloakId}",
+                email, existingUserByEmail.KeycloakId, keycloakId);
+            
+            existingUserByEmail.KeycloakId = keycloakId;
+            existingUserByEmail.LastLoginAt = DateTime.UtcNow;
+            existingUserByEmail.UpdatedAt = DateTime.UtcNow;
+            existingUserByEmail.UpdatedBy = "System-KeycloakSync";
+            await _userRepository.UpdateAsync(existingUserByEmail);
+            
+            // Refetch with navigation properties (Role, Branch) loaded
+            var updatedUser = await _userRepository.GetByKeycloakIdAsync(keycloakId);
+            return updatedUser!;
         }
 
         // User doesn't exist - auto-provision from JWT claims

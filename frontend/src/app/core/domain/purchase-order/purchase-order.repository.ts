@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { PurchaseOrder } from './purchase-order';
 import { BaseRepository, EntityLogInfo } from '../../repository/base-repository';
 import {
@@ -11,6 +11,9 @@ import {
   UPDATE_PURCHASE_ORDER,
   DELETE_PURCHASE_ORDER,
 } from './purchase-order.queries';
+
+console.log('[PurchaseOrderRepository] Module loading...');
+console.log('[PurchaseOrderRepository] GET_PURCHASE_ORDERS query:', GET_PURCHASE_ORDERS?.loc?.source?.body?.substring(0, 100));
 
 /**
  * Purchase Order Repository

@@ -32,13 +32,8 @@ namespace Api.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            var isDockerEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
-                     && Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-
-            if (!isDockerEnv)
-            {
-                modelBuilder.HasDefaultSchema("jengaFlow");
-            }
+            // Always use jengaFlow schema - tables are in this schema in all environments
+            modelBuilder.HasDefaultSchema("jengaFlow");
 
             // Apply configurations
             modelBuilder.ApplyConfiguration(new Configurations.ProductConfiguration());
@@ -66,6 +61,7 @@ namespace Api.Data
             DataSeeding.AddProductSeeding(modelBuilder);
             BranchSeeding.AddBranchSeeding(modelBuilder);
             RoleSeeding.AddRoleSeeding(modelBuilder);
+            // UserSeeding removed - users are now auto-provisioned from Keycloak on first login
         }
     }
 }

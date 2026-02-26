@@ -1,5 +1,6 @@
 using Api.Core.Models;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Api.Helpers;
 
@@ -18,17 +19,32 @@ public static class EntityLogInfoHelper
             };
         }
 
-        // Try to get user from claims (when authentication is implemented)
-        var userId = httpContext.User?.Identity?.Name;
-        var userEmail = httpContext.User?.FindFirst("email")?.Value
-                       ?? httpContext.User?.FindFirst("preferred_username")?.Value;
+        // Extract user information from JWT claims (Keycloak)
+        var user = httpContext.User;
+        string? changedBy = null;
 
-        // Get client IP for audit trail
-        var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString();
+        if (user?.Identity?.IsAuthenticated == true)
+        {
+            // Try multiple claim types in order of preference
+            changedBy = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                       ?? user.FindFirst("sub")?.Value
+                       ?? user.FindFirst("preferred_username")?.Value
+                       ?? user.FindFirst(ClaimTypes.Email)?.Value
+                       ?? user.FindFirst("email")?.Value
+                       ?? user.FindFirst(ClaimTypes.Name)?.Value
+                       ?? user.FindFirst("name")?.Value;
+        }
+
+        // Fallback to IP address or Anonymous
+        if (string.IsNullOrEmpty(changedBy))
+        {
+            var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString();
+            changedBy = ipAddress ?? "Anonymous";
+        }
 
         return new EntityLogInfo
         {
-            ChangedBy = userId ?? userEmail ?? ipAddress ?? "Anonymous",
+            ChangedBy = changedBy,
             ChangeTrigger = "GraphQL",
             ChangeReason = null
         };

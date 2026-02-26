@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Sale } from './sale';
 import { BaseRepository, EntityLogInfo } from '../../repository/base-repository';
 import {
@@ -15,6 +15,9 @@ import {
   UPDATE_SALE,
   DELETE_SALE,
 } from './sale.queries';
+
+console.log('[SaleRepository] Module loading...');
+console.log('[SaleRepository] GET_SALES query:', GET_SALES?.loc?.source?.body?.substring(0, 100));
 
 /**
  * Sale Repository

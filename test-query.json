@@ -1,0 +1,3 @@
+{
+  "query": "query getCurrentUser { currentUser { id keycloakId username email firstName lastName } }"
+}

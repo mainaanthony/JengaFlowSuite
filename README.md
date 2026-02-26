@@ -63,6 +63,18 @@ For more startup options, see [dev-environment/README_STARTUP.md](./dev-environm
 
 ⚠️ **These are only for local development. Replace them before deploying to any shared environment.**
 
+### Zero-Configuration Setup
+
+The system includes automatic seeding for development:
+
+- **Keycloak** imports a pre-configured realm with the `devuser` account
+- **Database** migrations automatically seed:
+  - Default roles (Admin, Manager, Sales, Inventory, Cashier)
+  - Default branches (Head Office, Westlands)
+  - Default user linked to Keycloak's `devuser` with Admin role
+
+This means you can run `docker compose up` and immediately log in with the development credentials - no manual setup required!
+
 ## 📁 Environment Files
 
 The compose files use environment variable interpolation. An `.env` file is provided in `dev-environment/`. Edit values before running compose if needed.

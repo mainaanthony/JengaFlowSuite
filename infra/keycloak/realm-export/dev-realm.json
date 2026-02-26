@@ -1,6 +1,24 @@
 {
   "realm": "dev",
   "enabled": true,
+  "users": [
+    {
+      "username": "devuser",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Dev",
+      "lastName": "User",
+      "email": "dev@jengaflow.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "REDACTED",
+          "temporary": false
+        }
+      ],
+      "requiredActions": []
+    }
+  ],
   "clients": [
     {
       "clientId": "angular-app",

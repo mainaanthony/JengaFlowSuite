@@ -40,19 +40,18 @@ export const FRAGMENT_PURCHASE_ORDER = gql`
  * Get Purchase Order by ID
  */
 export const GET_PURCHASE_ORDER = gql`
-  ${FRAGMENT_PURCHASE_ORDER}
   query GetPurchaseOrder($id: Int!) {
     purchaseOrder(id: $id) {
       ...PurchaseOrderFields
     }
   }
+  ${FRAGMENT_PURCHASE_ORDER}
 `;
 
 /**
  * Get All Purchase Orders
  */
 export const GET_PURCHASE_ORDERS = gql`
-  ${FRAGMENT_PURCHASE_ORDER}
   query GetPurchaseOrders {
     purchaseOrders {
       nodes {
@@ -60,34 +59,35 @@ export const GET_PURCHASE_ORDERS = gql`
       }
     }
   }
+  ${FRAGMENT_PURCHASE_ORDER}
 `;
 
 /**
  * Add Purchase Order - accepts items array, backend calculates totals
  */
 export const ADD_PURCHASE_ORDER = gql`
-  ${FRAGMENT_PURCHASE_ORDER}
-  ${FRAGMENT_PURCHASE_ORDER_ITEM}
   mutation AddPurchaseOrder($input: PurchaseOrderMutationInput!) {
-    addPurchaseOrder(input: $input, logInfo: $logInfo) {
+    addPurchaseOrder(input: $input) {
       ...PurchaseOrderFields
       items {
         ...PurchaseOrderItemFields
       }
     }
   }
+  ${FRAGMENT_PURCHASE_ORDER}
+  ${FRAGMENT_PURCHASE_ORDER_ITEM}
 `;
 
 /**
  * Update Purchase Order
  */
 export const UPDATE_PURCHASE_ORDER = gql`
-  ${FRAGMENT_PURCHASE_ORDER}
   mutation UpdatePurchaseOrder($input: PurchaseOrderMutationInput!) {
     updatePurchaseOrder(input: $input) {
       ...PurchaseOrderFields
     }
   }
+  ${FRAGMENT_PURCHASE_ORDER}
 `;
 
 /**

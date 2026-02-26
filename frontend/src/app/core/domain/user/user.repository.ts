@@ -85,6 +85,10 @@ export class UserRepository extends BaseRepository<User> {
    * Auto-provisions user if they don't exist in database
    */
   loadCurrentUserFromServer(): Observable<User> {
+    console.log('=== LOADING CURRENT USER ===');
+    console.log('Query:', GET_CURRENT_USER);
+    console.log('Query definition:', GET_CURRENT_USER.loc?.source?.body);
+    
     return this.apollo
       .query<{ currentUser: User }>({
         query: GET_CURRENT_USER,
@@ -92,9 +96,12 @@ export class UserRepository extends BaseRepository<User> {
       })
       .pipe(
         map((result) => {
+          console.log('Query result:', result);
           if (result.data?.currentUser) {
+            console.log('✅ User loaded:', result.data.currentUser);
             return result.data.currentUser;
           }
+          console.error('❌ No currentUser in result');
           throw new Error('Unable to get current user from server');
         })
       );

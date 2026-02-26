@@ -88,7 +88,7 @@ namespace Api.Migrations
                             Address = "123 Main Street",
                             City = "Nairobi",
                             Code = "HQ001",
-                            CreatedAt = new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8341),
+                            CreatedAt = new DateTime(2026, 2, 24, 8, 45, 49, 253, DateTimeKind.Utc).AddTicks(8065),
                             Email = "headoffice@jengaflow.com",
                             IsActive = true,
                             Name = "Head Office",
@@ -100,7 +100,7 @@ namespace Api.Migrations
                             Address = "456 Westlands Avenue",
                             City = "Nairobi",
                             Code = "WL001",
-                            CreatedAt = new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8345),
+                            CreatedAt = new DateTime(2026, 2, 24, 8, 45, 49, 253, DateTimeKind.Utc).AddTicks(8077),
                             Email = "westlands@jengaflow.com",
                             IsActive = true,
                             Name = "Westlands Branch",
@@ -586,7 +586,7 @@ namespace Api.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8151),
+                            CreatedAt = new DateTime(2026, 2, 24, 8, 45, 49, 253, DateTimeKind.Utc).AddTicks(7588),
                             IsActive = true,
                             Name = "Keyboard",
                             Price = 35.50m,
@@ -595,7 +595,7 @@ namespace Api.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8155),
+                            CreatedAt = new DateTime(2026, 2, 24, 8, 45, 49, 253, DateTimeKind.Utc).AddTicks(7598),
                             IsActive = true,
                             Name = "Mouse",
                             Price = 15.00m,
@@ -751,35 +751,35 @@ namespace Api.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8492),
+                            CreatedAt = new DateTime(2026, 2, 24, 8, 45, 49, 253, DateTimeKind.Utc).AddTicks(8207),
                             Description = "System administrator with full access",
                             Name = "Admin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8494),
+                            CreatedAt = new DateTime(2026, 2, 24, 8, 45, 49, 253, DateTimeKind.Utc).AddTicks(8213),
                             Description = "Branch manager with management access",
                             Name = "Manager"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8496),
+                            CreatedAt = new DateTime(2026, 2, 24, 8, 45, 49, 253, DateTimeKind.Utc).AddTicks(8218),
                             Description = "Sales representative",
                             Name = "Sales"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8497),
+                            CreatedAt = new DateTime(2026, 2, 24, 8, 45, 49, 253, DateTimeKind.Utc).AddTicks(8224),
                             Description = "Inventory management staff",
                             Name = "Inventory"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2026, 2, 13, 5, 53, 38, 639, DateTimeKind.Utc).AddTicks(8499),
+                            CreatedAt = new DateTime(2026, 2, 24, 8, 45, 49, 253, DateTimeKind.Utc).AddTicks(8229),
                             Description = "Point of sale cashier",
                             Name = "Cashier"
                         });

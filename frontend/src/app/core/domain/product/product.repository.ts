@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Product } from './product';
 import { BaseRepository, EntityLogInfo } from '../../repository/base-repository';
 import {
@@ -15,6 +15,9 @@ import {
   UPDATE_PRODUCT,
   DELETE_PRODUCT,
 } from './product.queries';
+
+console.log('[ProductRepository] Module loading...');
+console.log('[ProductRepository] GET_PRODUCTS query:', GET_PRODUCTS?.loc?.source?.body?.substring(0, 100));
 
 /**
  * Product Repository

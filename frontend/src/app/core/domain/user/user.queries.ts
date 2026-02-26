@@ -103,7 +103,19 @@ const GET_USER_BY_KEYCLOAK_ID = gql`
 const GET_CURRENT_USER = gql`
   query getCurrentUser {
     currentUser {
-      ...UserFields
+      id
+      keycloakId
+      username
+      email
+      firstName
+      lastName
+      phone
+      isActive
+      lastLoginAt
+      branchId
+      roleId
+      createdAt
+      updatedAt
       branch {
         id
         name
@@ -116,7 +128,6 @@ const GET_CURRENT_USER = gql`
       }
     }
   }
-  ${FRAGMENT_USER}
 `;
 
 /**
