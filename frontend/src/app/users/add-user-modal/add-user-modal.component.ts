@@ -126,7 +126,43 @@ export class AddUserModalComponent implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadRolesAndBranches();
+    if (this.editMode && this.data.user) {
+      this.populateFormForEdit(this.data.user);
+    }
+  }
+
+  loadRolesAndBranches(): void {
+    this.roleRepository.getAll().subscribe({
+      next: (roles) => {
+        this.roles = roles.map(r => ({ id: r.id.toString(), name: r.name }));
+      },
+      error: (err) => console.error('Failed to load roles:', err)
+    });
+    this.branchRepository.getAll().subscribe({
+      next: (branches) => {
+        this.branches = branches.map(b => ({ id: b.id.toString(), name: b.name }));
+      },
+      error: (err) => console.error('Failed to load branches:', err)
+    });
+  }
+
+  populateFormForEdit(user: DomainUser): void {
+    this.basicInfoForm.patchValue({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      emailAddress: user.email,
+      phoneNumber: user.phone || ''
+    });
+    this.employmentForm.patchValue({
+      role: user.roleId?.toString() || '',
+      branchAssignment: user.branchId?.toString() || ''
+    });
+    this.additionalForm.patchValue({
+      accountActive: user.isActive
+    });
+  }
 
   setStep(step: 1 | 2 | 3 | 4) {
     if (this.canProceedToStep(step)) {

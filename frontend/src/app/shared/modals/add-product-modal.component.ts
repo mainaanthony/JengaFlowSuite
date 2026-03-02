@@ -145,9 +145,22 @@ export class AddProductModalComponent implements OnInit {
 
   initializeFormData(): void {
     if (this.data && this.data.product) {
-      this.productForm.patchValue(this.data.product);
+      const p = this.data.product;
+      this.productForm.patchValue({
+        name: p.name,
+        description: p.description || '',
+        category: p.categoryId ? p.categoryId.toString() : '',
+        brand: p.brand || '',
+        sku: p.sku,
+        costPrice: p.costPrice || 0,
+        sellingPrice: p.price,
+        currentStock: p.stockQuantity || 0,
+        minimumStock: p.minimumStock || 0,
+        isActive: p.isActive
+      });
+    } else {
+      this.generateSKU();
     }
-    this.generateSKU();
   }
 
   // ============ TAB NAVIGATION ============
@@ -286,6 +299,9 @@ export class AddProductModalComponent implements OnInit {
       categoryId: formData.category ? parseInt(formData.category) : undefined,
       sku: formData.sku,
       price: formData.sellingPrice,
+      costPrice: formData.costPrice,
+      stockQuantity: formData.currentStock,
+      minimumStock: formData.minimumStock,
       brand: formData.brand,
       isActive: true
     };

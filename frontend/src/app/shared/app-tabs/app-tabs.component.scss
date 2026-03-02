@@ -120,3 +120,44 @@
   }
 }
 
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tabs-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+
+    &.stretch {
+      overflow-x: auto;
+    }
+  }
+
+  .tab-button {
+    padding: 6px 10px;
+    font-size: 12px;
+
+    &.stretch {
+      flex: 0 0 auto;
+      padding: 0.6rem 1rem;
+      font-size: 12px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .tabs-wrapper {
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .tab-button {
+    padding: 5px 8px;
+    font-size: 11px;
+
+    &.stretch {
+      padding: 0.5rem 0.75rem;
+      font-size: 11px;
+    }
+  }
+}
+

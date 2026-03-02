@@ -156,18 +156,18 @@ export class InventoryComponent implements OnInit, OnDestroy {
   }
 
   mapDomainProductToUIProduct(product: DomainProduct): Product {
-    // TODO: Get inventory counts from inventory records
+    const stockQty = product.stockQuantity || 0;
     return {
       id: product.id.toString(),
       name: product.name,
       brand: product.brand || '',
       sku: product.sku,
       category: product.category?.name || 'N/A',
-      status: this.getStockStatus(0), // TODO: Calculate from inventory
-      main: 0,
+      status: this.getStockStatus(stockQty),
+      main: stockQty,
       westlands: 0,
       eastleigh: 0,
-      total: 0,
+      total: stockQty,
       price: product.price
     };
   }

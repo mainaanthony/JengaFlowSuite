@@ -22,6 +22,15 @@ export interface Product {
   /** Price - unit price */
   price: number;
 
+  /** Cost Price - cost/purchase price */
+  costPrice?: number;
+
+  /** Stock Quantity - current stock level */
+  stockQuantity?: number;
+
+  /** Minimum Stock - reorder threshold */
+  minimumStock?: number;
+
   /** Description - product description */
   description?: string | null;
 

@@ -3,8 +3,8 @@
     <!-- Modal Header -->
     <div class="modal-header">
       <div class="header-content">
-        <h2>Add New Product</h2>
-        <p>Create a new product with all details and inventory information</p>
+        <h2>{{ editMode ? 'Edit Product' : 'Add New Product' }}</h2>
+        <p>{{ editMode ? 'Update product details and inventory information' : 'Create a new product with all details and inventory information' }}</p>
       </div>
       <button class="close-btn" (click)="cancel()">
         <span class="material-icons">close</span>
@@ -558,8 +558,8 @@
           class="btn-primary" 
           (click)="addProduct()"
           [disabled]="!isFormValid()">
-          <span class="material-icons">add_circle</span>
-          Add Product
+          <span class="material-icons">{{ editMode ? 'save' : 'add_circle' }}</span>
+          {{ editMode ? 'Update Product' : 'Add Product' }}
         </button>
       </div>
     </div>

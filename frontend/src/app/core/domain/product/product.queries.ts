@@ -11,6 +11,9 @@ const FRAGMENT_PRODUCT = gql`
     brand
     categoryId
     price
+    costPrice
+    stockQuantity
+    minimumStock
     description
     isActive
     createdAt

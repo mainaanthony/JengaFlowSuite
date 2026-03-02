@@ -28,6 +28,15 @@ namespace Api.GraphQL.Mutations
 
             var email = input.Email.Value!;
 
+            // Check for duplicate email
+            var existingUser = await service.GetByEmailAsync(email);
+            if (existingUser != null)
+            {
+                throw new GraphQLException(new Error(
+                    $"A user with the email '{email}' already exists.",
+                    "DUPLICATE_EMAIL"));
+            }
+
             // Auto-generate username from email if not provided
             var username = input.Username.HasValue && !string.IsNullOrWhiteSpace(input.Username.Value)
                 ? input.Username.Value!

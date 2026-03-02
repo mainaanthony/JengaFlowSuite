@@ -23,6 +23,15 @@ public record ProductMutationInput
     [property: DefaultValue(0)]
     Optional<decimal> Price,
 
+    [property: DefaultValue(0)]
+    Optional<decimal> CostPrice,
+
+    [property: DefaultValue(0)]
+    Optional<int> StockQuantity,
+
+    [property: DefaultValue(0)]
+    Optional<int> MinimumStock,
+
     [property: DefaultValue("")]
     Optional<string?> Description,
 
@@ -37,6 +46,9 @@ public record CreateProductInput(
     string? Brand,
     int? CategoryId,
     decimal Price,
+    decimal CostPrice,
+    int StockQuantity,
+    int MinimumStock,
     string? Description,
     bool IsActive = true
 );
@@ -48,6 +60,9 @@ public record UpdateProductInput(
     string? Brand,
     int? CategoryId,
     decimal Price,
+    decimal CostPrice,
+    int StockQuantity,
+    int MinimumStock,
     string? Description,
     bool IsActive
 );

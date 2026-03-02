@@ -17,6 +17,9 @@ namespace Api.Data.Configurations
             builder.Property(p => p.Brand).HasMaxLength(100);
             builder.Property(p => p.Description).HasMaxLength(1000);
             builder.Property(p => p.Price).HasColumnType("decimal(18,2)");
+            builder.Property(p => p.CostPrice).HasColumnType("decimal(18,2)");
+            builder.Property(p => p.StockQuantity).HasDefaultValue(0);
+            builder.Property(p => p.MinimumStock).HasDefaultValue(0);
             builder.Property(p => p.IsActive).IsRequired().HasDefaultValue(true);
             builder.Property(p => p.CreatedAt).IsRequired();
 

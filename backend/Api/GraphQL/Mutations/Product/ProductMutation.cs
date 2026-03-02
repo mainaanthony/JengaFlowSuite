@@ -30,6 +30,9 @@ namespace Api.GraphQL.Mutations
                 Brand = input.Brand.CheckForValue(null),
                 CategoryId = input.CategoryId.CheckForValue(null),
                 Price = input.Price.CheckForValue(0),
+                CostPrice = input.CostPrice.CheckForValue(0),
+                StockQuantity = input.StockQuantity.CheckForValue(0),
+                MinimumStock = input.MinimumStock.CheckForValue(0),
                 Description = input.Description.CheckForValue(null),
                 IsActive = input.IsActive.CheckForValue(true)
             };
@@ -58,6 +61,9 @@ namespace Api.GraphQL.Mutations
             entity.Brand = input.Brand.CheckForValue(entity.Brand);
             entity.CategoryId = input.CategoryId.CheckForValue(entity.CategoryId);
             entity.Price = input.Price.CheckForValue(entity.Price);
+            entity.CostPrice = input.CostPrice.CheckForValue(entity.CostPrice);
+            entity.StockQuantity = input.StockQuantity.CheckForValue(entity.StockQuantity);
+            entity.MinimumStock = input.MinimumStock.CheckForValue(entity.MinimumStock);
             entity.Description = input.Description.CheckForValue(entity.Description);
             entity.IsActive = input.IsActive.CheckForValue(entity.IsActive);
 

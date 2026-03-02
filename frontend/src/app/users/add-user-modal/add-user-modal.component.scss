@@ -136,6 +136,10 @@
   border-bottom: 2px solid #e0e0e0;
   padding: 0 2rem;
   background-color: #fafafa;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  flex-shrink: 0;
 }
 
 .tab-button {
@@ -451,17 +455,20 @@
     border-radius: 0;
   }
 
-  .modal-header,
-  .modal-content,
-  .modal-footer {
-    padding: 1rem 1.5rem;
+  .modal-header {
+    padding: 1rem 1.25rem;
+
+    .header-content h2 {
+      font-size: 1.15rem;
+    }
   }
 
   .modal-content {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 
   .modal-footer {
+    padding: 0.75rem 1.25rem;
     flex-direction: column;
 
     .btn-primary,
@@ -476,30 +483,77 @@
   }
 
   .tab-navigation {
-    padding: 0 1rem;
+    padding: 0 0.75rem;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 
     .tab-button {
-      padding: 1rem;
+      padding: 0.75rem 1rem;
       font-size: 0.8rem;
+      flex-shrink: 0;
     }
   }
 
   .step-indicator {
     gap: 0.5rem;
-    padding: 1rem 0;
+    padding: 1rem 0.5rem;
   }
 
   .step {
-    width: 35px;
-    height: 35px;
+    width: 32px;
+    height: 32px;
 
     .step-number {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
     }
   }
 
   .step-line {
     width: 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-header {
+    padding: 0.75rem 1rem;
+
+    .header-content h2 {
+      font-size: 1.05rem;
+    }
+  }
+
+  .tab-navigation {
+    padding: 0 0.5rem;
+
+    .tab-button {
+      padding: 0.6rem 0.75rem;
+      font-size: 0.75rem;
+    }
+  }
+
+  .step-indicator {
+    gap: 0.35rem;
+    padding: 0.75rem 0.25rem;
+  }
+
+  .step {
+    width: 28px;
+    height: 28px;
+
+    .step-number {
+      font-size: 0.7rem;
+    }
+  }
+
+  .step-line {
+    width: 15px;
+  }
+
+  .modal-content {
+    padding: 1rem;
   }
 }

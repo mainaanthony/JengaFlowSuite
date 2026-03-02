@@ -3,8 +3,8 @@
     <!-- Modal Header -->
     <div class="modal-header">
       <div class="header-content">
-        <mat-icon>person_add</mat-icon>
-        <h2>Add New User</h2>
+        <mat-icon>{{ editMode ? 'edit' : 'person_add' }}</mat-icon>
+        <h2>{{ editMode ? 'Edit User' : 'Add New User' }}</h2>
       </div>
       <button class="btn-close" (click)="closeDialog()">
         <mat-icon>close</mat-icon>
@@ -260,7 +260,7 @@
           *ngIf="currentStep === 4"
           (click)="addUser()"
           [disabled]="!basicInfoForm.valid || !employmentForm.valid || !additionalForm.valid">
-          Add User
+          {{ editMode ? 'Update User' : 'Add User' }}
         </button>
       </div>
     </div>
