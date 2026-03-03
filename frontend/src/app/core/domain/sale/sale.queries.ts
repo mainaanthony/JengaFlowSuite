@@ -10,7 +10,8 @@ const FRAGMENT_SALE_ITEM = gql`
     productId
     quantity
     unitPrice
-    subtotal
+    totalPrice
+    discount
   }
 `;
 
@@ -173,7 +174,7 @@ const GET_SALES_BY_DATE_RANGE = gql`
  */
 const ADD_SALE = gql`
   mutation addSale($input: SaleMutationInput!) {
-    addSale(input: $input, logInfo: $logInfo) {
+    addSale(input: $input) {
       ...SaleFields
       items {
         ...SaleItemFields

@@ -54,7 +54,7 @@ interface SaleTransaction {
   discountAmount: number;
   taxAmount: number;
   total: number;
-  paymentMethod: 'Cash' | 'M-Pesa' | 'Card';
+  paymentMethod: string;
   amountPaid: number;
   balance: number;
   notes: string;
@@ -162,9 +162,10 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
   ];
 
   paymentMethodOptions: DropdownOption[] = [
-    { id: 'cash', label: 'Cash', value: 'Cash' },
-    { id: 'mpesa', label: 'M-Pesa', value: 'M-Pesa' },
-    { id: 'card', label: 'Card', value: 'Card' }
+    { id: 'cash', label: 'Cash', value: PaymentMethod.Cash },
+    { id: 'mobile_money', label: 'M-Pesa', value: PaymentMethod.MobileMoney },
+    { id: 'card', label: 'Card', value: PaymentMethod.Card },
+    { id: 'bank_transfer', label: 'Bank Transfer', value: PaymentMethod.BankTransfer }
   ];
 
   // Dropdown Configurations
@@ -304,7 +305,7 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
     this.checkoutForm = this.fb.group({
       discountType: ['percentage'],
       discountValue: [0, [Validators.required, Validators.min(0)]],
-      paymentMethod: ['Cash', Validators.required],
+      paymentMethod: [PaymentMethod.Cash, Validators.required],
       amountPaid: [0, [Validators.required, Validators.min(0)]],
       notes: ['']
     });
@@ -312,17 +313,19 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
     // Set initial dropdown values
     this.checkoutForm.patchValue({
       discountType: 'percentage',
-      paymentMethod: 'Cash'
+      paymentMethod: PaymentMethod.Cash
     });
   }
 
   // Dropdown Change Handlers
-  onDiscountTypeChange(value: string): void {
+  onDiscountTypeChange(option: any): void {
+    const value = option?.value ?? option;
     this.checkoutForm.patchValue({ discountType: value });
     this.onDiscountChange();
   }
 
-  onPaymentMethodChange(value: string): void {
+  onPaymentMethodChange(option: any): void {
+    const value = option?.value ?? option;
     this.checkoutForm.patchValue({ paymentMethod: value });
   }
 
@@ -596,8 +599,8 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
           name: p.name,
           sku: p.sku,
           price: p.price,
-          stock: 0, // Not in domain model - would need inventory
-          category: '' // Would need to fetch category name
+          stock: p.stockQuantity ?? 0,
+          category: p.category?.name ?? ''
         }));
         this.filteredProducts = [...this.products];
       },

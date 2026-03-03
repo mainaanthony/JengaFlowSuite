@@ -22,8 +22,11 @@ export interface SaleItem {
   /** Unit Price */
   unitPrice: number;
 
-  /** Subtotal */
-  subtotal: number;
+  /** Total Price */
+  totalPrice: number;
+
+  /** Discount */
+  discount?: number;
 
   /** Created At */
   createdAt?: Date;
