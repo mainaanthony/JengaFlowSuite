@@ -1,6 +1,7 @@
 import { Customer } from '../customer/customer';
 import { Branch } from '../branch/branch';
 import { User } from '../user/user';
+import { Product } from '../product/product';
 import { PaymentMethod, OrderStatus } from '../../enums/enums.barrel';
 
 /**
@@ -27,6 +28,9 @@ export interface SaleItem {
 
   /** Discount */
   discount?: number;
+
+  /** Product - associated product */
+  product?: Product;
 
   /** Created At */
   createdAt?: Date;

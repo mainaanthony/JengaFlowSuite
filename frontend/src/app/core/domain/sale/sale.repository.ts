@@ -123,6 +123,7 @@ export class SaleRepository extends BaseRepository<Sale> {
       .mutate<{ updateSale: Sale }>({
         mutation: UPDATE_SALE,
         variables: { input: sale },
+        refetchQueries: [{ query: GET_SALES }],
       })
       .pipe(
         map((result) => {

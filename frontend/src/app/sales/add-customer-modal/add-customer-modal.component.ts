@@ -206,8 +206,10 @@ export class AddCustomerModalComponent implements OnInit, AfterViewInit {
   };
 
   customerTypeOptions: DropdownOption[] = [
-    { id: 'individual', label: 'Individual', value: 'individual' },
-    { id: 'business', label: 'Business', value: 'business' }
+    { id: 'individual', label: 'Individual', value: CustomerType.Individual },
+    { id: 'corporate', label: 'Corporate', value: CustomerType.Corporate },
+    { id: 'government', label: 'Government', value: CustomerType.Government },
+    { id: 'reseller', label: 'Reseller', value: CustomerType.Reseller }
   ];
 
   customerTypeConfig: DropdownConfig = {
@@ -329,7 +331,7 @@ export class AddCustomerModalComponent implements OnInit, AfterViewInit {
       vatNumber: [''],
       businessType: [''],
       // Account Settings
-      customerType: ['individual'],
+      customerType: [CustomerType.Individual],
       creditLimit: [0],
       discountRate: [0],
       paymentTerms: ['cod'],
@@ -417,12 +419,8 @@ export class AddCustomerModalComponent implements OnInit, AfterViewInit {
 
     const formData = this.customerForm.value;
     
-    // Map customer type string to enum
-    const customerType = formData.customerType === 'wholesale' 
-      ? CustomerType.Wholesale 
-      : formData.customerType === 'corporate'
-      ? CustomerType.Corporate
-      : CustomerType.Retail;
+    // Map customer type from dropdown (already an enum value)
+    const customerType = formData.customerType || CustomerType.Individual;
 
     // Create customer object for repository
     const customer: Partial<DomainCustomer> = {

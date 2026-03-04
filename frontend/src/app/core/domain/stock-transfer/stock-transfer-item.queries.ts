@@ -20,7 +20,7 @@ export const FRAGMENT_STOCK_TRANSFER_ITEM = gql`
  */
 export const ADD_STOCK_TRANSFER_ITEM = gql`
   mutation AddStockTransferItem($input: StockTransferItemMutationInput!) {
-    addStockTransferItem(input: $input, logInfo: $logInfo) {
+    addStockTransferItem(input: $input) {
       ...StockTransferItemFields
     }
   }
@@ -32,7 +32,7 @@ export const ADD_STOCK_TRANSFER_ITEM = gql`
  */
 export const UPDATE_STOCK_TRANSFER_ITEM = gql`
   mutation UpdateStockTransferItem($input: StockTransferItemMutationInput!) {
-    updateStockTransferItem(input: $input, logInfo: $logInfo) {
+    updateStockTransferItem(input: $input) {
       ...StockTransferItemFields
     }
   }
@@ -44,6 +44,6 @@ export const UPDATE_STOCK_TRANSFER_ITEM = gql`
  */
 export const DELETE_STOCK_TRANSFER_ITEM = gql`
   mutation DeleteStockTransferItem($id: Int!) {
-    deleteStockTransferItem(id: $id, logInfo: $logInfo)
+    deleteStockTransferItem(id: $id)
   }
 `;

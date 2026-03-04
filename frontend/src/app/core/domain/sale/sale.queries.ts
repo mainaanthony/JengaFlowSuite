@@ -56,10 +56,14 @@ const GET_SALES = gql`
           firstName
           lastName
         }
+        items {
+          ...SaleItemFields
+        }
       }
     }
   }
   ${FRAGMENT_SALE}
+  ${FRAGMENT_SALE_ITEM}
 `;
 
 /**

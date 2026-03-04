@@ -9,9 +9,11 @@ import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/mod
 import { 
   PurchaseOrderRepository, 
   SupplierRepository,
+  ProductRepository,
   PurchaseOrder as DomainPurchaseOrder,
   PurchaseOrderItem as DomainPurchaseOrderItem,
-  Supplier as DomainSupplier
+  Supplier as DomainSupplier,
+  Product as DomainProduct
 } from '../../core/domain/domain.barrel';
 import { OrderStatus } from '../../core/enums/enums.barrel';
 
@@ -24,7 +26,9 @@ interface Supplier {
 
 interface POItem {
   id: string;
+  productId: number;
   name: string;
+  sku: string;
   description: string;
   specifications: string;
   quantity: number;
@@ -100,9 +104,9 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
   };
 
   itemNameConfig: InputTextConfig = {
-    placeholder: 'Enter item name',
-    label: 'Item Name',
-    required: true,
+    placeholder: 'Search products by name or SKU...',
+    label: 'Search Products',
+    required: false,
     clearable: true
   };
 
@@ -206,6 +210,16 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
     clearable: true
   };
 
+  // Product selection for PO items
+  productDropdownConfig: DropdownConfig = {
+    placeholder: 'Select a product',
+    searchable: true,
+    clearable: true
+  };
+  productOptions: DropdownOption[] = [];
+  allProducts: { id: number; name: string; sku: string; price: number }[] = [];
+  selectedProduct: { id: number; name: string; sku: string; price: number } | null = null;
+
   suppliers: Supplier[] = [
     { id: '1', name: 'Metro Building Supplies', category: 'Construction Materials', paymentTerms: 'Net 15' },
     { id: '2', name: 'ABC Hardware Suppliers', category: 'Hardware & Tools', paymentTerms: 'Net 30' },
@@ -229,6 +243,7 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
     public dialogRef: MatDialogRef<CreatePOModalComponent>,
     private purchaseOrderRepository: PurchaseOrderRepository,
     private supplierRepository: SupplierRepository,
+    private productRepository: ProductRepository,
     @Inject(MAT_DIALOG_DATA) public data?: { poId?: number }
   ) {}
 
@@ -236,6 +251,7 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
     this.initializeForms();
     this.initializeDropdownOptions();
     this.loadSuppliers();
+    this.loadProducts();
   }
 
   ngAfterViewInit(): void {
@@ -396,7 +412,6 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
     });
 
     this.itemForm = this.fb.group({
-      itemName: ['', Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
       unitPrice: [0, [Validators.required, Validators.min(0)]],
       urgency: ['Normal', Validators.required],
@@ -545,25 +560,32 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
   }
 
   addItem(): void {
+    if (!this.selectedProduct) {
+      alert('Please select a product');
+      return;
+    }
+
     if (!this.itemForm.valid) {
-      alert('Please fill in all required item fields');
+      alert('Please fill in quantity and unit price');
       return;
     }
 
     const newItem: POItem = {
-      id: Date.now().toString(),
-      name: this.itemForm.get('itemName')?.value,
+      id: this.selectedProduct.id.toString(),
+      productId: this.selectedProduct.id,
+      name: this.selectedProduct.name,
+      sku: this.selectedProduct.sku,
       description: this.itemForm.get('description')?.value || '',
       specifications: this.itemForm.get('specifications')?.value || '',
       quantity: this.itemForm.get('quantity')?.value,
-      unitPrice: this.itemForm.get('unitPrice')?.value,
+      unitPrice: this.itemForm.get('unitPrice')?.value || this.selectedProduct.price,
       urgency: this.itemForm.get('urgency')?.value,
       total: this.getItemTotal()
     };
 
     this.items.push(newItem);
+    this.selectedProduct = null;
     this.itemForm.reset({
-      itemName: '',
       quantity: 1,
       unitPrice: 0,
       urgency: 'Normal',
@@ -673,7 +695,7 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
       expectedDeliveryDate: new Date(this.poForm.get('expectedDelivery')?.value),
       notes: this.reviewForm.get('publicNotes')?.value || '',
       items: this.items.map(item => ({
-        productId: parseInt(item.id), // Assuming item.id is productId
+        productId: item.productId,
         quantity: item.quantity,
         unitPrice: item.unitPrice
       }))
@@ -705,11 +727,52 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
           category: s.category || '',
           paymentTerms: 'Net 30' // Default value, not in domain model
         }));
+        // Refresh supplier dropdown options
+        this.supplierOptions = this.suppliers.map(supplier => ({
+          id: supplier.id,
+          label: `${supplier.name} - ${supplier.category}`,
+          value: supplier.id
+        }));
       },
       error: (err: any) => {
         console.error('Failed to load suppliers:', err);
       }
     });
+  }
+
+  loadProducts(): void {
+    this.productRepository.getAll().subscribe({
+      next: (products: DomainProduct[]) => {
+        this.allProducts = products.map(p => ({
+          id: p.id,
+          name: p.name,
+          sku: p.sku,
+          price: p.price
+        }));
+        this.productOptions = this.allProducts.map(p => ({
+          id: p.id.toString(),
+          label: `${p.name} (${p.sku})`,
+          value: p.id.toString()
+        }));
+      },
+      error: (err: any) => {
+        console.error('Failed to load products:', err);
+      }
+    });
+  }
+
+  onProductChange(option: DropdownOption | null): void {
+    if (!option) {
+      this.selectedProduct = null;
+      return;
+    }
+    const productId = parseInt(option.value);
+    const product = this.allProducts.find(p => p.id === productId) || null;
+    this.selectedProduct = product;
+    // Auto-fill unit price from product
+    if (product) {
+      this.itemForm.patchValue({ unitPrice: product.price });
+    }
   }
 
   private compilePOData(): PurchaseOrder {

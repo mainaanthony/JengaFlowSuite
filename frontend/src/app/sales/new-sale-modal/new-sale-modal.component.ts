@@ -9,6 +9,8 @@ import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/mod
 import { 
   SaleRepository, 
   ProductRepository,
+  CustomerRepository,
+  UserRepository,
   Sale as DomainSale, 
   SaleItem as DomainSaleItem,
   Customer as DomainCustomer,
@@ -88,11 +90,7 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
   checkoutForm!: FormGroup;
 
   // Data
-  customers: Customer[] = [
-    { id: '1', name: 'John Kamau', phone: '0712345678', email: 'john@example.com', loyaltyPoints: 450 },
-    { id: '2', name: 'Mary Kipchoge', phone: '0723456789', email: 'mary@example.com', loyaltyPoints: 320 },
-    { id: '3', name: 'Walk-in Customer', phone: '', email: '', loyaltyPoints: 0 }
-  ];
+  customers: Customer[] = [];
 
   products: Product[] = [
     { id: '1', name: 'Samsung Galaxy A15', sku: 'SAM-A15-001', price: 18500, stock: 15, category: 'Electronics' },
@@ -187,13 +185,23 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
     public dialogRef: MatDialogRef<NewSaleModalComponent>,
     private saleRepository: SaleRepository,
     private productRepository: ProductRepository,
-    @Inject(MAT_DIALOG_DATA) public data?: { saleId?: number }
+    private customerRepository: CustomerRepository,
+    private userRepository: UserRepository,
+    @Inject(MAT_DIALOG_DATA) public data?: { sale?: DomainSale }
   ) {}
+
+  get isEditMode(): boolean {
+    return !!this.data?.sale;
+  }
 
   ngOnInit(): void {
     this.initializeForms();
     this.loadProducts();
-    this.filteredCustomers = [...this.customers];
+    this.loadCustomers();
+
+    if (this.isEditMode) {
+      this.loadSaleForEdit(this.data!.sale!);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -204,8 +212,8 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
 
   openModal(): void {
     const modalConfig: AppModalConfig = {
-      title: 'New Sale',
-      subtitle: 'Process a new sales transaction',
+      title: this.isEditMode ? 'Edit Sale' : 'New Sale',
+      subtitle: this.isEditMode ? 'Modify an existing sales transaction' : 'Process a new sales transaction',
       wide: true
     };
 
@@ -248,7 +256,7 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
         icon: 'arrow_back'
       });
       rightButtons.push({
-        label: 'Complete Sale',
+        label: this.isEditMode ? 'Update Sale' : 'Complete Sale',
         action: 'save',
         color: 'primary',
         icon: 'check'
@@ -384,7 +392,7 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
         icon: 'arrow_back'
       });
       rightButtons.push({
-        label: 'Complete Sale',
+        label: this.isEditMode ? 'Update Sale' : 'Complete Sale',
         action: 'save',
         color: 'primary',
         icon: 'check'
@@ -427,25 +435,36 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const newCustomer: Customer = {
-      id: Date.now().toString(),
-      name,
-      phone,
-      email: '',
-      loyaltyPoints: 0
-    };
+    this.customerRepository.create(
+      { name, phone, customerType: 'INDIVIDUAL' as any, isActive: true },
+      { description: `New walk-in customer: ${name}` }
+    ).subscribe({
+      next: (created) => {
+        const newCustomer: Customer = {
+          id: created.id!.toString(),
+          name: created.name!,
+          phone: created.phone ?? '',
+          email: created.email ?? '',
+          loyaltyPoints: 0
+        };
 
-    this.customers.push(newCustomer);
-    this.filteredCustomers = [...this.customers];
-    this.selectedCustomer = newCustomer;
-    this.showNewCustomerForm = false;
+        this.customers.push(newCustomer);
+        this.filteredCustomers = [...this.customers];
+        this.selectedCustomer = newCustomer;
+        this.showNewCustomerForm = false;
 
-    this.customerForm.patchValue({
-      newCustomerName: '',
-      newCustomerPhone: ''
+        this.customerForm.patchValue({
+          newCustomerName: '',
+          newCustomerPhone: ''
+        });
+
+        this.updateButtonState();
+      },
+      error: (err: any) => {
+        console.error('Failed to create customer:', err);
+        alert('Failed to create customer. Please try again.');
+      }
     });
-
-    this.updateButtonState();
   }
 
   canProceedToStep2(): boolean {
@@ -558,25 +577,44 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
 
     instance.loading = true;
 
-    // Create the sale with items - backend will calculate totals
-    const saleData = {
+    // Build the sale data with items - backend will calculate totals
+    const saleData: any = {
       customerId: parseInt(this.selectedCustomer.id),
-      branchId: 1, // Default branch - should come from authenticated user context
-      attendantUserId: 1, // Should come from authenticated user
+      branchId: this.userRepository.getCurrentUser()?.branchId ?? 1,
+      attendantUserId: this.userRepository.getCurrentUser()?.id ?? 1,
       paymentMethod: this.checkoutForm.get('paymentMethod')?.value,
       notes: this.checkoutForm.get('notes')?.value || '',
       items: this.cart.map(item => ({
         productId: parseInt(item.productId),
         quantity: item.quantity,
         unitPrice: item.price,
-        discount: 0 // Can be added if discount is  tracked
+        discount: 0 // Can be added if discount is tracked
       }))
     };
 
-    // Create the sale - backend calculates and returns authoritative totals
-    this.saleRepository.create(saleData as any, { 
-      description: `New sale for ${this.selectedCustomer.name}` 
-    }).subscribe({
+    if (this.isEditMode && this.data?.sale?.id) {
+      // Update existing sale
+      saleData.id = this.data.sale.id;
+      this.saleRepository.update(saleData, {
+        description: `Updated sale for ${this.selectedCustomer.name}`
+      }).subscribe({
+        next: (updatedSale) => {
+          console.log('Sale updated:', updatedSale.totalAmount);
+          instance.loading = false;
+          modalDialogRef.close(updatedSale);
+          this.dialogRef.close(updatedSale);
+        },
+        error: (err: any) => {
+          console.error('Failed to update sale:', err);
+          alert('Failed to update sale. Please try again.');
+          instance.loading = false;
+        }
+      });
+    } else {
+      // Create new sale - backend calculates and returns authoritative totals
+      this.saleRepository.create(saleData, {
+        description: `New sale for ${this.selectedCustomer.name}`
+      }).subscribe({
         next: (createdSale) => {
           console.log('Sale created with backend-calculated total:', createdSale.totalAmount);
           instance.loading = false;
@@ -589,6 +627,7 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
           instance.loading = false;
         }
       });
+    }
   }
 
   loadProducts(): void {
@@ -609,6 +648,58 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
         this.filteredProducts = [];
       }
     });
+  }
+
+  loadCustomers(): void {
+    this.customerRepository.getAll().subscribe({
+      next: (customers: DomainCustomer[]) => {
+        this.customers = customers.map(c => ({
+          id: c.id.toString(),
+          name: c.name,
+          phone: c.phone ?? '',
+          email: c.email ?? '',
+          loyaltyPoints: 0
+        }));
+        this.filteredCustomers = [...this.customers];
+
+        // If editing, select the customer after customers are loaded
+        if (this.isEditMode && this.data?.sale?.customerId) {
+          const custId = this.data.sale.customerId.toString();
+          const found = this.customers.find(c => c.id === custId);
+          if (found) {
+            this.selectedCustomer = found;
+          }
+        }
+      },
+      error: (err: any) => {
+        console.error('Failed to load customers:', err);
+        this.filteredCustomers = [];
+      }
+    });
+  }
+
+  private loadSaleForEdit(sale: DomainSale): void {
+    // Pre-populate cart from sale items
+    if (sale.items && sale.items.length > 0) {
+      this.cart = sale.items.map(item => ({
+        productId: item.productId.toString(),
+        productName: item.product?.name ?? `Product #${item.productId}`,
+        sku: item.product?.sku ?? '',
+        price: item.unitPrice,
+        quantity: item.quantity,
+        subtotal: item.unitPrice * item.quantity
+      }));
+    }
+
+    // Pre-populate checkout form
+    this.checkoutForm.patchValue({
+      paymentMethod: sale.paymentMethod || PaymentMethod.Cash,
+      amountPaid: sale.totalAmount || 0,
+      notes: ''
+    });
+
+    // Calculate totals from cart
+    this.calculateTotals();
   }
 
   previousStep(): void {

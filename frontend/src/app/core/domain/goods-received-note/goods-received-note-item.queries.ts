@@ -21,7 +21,7 @@ export const FRAGMENT_GOODS_RECEIVED_NOTE_ITEM = gql`
  */
 export const ADD_GOODS_RECEIVED_NOTE_ITEM = gql`
   mutation AddGoodsReceivedNoteItem($input: GoodsReceivedNoteItemMutationInput!) {
-    addGoodsReceivedNoteItem(input: $input, logInfo: $logInfo) {
+    addGoodsReceivedNoteItem(input: $input) {
       ...GoodsReceivedNoteItemFields
     }
   }
@@ -33,7 +33,7 @@ export const ADD_GOODS_RECEIVED_NOTE_ITEM = gql`
  */
 export const UPDATE_GOODS_RECEIVED_NOTE_ITEM = gql`
   mutation UpdateGoodsReceivedNoteItem($input: GoodsReceivedNoteItemMutationInput!) {
-    updateGoodsReceivedNoteItem(input: $input, logInfo: $logInfo) {
+    updateGoodsReceivedNoteItem(input: $input) {
       ...GoodsReceivedNoteItemFields
     }
   }
@@ -45,6 +45,6 @@ export const UPDATE_GOODS_RECEIVED_NOTE_ITEM = gql`
  */
 export const DELETE_GOODS_RECEIVED_NOTE_ITEM = gql`
   mutation DeleteGoodsReceivedNoteItem($id: Int!) {
-    deleteGoodsReceivedNoteItem(id: $id, logInfo: $logInfo)
+    deleteGoodsReceivedNoteItem(id: $id)
   }
 `;

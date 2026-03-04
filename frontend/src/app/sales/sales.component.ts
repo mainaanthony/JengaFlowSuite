@@ -171,7 +171,7 @@ export class SalesComponent implements OnInit, OnDestroy {
     return {
       id: `SAL-${sale.id.toString().padStart(3, '0')}`,
       customer: sale.customer?.name || 'Walk-in Customer',
-      items: 0, // TODO: Calculate from sale items
+      items: sale.items?.length ?? 0,
       total: sale.totalAmount,
       paymentMethod: this.mapPaymentMethod(sale.paymentMethod),
       status: this.mapSaleStatus(sale.status),
@@ -183,8 +183,12 @@ export class SalesComponent implements OnInit, OnDestroy {
   private mapPaymentMethod(method?: string): 'Cash' | 'M-Pesa' | 'Card' {
     const methodMap: { [key: string]: 'Cash' | 'M-Pesa' | 'Card' } = {
       'CASH': 'Cash',
+      'MOBILE_MONEY': 'M-Pesa',
       'MPESA': 'M-Pesa',
-      'CARD': 'Card'
+      'CARD': 'Card',
+      'BANK_TRANSFER': 'Card',
+      'CHEQUE': 'Cash',
+      'CREDIT': 'Cash'
     };
     return methodMap[method?.toUpperCase() || 'CASH'] || 'Cash';
   }

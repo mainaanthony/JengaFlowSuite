@@ -145,12 +145,18 @@
 
         <form [formGroup]="itemForm">
           <div class="form-grid">
-            <!-- Item Name -->
-            <div class="form-group">
-              <app-input-text
-                [config]="itemNameConfig"
-                formControlName="itemName"
-              ></app-input-text>
+            <!-- Product Selection -->
+            <div class="form-group full-width">
+              <label class="form-label">Select Product <span class="required">*</span></label>
+              <app-input-dropdown
+                [options]="productOptions"
+                [config]="productDropdownConfig"
+                (selectionChanged)="onProductChange($event)"
+              ></app-input-dropdown>
+              <div class="selected-product-info" *ngIf="selectedProduct">
+                <span class="product-sku">SKU: {{ selectedProduct.sku }}</span>
+                <span class="product-price">Price: KES {{ selectedProduct.price | number: '1.0-2' }}</span>
+              </div>
             </div>
 
             <!-- Quantity -->
@@ -226,6 +232,7 @@
               <tr *ngFor="let item of items; let i = index">
                 <td>
                   <div class="item-name">{{ item.name }}</div>
+                  <div class="item-description" *ngIf="item.sku">SKU: {{ item.sku }}</div>
                   <div class="item-description" *ngIf="item.description">{{ item.description }}</div>
                 </td>
                 <td>

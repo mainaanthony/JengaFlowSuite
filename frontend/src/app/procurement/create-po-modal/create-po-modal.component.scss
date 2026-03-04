@@ -263,6 +263,23 @@
     margin-top: 0.25rem;
   }
 
+  .selected-product-info {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #555;
+
+    .product-sku {
+      color: #666;
+    }
+
+    .product-price {
+      color: #1976d2;
+      font-weight: 500;
+    }
+  }
+
   .qty-input {
     width: 80px;
     padding: 0.5rem;

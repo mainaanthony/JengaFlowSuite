@@ -2,7 +2,8 @@
  * Customer type enum
  */
 export enum CustomerType {
-  Retail = 'RETAIL',
-  Wholesale = 'WHOLESALE',
+  Individual = 'INDIVIDUAL',
   Corporate = 'CORPORATE',
+  Government = 'GOVERNMENT',
+  Reseller = 'RESELLER',
 }

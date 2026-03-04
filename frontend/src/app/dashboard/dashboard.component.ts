@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { GenerateReportModalComponent } from '../shared/modals/generate-report-modal.component';
 import { NewSaleModalComponent } from '../sales/new-sale-modal/new-sale-modal.component';
 import { Subject, forkJoin } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { take, takeUntil } from 'rxjs/operators';
 
 import { 
   ProductRepository, 
@@ -89,9 +89,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loading = true;
     
     forkJoin({
-      products: this.productRepository.getAll(),
-      sales: this.saleRepository.getAll(),
-      purchaseOrders: this.purchaseOrderRepository.getAll()
+      products: this.productRepository.getAll().pipe(take(1)),
+      sales: this.saleRepository.getAll().pipe(take(1)),
+      purchaseOrders: this.purchaseOrderRepository.getAll().pipe(take(1))
     })
     .pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -114,8 +114,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Calculate total revenue from sales
     const totalRevenue = sales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
     
-    // Count products in stock
-    const productsInStock = products.length;
+    // Count products in stock (those with stockQuantity > 0)
+    const productsInStock = products.filter(p => (p.stockQuantity ?? 0) > 0).length;
     
     // Count today's orders (sales)
     const today = new Date();
@@ -126,8 +126,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return saleDate.getTime() === today.getTime();
     }).length;
     
-    // Count low stock items (would need inventory data)
-    const lowStockCount = 0; // TODO: Calculate from inventory records when available
+    // Count low stock items using product stockQuantity and minimumStock
+    const lowStockProducts = products.filter(p => 
+      (p.stockQuantity ?? 0) <= (p.minimumStock ?? 0) && p.isActive !== false
+    );
+    const lowStockCount = lowStockProducts.length;
     
     // Map recent purchase orders
     this.purchaseOrders = purchaseOrders
@@ -152,8 +155,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       lowStockChange: 0 // TODO: Calculate change
     };
     
-    // Low stock items placeholder
-    this.lowStockItems = [];
+    // Low stock items from product data
+    this.lowStockItems = lowStockProducts.slice(0, 5).map(p => ({
+      name: p.name,
+      current: p.stockQuantity ?? 0,
+      total: p.minimumStock ?? 0,
+      branch: 'Main' // TODO: map from branch when available
+    }));
   }
 
   onSearch(query: string) {

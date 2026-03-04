@@ -73,7 +73,6 @@ export class CustomerRepository extends BaseRepository<Customer> {
             customerType: customer.customerType,
             isActive: customer.isActive ?? true,
           },
-          logInfo,
         },
         refetchQueries: [{ query: GET_CUSTOMERS }],
       })
@@ -94,7 +93,6 @@ export class CustomerRepository extends BaseRepository<Customer> {
             customerType: customer.customerType,
             isActive: customer.isActive,
           },
-          logInfo,
         },
         refetchQueries: [{ query: GET_CUSTOMERS }],
       })
@@ -107,7 +105,6 @@ export class CustomerRepository extends BaseRepository<Customer> {
         mutation: DELETE_CUSTOMER,
         variables: {
           id: parseInt(id),
-          logInfo,
         },
         refetchQueries: [{ query: GET_CUSTOMERS }],
       })
