@@ -25,7 +25,7 @@ interface Delivery {
   address: string;
   driver: string;
   driverVehicle: string;
-  status: 'In Transit' | 'Delivered' | 'Pending' | 'Cancelled';
+  status: 'Scheduled' | 'In Progress' | 'Delivered' | 'Failed' | 'Cancelled';
   priority: 'High' | 'Normal' | 'Low';
   scheduled: string;
 }
@@ -117,9 +117,10 @@ export class DeliveryComponent implements OnInit, OnDestroy {
             address: d.deliveryAddress,
             driver: 'Driver', // TODO: Join with driver data
             driverVehicle: 'Vehicle', // TODO: Join with driver vehicle
-            status: d.status === DeliveryStatus.Pending ? 'Pending' : 
-                    d.status === DeliveryStatus.InTransit ? 'In Transit' : 
-                    d.status === DeliveryStatus.Delivered ? 'Delivered' : 'Cancelled',
+            status: d.status === DeliveryStatus.Scheduled ? 'Scheduled' : 
+                    d.status === DeliveryStatus.InProgress ? 'In Progress' : 
+                    d.status === DeliveryStatus.Delivered ? 'Delivered' :
+                    d.status === DeliveryStatus.Failed ? 'Failed' : 'Cancelled',
             priority: d.priority === Priority.High ? 'High' : 
                       d.priority === Priority.Low ? 'Low' : 'Normal',
             scheduled: d.scheduledDate.toString()

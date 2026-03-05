@@ -1,10 +1,10 @@
 /**
- * Delivery status enum
+ * Delivery status enum - matches backend Api.Enums.DeliveryStatus
  */
 export enum DeliveryStatus {
-  Pending = 'PENDING',
-  InTransit = 'IN_TRANSIT',
+  Scheduled = 'SCHEDULED',
+  InProgress = 'IN_PROGRESS',
   Delivered = 'DELIVERED',
+  Failed = 'FAILED',
   Cancelled = 'CANCELLED',
-  Returned = 'RETURNED',
 }

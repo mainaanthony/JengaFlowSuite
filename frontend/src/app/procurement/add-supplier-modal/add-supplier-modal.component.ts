@@ -526,31 +526,38 @@ export class AddSupplierModalComponent implements OnInit, AfterViewInit {
   }
 
   // Dropdown Change Handlers
-  onCategoryChange(value: string): void {
+  onCategoryChange(option: any): void {
+    const value = option?.value ?? option;
     this.supplierForm.patchValue({ category: value });
   }
 
-  onBusinessTypeChange(value: string): void {
+  onBusinessTypeChange(option: any): void {
+    const value = option?.value ?? option;
     this.supplierForm.patchValue({ businessType: value });
   }
 
-  onCountyChange(value: string): void {
+  onCountyChange(option: any): void {
+    const value = option?.value ?? option;
     this.supplierForm.patchValue({ county: value });
   }
 
-  onNumberOfEmployeesChange(value: string): void {
+  onNumberOfEmployeesChange(option: any): void {
+    const value = option?.value ?? option;
     this.supplierForm.patchValue({ numberOfEmployees: value });
   }
 
-  onAnnualTurnoverChange(value: string): void {
+  onAnnualTurnoverChange(option: any): void {
+    const value = option?.value ?? option;
     this.supplierForm.patchValue({ annualTurnover: value });
   }
 
-  onPaymentTermsChange(value: string): void {
+  onPaymentTermsChange(option: any): void {
+    const value = option?.value ?? option;
     this.supplierForm.patchValue({ paymentTerms: value });
   }
 
-  onCurrencyChange(value: string): void {
+  onCurrencyChange(option: any): void {
+    const value = option?.value ?? option;
     this.supplierForm.patchValue({ currency: value });
   }
 

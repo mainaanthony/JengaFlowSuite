@@ -504,7 +504,7 @@ export class ScheduleDeliveryModalComponent implements OnInit, AfterViewInit {
       driverId: parseInt(formData.assignedDriver) || 0,
       deliveryAddress: formData.deliveryAddress,
       contactPhone: formData.contactPhone || null,
-      status: DeliveryStatus.Pending,
+      status: DeliveryStatus.Scheduled,
       priority: formData.priority === 'High' ? Priority.High : formData.priority === 'Low' ? Priority.Low : Priority.Normal,
       scheduledDate: new Date(formData.deliveryDate),
       deliveredDate: null,
