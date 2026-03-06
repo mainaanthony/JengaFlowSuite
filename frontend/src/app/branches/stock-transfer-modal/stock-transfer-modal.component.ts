@@ -18,7 +18,9 @@ import {
 import { StockTransferStatus } from '../../core/enums/enums.barrel';
 import { Apollo } from 'apollo-angular';
 import { ADD_STOCK_TRANSFER_ITEM } from '../../core/domain/stock-transfer/stock-transfer-item.queries';
-import { forkJoin } from 'rxjs';
+import { forkJoin, take } from 'rxjs';
+import { Product as DomainProduct } from '../../core/domain/domain.barrel';
+import { Branch as DomainBranch } from '../../core/domain/domain.barrel';
 
 interface Product {
   id: string;
@@ -104,13 +106,8 @@ export class StockTransferModalComponent implements OnInit {
   availableProducts: SelectorItem[] = [];
   selectedProductItems: SelectorItem[] = [];
 
-  // Mock data
-  branches: DropdownOption[] = [
-    { id: 'BR-001', label: 'Main Branch' },
-    { id: 'BR-002', label: 'Westlands Branch' },
-    { id: 'BR-003', label: 'Eastleigh Branch' },
-    { id: 'BR-004', label: 'Industrial Area' }
-  ];
+  // Data loaded from DB
+  branches: DropdownOption[] = [];
 
   transferTypes: DropdownOption[] = [
     { id: 'inter-branch', label: 'Inter-Branch Transfer' },
@@ -126,28 +123,7 @@ export class StockTransferModalComponent implements OnInit {
     { id: 'urgent', label: 'Urgent' }
   ];
 
-  allProducts: Product[] = [
-    { id: 'PRD-001', name: 'Dell Laptop XPS 13', sku: 'DL-XPS13-001', stock: 15, price: 85000 },
-    { id: 'PRD-002', name: 'iPhone 14 Pro', sku: 'IP-14P-001', stock: 8, price: 120000 },
-    { id: 'PRD-003', name: 'Samsung 55" TV', sku: 'SM-TV55-001', stock: 5, price: 65000 },
-    { id: 'PRD-004', name: 'HP Printer LaserJet', sku: 'HP-LJ-001', stock: 12, price: 25000 },
-    { id: 'PRD-005', name: 'Sony WH-1000XM5 Headphones', sku: 'SN-WH5-001', stock: 22, price: 35000 },
-    { id: 'PRD-006', name: 'iPad Air 5', sku: 'IP-AIR5-001', stock: 10, price: 95000 },
-    { id: 'PRD-007', name: 'MacBook Pro 14"', sku: 'MB-PRO14-001', stock: 6, price: 200000 },
-    { id: 'PRD-008', name: 'LG Ultrawide Monitor', sku: 'LG-UW34-001', stock: 9, price: 45000 },
-    { id: 'PRD-009', name: 'Logitech MX Master 3S', sku: 'LG-MXM3S-001', stock: 18, price: 15000 },
-    { id: 'PRD-010', name: 'Corsair K95 Mechanical Keyboard', sku: 'CR-K95-001', stock: 14, price: 22000 },
-    { id: 'PRD-011', name: 'Razer DeathAdder Mouse', sku: 'RZ-DA-001', stock: 25, price: 8000 },
-    { id: 'PRD-012', name: 'ASUS ROG Gaming Laptop', sku: 'AS-ROG-001', stock: 7, price: 150000 },
-    { id: 'PRD-013', name: 'Samsung SSD 980 Pro', sku: 'SM-SSD980-001', stock: 32, price: 12000 },
-    { id: 'PRD-014', name: 'Western Digital HDD', sku: 'WD-HDD-001', stock: 20, price: 8500 },
-    { id: 'PRD-015', name: 'BenQ PD Monitor 27"', sku: 'BQ-PD27-001', stock: 11, price: 35000 },
-    { id: 'PRD-016', name: 'Elgato Stream Deck', sku: 'EL-SD-001', stock: 16, price: 28000 },
-    { id: 'PRD-017', name: 'Blue Yeti Microphone', sku: 'BL-YETI-001', stock: 19, price: 12000 },
-    { id: 'PRD-018', name: 'Rode Wireless Mic', sku: 'RD-WM-001', stock: 13, price: 18000 },
-    { id: 'PRD-019', name: 'Peak Design Backpack', sku: 'PK-BAG-001', stock: 24, price: 22000 },
-    { id: 'PRD-020', name: 'Canon EOS R6 Camera', sku: 'CN-R6-001', stock: 4, price: 280000 }
-  ];
+  allProducts: Product[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -158,10 +134,45 @@ export class StockTransferModalComponent implements OnInit {
     private apollo: Apollo
   ) {
     this.initializeForms();
-    this.initializeProducts();
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadBranches();
+    this.loadProducts();
+  }
+
+  private loadBranches(): void {
+    this.branchRepository.getAll()
+      .pipe(take(1))
+      .subscribe({
+        next: (branches: DomainBranch[]) => {
+          this.branches = branches.map(b => ({
+            id: b.id.toString(),
+            label: b.name,
+            value: b.id
+          }));
+        },
+        error: (err) => console.error('Error loading branches:', err)
+      });
+  }
+
+  private loadProducts(): void {
+    this.productRepository.getAll()
+      .pipe(take(1))
+      .subscribe({
+        next: (products: DomainProduct[]) => {
+          this.allProducts = products.map(p => ({
+            id: p.id.toString(),
+            name: p.name,
+            sku: p.sku || '',
+            stock: p.stockQuantity ?? 0,
+            price: p.costPrice ?? 0
+          }));
+          this.initializeProducts();
+        },
+        error: (err) => console.error('Error loading products:', err)
+      });
+  }
 
   private initializeProducts() {
     this.availableProducts = this.allProducts.map(p => ({
@@ -288,8 +299,8 @@ export class StockTransferModalComponent implements OnInit {
       
       const stockTransfer: Partial<DomainStockTransfer> = {
         transferNumber: 'STR-' + Date.now(),
-        fromBranchId: formValues.fromBranch?.id ? parseInt(formValues.fromBranch.id.toString().replace('BR-', '')) : 0,
-        toBranchId: formValues.toBranch?.id ? parseInt(formValues.toBranch.id.toString().replace('BR-', '')) : 0,
+        fromBranchId: formValues.fromBranch?.value ?? (formValues.fromBranch?.id ? parseInt(formValues.fromBranch.id.toString()) : 0),
+        toBranchId: formValues.toBranch?.value ?? (formValues.toBranch?.id ? parseInt(formValues.toBranch.id.toString()) : 0),
         requestedByUserId: 1, // TODO: Get from auth service
         status: StockTransferStatus.Pending,
         requestedDate: new Date(),
@@ -371,9 +382,10 @@ export class StockTransferModalComponent implements OnInit {
 
   private saveTransferItems(transferId: number, logInfo: any) {
     const itemMutations = this.selectedProductItems.map(item => {
+      const productId = parseInt(item.id, 10);
       const input = {
         stockTransferId: transferId,
-        productId: parseInt(item.id),
+        productId: productId,
         quantityRequested: item.quantity || 1,
         quantityTransferred: null
       };

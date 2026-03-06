@@ -62,6 +62,11 @@ export class AddBranchModalComponent implements OnInit {
   editingBranchId?: number;
   loading = false;
 
+  // Pre-selected dropdown values for edit mode
+  selectedBranchTypeId: string | null = null;
+  selectedCountyId: string | null = null;
+  selectedCountryId: string | null = null;
+
   // Modal configuration
   modalConfig: AppModalConfig = {
     title: 'Add New Branch',
@@ -179,7 +184,57 @@ export class AddBranchModalComponent implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.editMode && this.data?.branch) {
+      this.modalConfig = {
+        title: 'Edit Branch',
+        subtitle: 'Update branch information',
+        wide: true
+      };
+      this.populateForms(this.data.branch);
+    }
+  }
+
+  private populateForms(branch: DomainBranch): void {
+    // Infer branch type from name/code if possible
+    const inferredType = this.inferBranchType(branch.name, branch.code);
+    this.selectedBranchTypeId = inferredType;
+    this.selectedCountryId = 'kenya';
+
+    this.basicInfoForm.patchValue({
+      branchName: branch.name || '',
+      branchCode: branch.code || '',
+      branchType: inferredType ? this.branchTypes.find(t => t.id === inferredType) || '' : '',
+      phoneNumber: branch.phone || '',
+      emailAddress: branch.email || '',
+      managerName: '',
+      managerPhone: '',
+      managerEmail: ''
+    });
+
+    this.locationForm.patchValue({
+      streetAddress: branch.address || '',
+      city: branch.city || '',
+      county: '',
+      postalCode: '',
+      country: { id: 'kenya', label: 'Kenya' },
+      latitude: '',
+      longitude: ''
+    });
+
+    this.operationsForm.patchValue({
+      status: branch.isActive !== false ? 'Active' : 'Inactive'
+    });
+  }
+
+  private inferBranchType(name: string, code: string): string | null {
+    const lower = (name + ' ' + code).toLowerCase();
+    if (lower.includes('warehouse')) return 'warehouse';
+    if (lower.includes('service')) return 'service';
+    if (lower.includes('retail')) return 'retail';
+    if (lower.includes('sub')) return 'sub';
+    return 'main';
+  }
 
   onTabChange(tabId: string): void {
     const step = parseInt(tabId) as 1 | 2 | 3 | 4;
@@ -274,7 +329,7 @@ export class AddBranchModalComponent implements OnInit {
       });
     } else {
       buttons.push({
-        label: 'Add Branch',
+        label: this.editMode ? 'Update Branch' : 'Add Branch',
         action: 'save',
         color: 'primary',
         disabled: !this.basicInfoForm.valid || !this.locationForm.valid

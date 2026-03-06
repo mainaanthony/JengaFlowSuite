@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostListener, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -34,7 +34,7 @@ export interface DropdownConfig {
   templateUrl: './input-dropdown.component.html',
   styleUrls: ['./input-dropdown.component.scss']
 })
-export class InputDropdownComponent {
+export class InputDropdownComponent implements OnChanges {
   @Input() options: DropdownOption[] = [];
   @Input() config: DropdownConfig = {
     placeholder: 'Select an option...',
@@ -45,6 +45,7 @@ export class InputDropdownComponent {
     detailsTitle: 'Details',
     detailsFields: []
   };
+  @Input() selectedId: string | number | null = null;
 
   @Output() selectionChanged = new EventEmitter<DropdownOption | DropdownOption[] | null>();
 
@@ -54,6 +55,15 @@ export class InputDropdownComponent {
   hoveredOptionId: string | number | null = null;
 
   constructor(private elementRef: ElementRef) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ((changes['selectedId'] || changes['options']) && this.selectedId != null && this.options.length > 0) {
+      const match = this.options.find(opt => opt.id === this.selectedId);
+      if (match) {
+        this.selectedOptions = [match];
+      }
+    }
+  }
 
   get filteredOptions(): DropdownOption[] {
     if (!this.searchTerm.trim()) {

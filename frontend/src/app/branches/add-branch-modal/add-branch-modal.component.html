@@ -43,6 +43,7 @@
       <div class="form-row">
         <app-input-dropdown
           [options]="branchTypes"
+          [selectedId]="selectedBranchTypeId"
           [config]="{
             placeholder: 'Select branch type',
             searchable: true
@@ -138,6 +139,7 @@
           <label class="form-label">County</label>
           <app-input-dropdown
             [options]="counties"
+            [selectedId]="selectedCountyId"
             [config]="{
               placeholder: 'Select county',
               searchable: true
@@ -160,6 +162,7 @@
           <label class="form-label">Country <span class="required">*</span></label>
           <app-input-dropdown
             [options]="countries"
+            [selectedId]="selectedCountryId"
             [config]="{
               placeholder: 'Select country',
               searchable: true

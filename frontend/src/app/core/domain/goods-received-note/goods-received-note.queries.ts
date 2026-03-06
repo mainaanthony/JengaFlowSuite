@@ -71,8 +71,8 @@ export const GET_GOODS_RECEIVED_NOTES = gql`
  * Mutation to add a new goods received note
  */
 export const ADD_GOODS_RECEIVED_NOTE = gql`
-  mutation AddGoodsReceivedNote($input: GoodsReceivedNoteInput!) {
-    addGoodsReceivedNote(goodsReceivedNote: $input) {
+  mutation AddGoodsReceivedNote($input: GoodsReceivedNoteMutationInput!) {
+    addGoodsReceivedNote(input: $input) {
       ...GoodsReceivedNoteFields
     }
   }
@@ -83,8 +83,8 @@ export const ADD_GOODS_RECEIVED_NOTE = gql`
  * Mutation to update an existing goods received note
  */
 export const UPDATE_GOODS_RECEIVED_NOTE = gql`
-  mutation UpdateGoodsReceivedNote($input: GoodsReceivedNoteInput!) {
-    updateGoodsReceivedNote(goodsReceivedNote: $input) {
+  mutation UpdateGoodsReceivedNote($input: GoodsReceivedNoteMutationInput!) {
+    updateGoodsReceivedNote(input: $input) {
       ...GoodsReceivedNoteFields
     }
   }
