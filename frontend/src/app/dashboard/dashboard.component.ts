@@ -6,6 +6,7 @@ import { ButtonSolidComponent } from '../shared/button-solid/button-solid.compon
 import { CardComponent } from '../shared/card/card.component';
 import { MatIconModule } from '@angular/material/icon';
 import { GenerateReportModalComponent } from '../shared/modals/generate-report-modal.component';
+import { ReportGeneratorService } from '../core/services/report-generator.service';
 import { NewSaleModalComponent } from '../sales/new-sale-modal/new-sale-modal.component';
 import { Subject, forkJoin } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
@@ -59,7 +60,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private productRepository: ProductRepository,
     private saleRepository: SaleRepository,
-    private purchaseOrderRepository: PurchaseOrderRepository
+    private purchaseOrderRepository: PurchaseOrderRepository,
+    private reportGenerator: ReportGeneratorService
   ) {}
 
   purchaseOrders: PurchaseOrder[] = [];
@@ -179,6 +181,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('Report generated with data:', result);
+        this.reportGenerator.generateAndDownload(result);
       }
     });
   }

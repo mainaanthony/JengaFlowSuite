@@ -8,6 +8,7 @@ import { CardComponent } from '../shared/card/card.component';
 import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { GenerateReportModalComponent } from '../shared/modals/generate-report-modal.component';
+import { ReportGeneratorService } from '../core/services/report-generator.service';
 
 // Data Models
 interface ReportMetric {
@@ -144,7 +145,7 @@ export class ReportsComponent implements OnInit {
   // Custom Reports Tab
   isCustomReportOpen: boolean = false;
 
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog, private reportGenerator: ReportGeneratorService) {}
 
   ngOnInit() {
     // Component initialized
@@ -175,7 +176,7 @@ export class ReportsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('Report generated with data:', result);
-        alert(`Report "${result.title}" generated successfully!`);
+        this.reportGenerator.generateAndDownload(result);
       }
     });
   }
