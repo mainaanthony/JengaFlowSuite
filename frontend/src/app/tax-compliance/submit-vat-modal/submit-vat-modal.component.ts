@@ -4,52 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { TaxReturnRepository, TaxReturn as DomainTaxReturn } from '../../core/domain/domain.barrel';
-
-interface VatCalculation {
-  taxPeriod: string;
-  pinNumber: string;
-  outputVat: {
-    standardRateSales: number;
-    standardRateAmount: number;
-    zeroRatedSales: number;
-    zeroRatedAmount: number;
-    exemptSales: number;
-    exemptAmount: number;
-    totalOutput: number;
-  };
-  inputVat: {
-    localPurchases: number;
-    localPurchasesVat: number;
-    importVat: number;
-    importVatAmount: number;
-    otherInputVat: number;
-    otherInputVatAmount: number;
-    totalInput: number;
-  };
-  netVatDue: number;
-  dueDate: string;
-}
-
-interface ComplianceCheck {
-  id: string;
-  title: string;
-  description: string;
-  status: 'passed' | 'warning' | 'failed';
-}
-
-interface VatSubmission {
-  taxPeriod: string;
-  pinNumber: string;
-  netVatDue: number;
-  authorizedPerson: string;
-  positionTitle: string;
-  contactNumber: string;
-  additionalComments: string;
-  declarationConfirmed: boolean;
-  taxPeriodStart: string;
-  taxPeriodEnd: string;
-  submissionDate: string;
-}
+import { VatCalculation, ComplianceCheck, VatSubmission } from '../../core/domain/tax-return/tax-return.view-models';
 
 @Component({
   selector: 'submit-vat-modal',

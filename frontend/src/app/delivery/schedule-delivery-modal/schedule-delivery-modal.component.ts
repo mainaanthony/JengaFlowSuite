@@ -14,46 +14,7 @@ import {
   Delivery as DomainDelivery 
 } from '../../core/domain/domain.barrel';
 import { DeliveryStatus, Priority } from '../../core/enums/enums.barrel';
-
-interface DeliveryOrder {
-  id: string;
-  // Delivery Info
-  deliveryType: string;
-  priority: string;
-  deliveryDate: Date;
-  preferredTime?: string;
-  estimatedDuration: number;
-  
-  // Customer
-  customerId: string;
-  customerName: string;
-  customerPhone: string;
-  customerEmail: string;
-  pickupAddress: string;
-  deliveryAddress: string;
-  deliveryInstructions?: string;
-  contactPerson: string;
-  contactPhone: string;
-  
-  // Package
-  packageWeight: number;
-  packageDimensions: string;
-  packageValue: number;
-  requiresSignature: boolean;
-  fragileItem: boolean;
-  hazardousMaterial: boolean;
-  cashOnDelivery: boolean;
-  deliveryInsurance: boolean;
-  gpsTracking: boolean;
-  
-  // Assignment
-  assignedDriver?: string;
-  assignedVehicle?: string;
-  deliveryRoute?: string;
-  smsNotification: boolean;
-  emailNotification: boolean;
-  additionalNotes?: string;
-}
+import { DeliveryOrder } from '../../core/domain/delivery/delivery.view-models';
 
 @Component({
   selector: 'app-schedule-delivery-modal',

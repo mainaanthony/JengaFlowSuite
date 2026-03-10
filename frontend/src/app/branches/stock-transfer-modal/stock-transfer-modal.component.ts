@@ -21,34 +21,7 @@ import { ADD_STOCK_TRANSFER_ITEM } from '../../core/domain/stock-transfer/stock-
 import { forkJoin, take } from 'rxjs';
 import { Product as DomainProduct } from '../../core/domain/domain.barrel';
 import { Branch as DomainBranch } from '../../core/domain/domain.barrel';
-
-interface Product {
-  id: string;
-  name: string;
-  sku: string;
-  stock: number;
-  price: number;
-}
-
-interface TransferProductData {
-  id: string;
-  name: string;
-  sku: string;
-  quantity: number;
-  price: number;
-}
-
-interface TransferData {
-  fromBranch: DropdownOption | null;
-  toBranch: DropdownOption | null;
-  transferType: DropdownOption;
-  priorityLevel: DropdownOption;
-  requestedBy: string;
-  expectedDate: string;
-  reason: string;
-  additionalNotes: string;
-  selectedProducts: TransferProductData[];
-}
+import { TransferProduct, TransferProductData, TransferData } from '../../core/domain/stock-transfer/stock-transfer.view-models';
 
 @Component({
   selector: 'app-stock-transfer-modal',
@@ -123,7 +96,7 @@ export class StockTransferModalComponent implements OnInit {
     { id: 'urgent', label: 'Urgent' }
   ];
 
-  allProducts: Product[] = [];
+  allProducts: TransferProduct[] = [];
 
   constructor(
     private formBuilder: FormBuilder,

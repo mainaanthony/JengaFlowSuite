@@ -14,6 +14,8 @@ export * from './inventory/inventory';
 export * from './purchase-order/purchase-order.barrel';
 export * from './goods-received-note/goods-received-note.barrel';
 export * from './tax-return/tax-return.barrel';
+export * from './report/report.view-models';
+export * from './settings/settings.view-models';
 
 // Repository Exports
 export * from '../repository/base-repository';

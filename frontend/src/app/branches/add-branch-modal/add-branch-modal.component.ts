@@ -8,36 +8,7 @@ import { AppTabsComponent, Tab } from '../../shared/app-tabs/app-tabs.component'
 import { InputTextComponent } from '../../shared/input-text/input-text.component';
 import { InputDropdownComponent, DropdownOption } from '../../shared/input-dropdown/input-dropdown.component';
 import { BranchRepository, Branch as DomainBranch } from '../../core/domain/domain.barrel';
-
-interface OperatingHours {
-  day: string;
-  open: boolean;
-  startTime: string;
-  endTime: string;
-}
-
-interface Branch {
-  id: string;
-  name: string;
-  code: string;
-  type: string;
-  phone: string;
-  email: string;
-  managerName: string;
-  managerPhone: string;
-  managerEmail: string;
-  streetAddress: string;
-  city: string;
-  county: string;
-  postalCode: string;
-  country: string;
-  latitude: string;
-  longitude: string;
-  operatingHours: OperatingHours[];
-  servicesOffered: string[];
-  status: string;
-  createdAt: string;
-}
+import { OperatingHours, BranchFormData } from '../../core/domain/branch/branch.view-models';
 
 @Component({
   selector: 'add-branch-modal',

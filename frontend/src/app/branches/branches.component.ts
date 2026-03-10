@@ -8,52 +8,7 @@ import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '
 import { StockTransferModalComponent } from './stock-transfer-modal/stock-transfer-modal.component';
 import { AddBranchModalComponent } from './add-branch-modal/add-branch-modal.component';
 import { BranchRepository, Branch as DomainBranch } from '../core/domain/domain.barrel';
-
-// Interfaces
-interface BranchStat {
-  label: string;
-  value: string | number;
-  delta?: number;
-  icon: string;
-}
-
-interface Branch {
-  id: string;
-  name: string;
-  code: string;
-  location: string;
-  phone: string;
-  email: string;
-  manager: string;
-  staff: number;
-  revenue: string;
-  products: number;
-  customers: number;
-  status: 'Active' | 'Inactive' | 'Under Renovation';
-}
-
-interface BranchPerformance {
-  branch: string;
-  manager: string;
-  revenue: string;
-  deltaPercent: number;
-}
-
-interface StaffAllocation {
-  branch: string;
-  established: string;
-  staff: number;
-  status: 'Active' | 'Under Renovation';
-}
-
-interface InventoryItem {
-  category: string;
-  mainBranch: number;
-  westlandsBranch: number;
-  eastleighBranch: number;
-  industrialArea: number;
-  total: number;
-}
+import { BranchStat, BranchListItem, BranchPerformance, StaffAllocation, BranchInventoryItem } from '../core/domain/branch/branch.view-models';
 
 @Component({
   selector: 'app-branches',
@@ -88,8 +43,8 @@ export class BranchesComponent implements OnInit, OnDestroy {
   stats: BranchStat[] = [];
 
   // Branches data
-  branches: Branch[] = [];
-  filteredBranches: Branch[] = [];
+  branches: BranchListItem[] = [];
+  filteredBranches: BranchListItem[] = [];
 
   // Performance data
   performanceData: BranchPerformance[] = [];
@@ -98,7 +53,7 @@ export class BranchesComponent implements OnInit, OnDestroy {
   staffAllocation: StaffAllocation[] = [];
 
   // Inventory distribution
-  inventoryData: InventoryItem[] = [];
+  inventoryData: BranchInventoryItem[] = [];
 
   ngOnInit(): void {
     this.loadBranches();
@@ -132,7 +87,7 @@ export class BranchesComponent implements OnInit, OnDestroy {
       });
   }
 
-  mapDomainBranchToUIBranch(branch: DomainBranch): Branch {
+  mapDomainBranchToUIBranch(branch: DomainBranch): BranchListItem {
     return {
       id: `BR-${branch.id.toString().padStart(3, '0')}`,
       name: branch.name,
@@ -220,7 +175,7 @@ export class BranchesComponent implements OnInit, OnDestroy {
   }
 
   onTableAction(event: TableActionEvent): void {
-    const branch = event.row as Branch;
+    const branch = event.row as BranchListItem;
     switch (event.action) {
       case 'edit':
         this.editBranch(branch);
@@ -488,7 +443,7 @@ export class BranchesComponent implements OnInit, OnDestroy {
         // console.log('Branch created:', result);
         // // TODO: Save to backend API
         // // Add new branch to the list
-        // const newBranch: Branch = {
+        // const newBranch: BranchListItem = {
         //   id: `BR-${(this.branches.length + 1).toString().padStart(3, '0')}`,
         //   code: result.branchCode,
         //   name: result.branchName,
@@ -508,7 +463,7 @@ export class BranchesComponent implements OnInit, OnDestroy {
     });
   }
 
-  editBranch(branch: Branch): void {
+  editBranch(branch: BranchListItem): void {
     // Extract branch ID from display format (BR-001 -> 1)
     const branchId = branch.id.replace('BR-', '');
     
@@ -535,7 +490,7 @@ export class BranchesComponent implements OnInit, OnDestroy {
       });
   }
 
-  deleteBranch(branch: Branch): void {
+  deleteBranch(branch: BranchListItem): void {
     if (confirm(`Are you sure you want to delete ${branch.name}?`)) {
       // Extract branch ID from display format (BR-001 -> 1)
       const branchId = branch.id.replace('BR-', '');

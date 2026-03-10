@@ -8,59 +8,7 @@ import { InputTextComponent, InputTextConfig } from '../../shared/input-text/inp
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
 import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
 import { SupplierRepository, Supplier as DomainSupplier } from '../../core/domain/domain.barrel';
-
-interface Supplier {
-  id: string;
-  companyName: string;
-  tradingName?: string;
-  registrationNumber: string;
-  taxId: string;
-  category: string;
-  
-  // Contact Information
-  primaryContact: string;
-  primaryPhone: string;
-  primaryEmail: string;
-  secondaryContact?: string;
-  secondaryPhone?: string;
-  secondaryEmail?: string;
-  
-  // Address
-  street: string;
-  city: string;
-  county: string;
-  postalCode: string;
-  country: string;
-  
-  // Banking Details
-  bankName: string;
-  accountName: string;
-  accountNumber: string;
-  branchCode?: string;
-  swiftCode?: string;
-  
-  // Business Details
-  businessType: string;
-  yearsInBusiness: number;
-  website?: string;
-  
-  // Payment Terms
-  paymentTerms: string;
-  creditLimit: number;
-  currency: string;
-  
-  // Documents
-  documents?: {
-    businessLicense?: File | null;
-    taxCertificate?: File | null;
-    bankStatement?: File | null;
-  };
-  
-  // Additional
-  notes?: string;
-  rating: number;
-  status: 'Active' | 'Inactive' | 'Pending Verification';
-}
+import { SupplierFormData } from '../../core/domain/purchase-order/purchase-order.view-models';
 
 @Component({
   selector: 'app-add-supplier-modal',

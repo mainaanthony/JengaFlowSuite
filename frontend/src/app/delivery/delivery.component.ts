@@ -17,28 +17,7 @@ import {
   Driver as DomainDriver 
 } from '../core/domain/domain.barrel';
 import { DeliveryStatus, Priority } from '../core/enums/enums.barrel';
-
-interface Delivery {
-  id: string;
-  orderId: string;
-  customer: string;
-  address: string;
-  driver: string;
-  driverVehicle: string;
-  status: 'Scheduled' | 'In Progress' | 'Delivered' | 'Failed' | 'Cancelled';
-  priority: 'High' | 'Normal' | 'Low';
-  scheduled: string;
-}
-
-interface Driver {
-  id: string;
-  name: string;
-  phone: string;
-  vehicle: string;
-  status: 'Available' | 'On Delivery' | 'Off Duty' | string;
-  activeDeliveries: number;
-  rating: number;
-}
+import { DeliveryListItem, DriverListItem } from '../core/domain/delivery/delivery.view-models';
 
 @Component({
   selector: 'delivery',
@@ -87,11 +66,11 @@ export class DeliveryComponent implements OnInit, OnDestroy {
     this.initializeTableConfig();
   }
 
-  deliveries: Delivery[] = [];
-  drivers: Driver[] = [];
+  deliveries: DeliveryListItem[] = [];
+  drivers: DriverListItem[] = [];
 
-  filteredDeliveries: Delivery[] = [];
-  filteredDrivers: Driver[] = [];
+  filteredDeliveries: DeliveryListItem[] = [];
+  filteredDrivers: DriverListItem[] = [];
 
   ngOnInit() {
     this.loadDeliveries();
@@ -309,7 +288,7 @@ export class DeliveryComponent implements OnInit, OnDestroy {
   }
 
   onTableAction(event: TableActionEvent): void {
-    const delivery = event.row as Delivery;
+    const delivery = event.row as DeliveryListItem;
     switch (event.action) {
       case 'edit':
         this.editDelivery(delivery);
@@ -321,7 +300,7 @@ export class DeliveryComponent implements OnInit, OnDestroy {
   }
 
   onDriverTableAction(event: TableActionEvent): void {
-    const driver = event.row as Driver;
+    const driver = event.row as DriverListItem;
     switch (event.action) {
       case 'edit':
         this.editDriver(driver);
@@ -421,19 +400,19 @@ export class DeliveryComponent implements OnInit, OnDestroy {
     });
   }
 
-  editDelivery(delivery: Delivery) {
+  editDelivery(delivery: DeliveryListItem) {
     console.log('Edit delivery:', delivery);
   }
 
-  deleteDelivery(delivery: Delivery) {
+  deleteDelivery(delivery: DeliveryListItem) {
     console.log('Delete delivery:', delivery);
   }
 
-  editDriver(driver: Driver) {
+  editDriver(driver: DriverListItem) {
     console.log('Edit driver:', driver);
   }
 
-  deleteDriver(driver: Driver) {
+  deleteDriver(driver: DriverListItem) {
     console.log('Delete driver:', driver);
   }
 

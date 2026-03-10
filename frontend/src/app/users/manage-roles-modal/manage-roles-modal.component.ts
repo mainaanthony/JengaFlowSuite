@@ -4,28 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { RoleRepository, Role as DomainRole, UserRepository } from '../../core/domain/domain.barrel';
-
-interface Permission {
-  id: string;
-  name: string;
-  category: 'core' | 'admin';
-}
-
-interface Role {
-  id: string;
-  name: string;
-  description: string;
-  userCount: number;
-  permissions: string[];
-}
-
-interface RoleSubmission {
-  id: string;
-  name: string;
-  description: string;
-  permissions: string[];
-  createdAt: string;
-}
+import { Permission, RoleListItem, RoleSubmission } from '../../core/domain/user/user.view-models';
 
 @Component({
   selector: 'manage-roles-modal',
@@ -53,7 +32,7 @@ export class ManageRolesModalComponent implements OnInit {
   ];
 
   // Existing roles
-  roles: Role[] = [
+  roles: RoleListItem[] = [
     {
       id: 'super-admin',
       name: 'Super Admin',
@@ -155,12 +134,12 @@ export class ManageRolesModalComponent implements OnInit {
   }
 
   // Role actions
-  editRole(role: Role) {
+  editRole(role: RoleListItem) {
     console.log('Edit role:', role);
     // In a real scenario, this would open an edit modal or switch to edit mode
   }
 
-  deleteRole(role: Role) {
+  deleteRole(role: RoleListItem) {
     if (confirm(`Are you sure you want to delete the "${role.name}" role?`)) {
       const index = this.roles.findIndex(r => r.id === role.id);
       if (index > -1) {

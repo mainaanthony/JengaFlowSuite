@@ -4,28 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { UserRepository, RoleRepository, BranchRepository, User as DomainUser } from '../../core/domain/domain.barrel';
-
-interface Permission {
-  id: string;
-  name: string;
-  category: 'core' | 'admin';
-}
-
-interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  employeeId: string;
-  role: string;
-  department: string;
-  branch: string;
-  startDate: string;
-  permissions: string[];
-  profilePictureUrl: string;
-  additionalNotes: string;
-  accountActive: boolean;
-}
+import { Permission, UserFormData } from '../../core/domain/user/user.view-models';
 
 @Component({
   selector: 'add-user-modal',

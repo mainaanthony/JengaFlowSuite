@@ -17,28 +17,7 @@ import { GoodsReceivedNoteStatus } from '../../core/enums/enums.barrel';
 import { Apollo } from 'apollo-angular';
 import { ADD_GOODS_RECEIVED_NOTE_ITEM } from '../../core/domain/goods-received-note/goods-received-note-item.queries';
 import { forkJoin } from 'rxjs';
-
-interface GRNItem {
-  id: string;
-  product: string;
-  sku: string;
-  ordered: number;
-  received: number;
-  condition: string;
-  status: string;
-  notes: string;
-}
-
-interface GRNData {
-  grnNumber: string;
-  receivedDate: string;
-  purchaseOrder: string;
-  supplier: string;
-  receivedBy: string;
-  warehouseLocation: string;
-  generalNotes: string;
-  items: GRNItem[];
-}
+import { GRNItem, GRNData } from '../../core/domain/purchase-order/purchase-order.view-models';
 
 @Component({
   selector: 'app-create-grn-modal',

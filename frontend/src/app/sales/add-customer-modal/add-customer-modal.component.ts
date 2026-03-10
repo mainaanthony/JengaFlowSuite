@@ -9,34 +9,7 @@ import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../sh
 import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
 import { CustomerRepository, Customer as DomainCustomer } from '../../core/domain/domain.barrel';
 import { CustomerType } from '../../core/enums/enums.barrel';
-
-interface CustomerData {
-  // Personal Info
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  dateOfBirth: string;
-  gender: string;
-  idPassport: string;
-  // Address Info
-  streetAddress: string;
-  city: string;
-  county: string;
-  postalCode: string;
-  country: string;
-  // Business Info
-  companyName: string;
-  kraPin: string;
-  vatNumber: string;
-  businessType: string;
-  // Account Settings
-  customerType: string;
-  creditLimit: number;
-  discountRate: number;
-  paymentTerms: string;
-  notes: string;
-}
+import { CustomerFormData } from '../../core/domain/sale/sale.view-models';
 
 @Component({
   selector: 'app-add-customer-modal',

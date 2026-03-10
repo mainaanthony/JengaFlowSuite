@@ -19,35 +19,7 @@ import {
   Supplier as DomainSupplier,
   GoodsReceivedNote as DomainGRN
 } from '../core/domain/domain.barrel';
-
-interface PurchaseOrder {
-  id: string;
-  supplier: string;
-  items: number;
-  total: number;
-  status: 'Pending Approval' | 'Approved' | 'Delivered';
-  created: string;
-  expectedDelivery: string;
-}
-
-interface Supplier {
-  id: string;
-  name: string;
-  contact: string;
-  phone: string;
-  category: string;
-  rating: number;
-  status: 'Active' | 'Inactive';
-}
-
-interface GoodsReceivedNote {
-  id: string;
-  poNumber: string;
-  supplier: string;
-  items: number;
-  receivedDate: string;
-  status: string;
-}
+import { PurchaseOrderListItem, SupplierListItem, GRNListItem } from '../core/domain/purchase-order/purchase-order.view-models';
 
 @Component({
   selector: 'procurement',
@@ -98,8 +70,8 @@ export class ProcurementComponent implements OnInit, OnDestroy {
     monthlySpendChange: 0
   };
 
-  purchaseOrders: PurchaseOrder[] = [];
-  // purchaseOrders: PurchaseOrder[] = [
+  purchaseOrders: PurchaseOrderListItem[] = [];
+  // purchaseOrders: PurchaseOrderListItem[] = [
   //   {
   //     id: 'PO-2024-001',
   //     supplier: 'ABC Hardware Suppliers',
@@ -129,7 +101,7 @@ export class ProcurementComponent implements OnInit, OnDestroy {
   //   }
   // ];
 
-  // suppliers: Supplier[] = [
+  // suppliers: SupplierListItem[] = [
   //   {
   //     id: 'SUP-001',
   //     name: 'ABC Hardware Suppliers',
@@ -149,12 +121,12 @@ export class ProcurementComponent implements OnInit, OnDestroy {
   //     status: 'Active'
   //   }
   // ];
-  suppliers: Supplier[] = [];
-  goodsReceivedNotes: GoodsReceivedNote[] = [];
+  suppliers: SupplierListItem[] = [];
+  goodsReceivedNotes: GRNListItem[] = [];
 
-  filteredPOs: PurchaseOrder[] = [];
-  filteredSuppliers: Supplier[] = [];
-  filteredGRNs: GoodsReceivedNote[] = [];
+  filteredPOs: PurchaseOrderListItem[] = [];
+  filteredSuppliers: SupplierListItem[] = [];
+  filteredGRNs: GRNListItem[] = [];
 
   ngOnInit() {
     this.loadAllData();
@@ -391,7 +363,7 @@ export class ProcurementComponent implements OnInit, OnDestroy {
   }
 
   onPOTableAction(event: TableActionEvent): void {
-    const po = event.row as PurchaseOrder;
+    const po = event.row as PurchaseOrderListItem;
     switch (event.action) {
       case 'edit':
         this.editPO(po);
@@ -403,7 +375,7 @@ export class ProcurementComponent implements OnInit, OnDestroy {
   }
 
   onSupplierTableAction(event: TableActionEvent): void {
-    const supplier = event.row as Supplier;
+    const supplier = event.row as SupplierListItem;
     switch (event.action) {
       case 'edit':
         this.editSupplier(supplier);
@@ -513,19 +485,19 @@ export class ProcurementComponent implements OnInit, OnDestroy {
     });
   }
 
-  editPO(po: PurchaseOrder) {
+  editPO(po: PurchaseOrderListItem) {
     console.log('Edit PO:', po);
   }
 
-  deletePO(po: PurchaseOrder) {
+  deletePO(po: PurchaseOrderListItem) {
     console.log('Delete PO:', po);
   }
 
-  editSupplier(supplier: Supplier) {
+  editSupplier(supplier: SupplierListItem) {
     console.log('Edit supplier:', supplier);
   }
 
-  deleteSupplier(supplier: Supplier) {
+  deleteSupplier(supplier: SupplierListItem) {
     console.log('Delete supplier:', supplier);
   }
 

@@ -12,43 +12,7 @@ import { AppTableComponent, ColumnConfig, TableAction, TableActionEvent } from '
 import { ManageRolesModalComponent } from './manage-roles-modal/manage-roles-modal.component';
 import { AddUserModalComponent } from './add-user-modal/add-user-modal.component';
 import { UserRepository, RoleRepository, User as DomainUser, Role as DomainRole } from '../core/domain/domain.barrel';
-
-// Data Models
-interface User {
-  id: string;
-  initials: string;
-  name: string;
-  role: string;
-  branch: string;
-  email: string;
-  phone: string;
-  status: 'active' | 'inactive';
-  lastLogin: string;
-}
-
-interface Role {
-  id: string;
-  name: string;
-  description: string;
-  userCount: number;
-  permissions: string[];
-}
-
-interface ActivityLog {
-  id: string;
-  user: string;
-  action: string;
-  resource: string;
-  timestamp: string;
-  status: 'success' | 'failed';
-}
-
-interface UserStat {
-  label: string;
-  value: number | string;
-  delta?: string;
-  deltaType?: 'positive' | 'negative';
-}
+import { UserListItem, RoleListItem, ActivityLog, UserStat } from '../core/domain/user/user.view-models';
 
 @Component({
   selector: 'app-users',
@@ -77,7 +41,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   // Table configuration
   userColumns: ColumnConfig[] = [];
   userActions: TableAction[] = [];
-  filteredUsers: User[] = [];
+  filteredUsers: UserListItem[] = [];
   loading = false;
 
   // Stats
@@ -89,13 +53,13 @@ export class UsersComponent implements OnInit, OnDestroy {
   ];
 
   // Users list
-  users: User[] = [];
+  users: UserListItem[] = [];
 
   // Roles
-  roles: Role[] = [];
+  roles: RoleListItem[] = [];
 
    // Users list
-  // users: User[] = [
+  // users: UserListItem[] = [
   //   {
   //     id: 'USR-001',
   //     initials: 'JM',
@@ -154,7 +118,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   // ];
 
   // // Roles
-  // roles: Role[] = [
+  // roles: RoleListItem[] = [
   //   {
   //     id: 'ROLE-001',
   //     name: 'Owner',
@@ -295,7 +259,7 @@ export class UsersComponent implements OnInit, OnDestroy {
       });
   }
 
-  mapDomainUserToUIUser(domainUser: DomainUser): User {
+  mapDomainUserToUIUser(domainUser: DomainUser): UserListItem {
     const initials = this.getInitials(domainUser.firstName, domainUser.lastName);
     const fullName = `${domainUser.firstName} ${domainUser.lastName}`;
     
@@ -393,7 +357,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   onTableAction(event: TableActionEvent) {
-    const user = event.row as User;
+    const user = event.row as UserListItem;
     switch (event.action) {
       case 'edit':
         this.editUser(user);
@@ -459,7 +423,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     });
   }
 
-  editUser(user: User) {
+  editUser(user: UserListItem) {
     // Extract user ID from display format (USR-001 -> 1)
     const userId = user.id.replace('USR-', '');
     
@@ -486,7 +450,7 @@ export class UsersComponent implements OnInit, OnDestroy {
       });
   }
 
-  deleteUser(user: User) {
+  deleteUser(user: UserListItem) {
     if (confirm(`Are you sure you want to delete user ${user.name}?`)) {
       // Extract user ID from display format (USR-001 -> 1)
       const userId = user.id.replace('USR-', '');
@@ -505,7 +469,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleUserStatus(user: User) {
+  toggleUserStatus(user: UserListItem) {
     // Extract user ID from display format (USR-001 -> 1)
     const userId = user.id.replace('USR-', '');
     
@@ -552,7 +516,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     });
   }
 
-  editRole(role: Role) {
+  editRole(role: RoleListItem) {
     console.log('Editing role:', role.name);
   }
 

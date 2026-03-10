@@ -2,19 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-
-interface ReportType {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  features: string[];
-}
-
-interface Branch {
-  id: string;
-  name: string;
-}
+import { ReportType, ReportBranch } from '../../core/domain/report/report.view-models';
 
 @Component({
   selector: 'app-generate-report-modal',
@@ -77,7 +65,7 @@ export class GenerateReportModalComponent implements OnInit {
   timePeriod = 'Last 30 days';
   timePeriods = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'Last 6 months', 'Last year'];
 
-  branches: Branch[] = [
+  branches: ReportBranch[] = [
     { id: '1', name: 'Main Store' },
     { id: '2', name: 'Westlands Branch' },
     { id: '3', name: 'Eastlands Branch' },

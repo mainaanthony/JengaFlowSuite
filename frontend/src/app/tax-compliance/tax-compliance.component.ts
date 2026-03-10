@@ -15,36 +15,7 @@ import {
   TaxReturn as DomainTaxReturn,
   Sale as DomainSale
 } from '../core/domain/domain.barrel';
-
-interface TaxReturn {
-  period: string;
-  type: string;
-  amount: number;
-  status: 'Submitted' | 'Approved' | 'Pending';
-  submitted: string;
-  dueDate: string;
-}
-
-interface ComplianceRequirement {
-  name: string;
-  status: 'Valid' | 'Pending Renewal' | 'Not Required';
-  expiryDate: string;
-  progress: number;
-  icon: string;
-}
-
-interface VATData {
-  inputVAT: number;
-  outputVAT: number;
-  netVATDue: number;
-  submissionStatus: string;
-  submissionDueDate: string;
-}
-
-interface MonthlyVATTrend {
-  month: string;
-  amount: number;
-}
+import { TaxReturnListItem, ComplianceRequirement, VATData, MonthlyVATTrend } from '../core/domain/tax-return/tax-return.view-models';
 
 @Component({
   selector: 'tax-compliance',
@@ -91,7 +62,7 @@ export class TaxComplianceComponent implements OnInit, OnDestroy {
   };
 
   monthlyVATTrend: MonthlyVATTrend[] = [];
-  taxReturns: TaxReturn[] = [];
+  taxReturns: TaxReturnListItem[] = [];
   complianceRequirements: ComplianceRequirement[] = [];
 
   ngOnInit() {
@@ -293,7 +264,7 @@ export class TaxComplianceComponent implements OnInit, OnDestroy {
     console.log('Run compliance check');
   }
 
-  downloadDocument(item: TaxReturn | ComplianceRequirement) {
+  downloadDocument(item: TaxReturnListItem | ComplianceRequirement) {
     console.log('Download document:', item);
   }
 

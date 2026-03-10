@@ -4,42 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ProductRepository, CategoryRepository, Product as DomainProduct } from '../../core/domain/domain.barrel';
 import { Category } from '../../core/domain/category/category';
-
-interface ProductVariant {
-  id: string;
-  size: string;
-  color: string;
-  sku: string;
-  price: number;
-  stock: number;
-}
-
-interface Product {
-  id?: string;
-  name: string;
-  description: string;
-  category: string;
-  brand: string;
-  sku: string;
-  barcode: string;
-  tags: string[];
-  costPrice: number;
-  sellingPrice: number;
-  currentStock: number;
-  minimumStock: number;
-  storageLocation: string;
-  supplier: string;
-  weight: number;
-  dimensions: { length: number; width: number; height: number };
-  taxable: boolean;
-  trackInventory: boolean;
-  allowBackorders: boolean;
-  requiresSerialNumber: boolean;
-  hasExpiryDate: boolean;
-  hasVariants: boolean;
-  variants: ProductVariant[];
-  isDraft?: boolean;
-}
+import { ProductVariant, ProductFormData } from '../../core/domain/product/product.view-models';
 
 @Component({
   selector: 'app-add-product-modal',
@@ -327,7 +292,7 @@ export class AddProductModalComponent implements OnInit {
     });
   }
 
-  compileProductData(): Product {
+  compileProductData(): ProductFormData {
     return {
       name: this.productForm.get('name')?.value,
       description: this.productForm.get('description')?.value,

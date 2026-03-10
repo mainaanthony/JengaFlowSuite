@@ -9,56 +9,7 @@ import { StatCardComponent } from '../shared/stat-card/stat-card.component';
 import { ButtonSolidComponent } from '../shared/button-solid/button-solid.component';
 import { GenerateReportModalComponent } from '../shared/modals/generate-report-modal.component';
 import { ReportGeneratorService } from '../core/services/report-generator.service';
-
-// Data Models
-interface ReportMetric {
-  label: string;
-  value: string | number;
-  delta?: string;
-  deltaType?: 'positive' | 'negative' | 'neutral';
-}
-
-interface TopProduct {
-  name: string;
-  units: number;
-  margin: number;
-  revenue: number;
-}
-
-interface BranchPerformance {
-  branch: string;
-  orders: number;
-  revenue: number;
-  delta: string;
-  deltaType: 'positive' | 'negative';
-}
-
-interface InventoryMetric {
-  label: string;
-  value: number | string;
-  status: 'healthy' | 'warning' | 'critical';
-}
-
-interface FinancialStatement {
-  label: string;
-  value: number;
-}
-
-interface CashFlowData {
-  type: 'inflow' | 'outflow' | 'net';
-  label: string;
-  value: number;
-}
-
-interface KeyRatio {
-  label: string;
-  value: string | number;
-}
-
-interface StockMovement {
-  title: string;
-  description: string;
-}
+import { ReportMetric, TopProduct, ReportBranchPerformance, InventoryMetric, FinancialStatement, CashFlowData, KeyRatio, StockMovement } from '../core/domain/report/report.view-models';
 
 @Component({
   selector: 'app-reports',
@@ -103,7 +54,7 @@ export class ReportsComponent implements OnInit {
     { name: 'Electrical Cables', units: 520, margin: 32, revenue: 208000 }
   ];
 
-  branchPerformance: BranchPerformance[] = [
+  branchPerformance: ReportBranchPerformance[] = [
     { branch: 'Main Branch', orders: 456, revenue: 1800000, delta: '+15%', deltaType: 'positive' },
     { branch: 'Westlands', orders: 312, revenue: 1200000, delta: '+8%', deltaType: 'positive' },
     { branch: 'Eastleigh', orders: 245, revenue: 900000, delta: '+22%', deltaType: 'positive' },

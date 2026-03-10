@@ -22,21 +22,7 @@ import {
 
 import { CreatePOModalComponent } from '../procurement/create-po-modal/create-po-modal.component';
 import { AddUserModalComponent } from '../users/add-user-modal/add-user-modal.component';
-
-interface PurchaseOrder {
-  id: string;
-  supplier: string;
-  amount: number;
-  status: string;
-  date: string;
-}
-
-interface LowStockItem {
-  name: string;
-  current: number;
-  total: number;
-  branch: string;
-}
+import { DashboardPurchaseOrder, LowStockItem } from '../core/domain/purchase-order/purchase-order.view-models';
 
 @Component({
   selector: 'dashboard',
@@ -64,7 +50,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private reportGenerator: ReportGeneratorService
   ) {}
 
-  purchaseOrders: PurchaseOrder[] = [];
+  purchaseOrders: DashboardPurchaseOrder[] = [];
   lowStockItems: LowStockItem[] = [];
 
   stats = {

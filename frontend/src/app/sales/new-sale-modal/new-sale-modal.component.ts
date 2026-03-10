@@ -17,52 +17,7 @@ import {
   Product as DomainProduct
 } from '../../core/domain/domain.barrel';
 import { PaymentMethod, OrderStatus } from '../../core/enums/enums.barrel';
-
-interface Customer {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  loyaltyPoints: number;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  sku: string;
-  price: number;
-  stock: number;
-  category: string;
-}
-
-interface CartItem {
-  productId: string;
-  productName: string;
-  sku: string;
-  price: number;
-  quantity: number;
-  subtotal: number;
-}
-
-interface SaleTransaction {
-  id: string;
-  customerId: string;
-  customerName: string;
-  customerPhone: string;
-  cartItems: CartItem[];
-  subtotal: number;
-  discountType: 'percentage' | 'fixed';
-  discountValue: number;
-  discountAmount: number;
-  taxAmount: number;
-  total: number;
-  paymentMethod: string;
-  amountPaid: number;
-  balance: number;
-  notes: string;
-  timestamp: Date;
-  attendant: string;
-}
+import { SaleCustomer, SaleProduct, CartItem, SaleTransaction } from '../../core/domain/sale/sale.view-models';
 
 @Component({
   selector: 'app-new-sale-modal',
@@ -90,9 +45,9 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
   checkoutForm!: FormGroup;
 
   // Data
-  customers: Customer[] = [];
+  customers: SaleCustomer[] = [];
 
-  products: Product[] = [
+  products: SaleProduct[] = [
     { id: '1', name: 'Samsung Galaxy A15', sku: 'SAM-A15-001', price: 18500, stock: 15, category: 'Electronics' },
     { id: '2', name: 'iPhone 15 Pro', sku: 'APP-IP15P-001', price: 125000, stock: 8, category: 'Electronics' },
     { id: '3', name: 'Sony WH-1000XM5 Headphones', sku: 'SON-WH-001', price: 32000, stock: 12, category: 'Accessories' },
@@ -100,10 +55,10 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
     { id: '5', name: 'Portable Charger 20000mAh', sku: 'POR-CHG-20K', price: 3500, stock: 45, category: 'Accessories' }
   ];
 
-  filteredProducts: Product[] = [];
-  filteredCustomers: Customer[] = [];
+  filteredProducts: SaleProduct[] = [];
+  filteredCustomers: SaleCustomer[] = [];
 
-  selectedCustomer: Customer | null = null;
+  selectedCustomer: SaleCustomer | null = null;
   cart: CartItem[] = [];
   showNewCustomerForm: boolean = false;
   totals = {
@@ -412,7 +367,7 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
     );
   }
 
-  selectCustomer(customer: Customer): void {
+  selectCustomer(customer: SaleCustomer): void {
     this.selectedCustomer = customer;
     this.showNewCustomerForm = false;
     this.updateButtonState();
@@ -440,7 +395,7 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
       { description: `New walk-in customer: ${name}` }
     ).subscribe({
       next: (created) => {
-        const newCustomer: Customer = {
+        const newCustomer: SaleCustomer = {
           id: created.id!.toString(),
           name: created.name!,
           phone: created.phone ?? '',
@@ -489,7 +444,7 @@ export class NewSaleModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  addProductToCart(product: Product): void {
+  addProductToCart(product: SaleProduct): void {
     const existingItem = this.cart.find(item => item.productId === product.id);
 
     if (existingItem) {

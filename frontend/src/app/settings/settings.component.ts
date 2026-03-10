@@ -1,30 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-
-// Interfaces
-interface CompanyInfo {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-}
-
-interface NotificationSetting {
-  type: string;
-  icon: string;
-  description: string;
-  enabled: boolean;
-}
-
-interface NotificationType {
-  name: string;
-  enabled: boolean;
-}
-
-interface SettingsForm {
-  [key: string]: any;
-}
+import { CompanyInfo, NotificationSetting, NotificationType, SettingsForm } from '../core/domain/settings/settings.view-models';
 
 @Component({
   selector: 'app-settings',

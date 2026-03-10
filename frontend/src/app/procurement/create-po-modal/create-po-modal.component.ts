@@ -16,47 +16,7 @@ import {
   Product as DomainProduct
 } from '../../core/domain/domain.barrel';
 import { OrderStatus } from '../../core/enums/enums.barrel';
-
-interface Supplier {
-  id: string;
-  name: string;
-  category: string;
-  paymentTerms: string;
-}
-
-interface POItem {
-  id: string;
-  productId: number;
-  name: string;
-  sku: string;
-  description: string;
-  specifications: string;
-  quantity: number;
-  unitPrice: number;
-  urgency: string;
-  total: number;
-}
-
-interface PurchaseOrder {
-  poNumber: string;
-  supplier: string;
-  supplierDetails: Supplier | null;
-  paymentTerms: string;
-  requestedBy: string;
-  branch: string;
-  priority: string;
-  expectedDelivery: string;
-  deliveryAddress: string;
-  budgetCode: string;
-  approver: string;
-  items: POItem[];
-  subtotal: number;
-  vat: number;
-  total: number;
-  publicNotes: string;
-  internalNotes: string;
-  attachments: File[];
-}
+import { POSupplier, POItem, PurchaseOrderFormData } from '../../core/domain/purchase-order/purchase-order.view-models';
 
 @Component({
   selector: 'app-create-po-modal',
@@ -220,7 +180,7 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
   allProducts: { id: number; name: string; sku: string; price: number }[] = [];
   selectedProduct: { id: number; name: string; sku: string; price: number } | null = null;
 
-  suppliers: Supplier[] = [
+  suppliers: POSupplier[] = [
     { id: '1', name: 'Metro Building Supplies', category: 'Construction Materials', paymentTerms: 'Net 15' },
     { id: '2', name: 'ABC Hardware Suppliers', category: 'Hardware & Tools', paymentTerms: 'Net 30' },
     { id: '3', name: 'Prime Tools Ltd', category: 'Equipment', paymentTerms: 'Net 45' }
@@ -234,7 +194,7 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
   approvers = ['Sarah Johnson - Manager', 'David Mwangi - Director', 'Grace Kimani - Finance Head'];
 
   items: POItem[] = [];
-  selectedSupplier: Supplier | null = null;
+  selectedSupplier: POSupplier | null = null;
   attachments: File[] = [];
 
   constructor(
@@ -775,7 +735,7 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private compilePOData(): PurchaseOrder {
+  private compilePOData(): PurchaseOrderFormData {
     return {
       ...this.poForm.value,
       supplierDetails: this.selectedSupplier,

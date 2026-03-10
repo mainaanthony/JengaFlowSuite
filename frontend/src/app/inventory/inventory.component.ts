@@ -10,20 +10,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, Subject, takeUntil } from 'rxjs';
 import { AddProductModalComponent } from '../shared/modals/add-product-modal.component';
 import { ProductRepository, Product as DomainProduct } from '../core/domain/domain.barrel';
-
-interface Product {
-  id: string;
-  name: string;
-  brand: string;
-  sku: string;
-  category: string;
-  status: 'In Stock' | 'Low Stock' | 'Out of Stock';
-  main: number;
-  westlands: number;
-  eastleigh: number;
-  total: number;
-  price: number;
-}
+import { InventoryProductView } from '../core/domain/product/product.view-models';
 
 @Component({
   selector: 'inventory',
@@ -68,10 +55,10 @@ export class InventoryComponent implements OnInit, OnDestroy {
     categoriesChange: 0
   };
 
-  products: Product[] = [];
+  products: InventoryProductView[] = [];
 
 
-  // products: Product[] = [
+  // products: InventoryProductView[] = [
   //   {
   //     id: '1',
   //     name: '25mm PVC Pipes',
@@ -125,7 +112,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
   //     price: 780
   //   }
   // ];
-  filteredProducts: Product[] = [];
+  filteredProducts: InventoryProductView[] = [];
 
   ngOnInit() {
     this.loadProducts();
@@ -155,7 +142,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
       });
   }
 
-  mapDomainProductToUIProduct(product: DomainProduct): Product {
+  mapDomainProductToUIProduct(product: DomainProduct): InventoryProductView {
     const stockQty = product.stockQuantity || 0;
     return {
       id: product.id.toString(),
@@ -269,7 +256,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
   }
 
   onTableAction(event: TableActionEvent): void {
-    const product = event.row as Product;
+    const product = event.row as InventoryProductView;
     switch (event.action) {
       case 'edit':
         this.editProduct(product);
@@ -332,7 +319,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  editProduct(product: Product) {
+  editProduct(product: InventoryProductView) {
     // Extract product ID from display format (PRD-001 -> 1)
     const productId = product.id.replace('PRD-', '');
     
@@ -359,7 +346,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
       });
   }
 
-  deleteProduct(product: Product) {
+  deleteProduct(product: InventoryProductView) {
     if (confirm(`Are you sure you want to delete product ${product.name}?`)) {
       // Extract product ID from display format (PRD-001 -> 1)
       const productId = product.id.replace('PRD-', '');

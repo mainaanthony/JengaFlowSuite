@@ -11,26 +11,7 @@ import { debounceTime, Subject, takeUntil } from 'rxjs';
 import { NewSaleModalComponent } from './new-sale-modal/new-sale-modal.component';
 import { ModalService } from '../core/services/modal.service';
 import { SaleRepository, Sale as DomainSale } from '../core/domain/domain.barrel';
-
-interface Transaction {
-  id: string;
-  customer: string;
-  items: number;
-  total: number;
-  paymentMethod: 'Cash' | 'M-Pesa' | 'Card';
-  status: 'Completed' | 'Processing' | 'Pending';
-  time: string;
-  attendant: string;
-}
-
-interface PendingOrder {
-  id: string;
-  customer: string;
-  items: number;
-  total: number;
-  deadline: string;
-  status: 'Pending Confirmation' | 'Ready for Pickup' | 'On Hold';
-}
+import { Transaction, PendingOrder } from '../core/domain/sale/sale.view-models';
 
 @Component({
   selector: 'sales',

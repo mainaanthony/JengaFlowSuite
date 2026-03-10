@@ -8,46 +8,7 @@ import { InputTextComponent, InputTextConfig } from '../../shared/input-text/inp
 import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
 import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
 import { DriverRepository, Driver as DomainDriver } from '../../core/domain/domain.barrel';
-
-interface Driver {
-  id: string;
-  // Personal Info
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  dateOfBirth?: Date;
-  idNumber: string;
-  address: string;
-  emergencyContactName: string;
-  emergencyContactPhone: string;
-  
-  // Employment
-  employeeId?: string;
-  hireDate: Date;
-  employmentType: string;
-  monthlySalary: number;
-  department: string;
-  supervisor?: string;
-  status: string;
-  
-  // License & Vehicle
-  licenseNumber: string;
-  licenseClass?: string;
-  licenseExpiryDate?: Date;
-  assignedVehicle?: string;
-  vehicleType?: string;
-  maxDeliveriesPerDay: number;
-  
-  // Documents
-  documents?: {
-    profilePhoto?: File | null;
-    idCopy?: File | null;
-    licenseCopy?: File | null;
-    contract?: File | null;
-  };
-  additionalNotes?: string;
-}
+import { DriverFormData } from '../../core/domain/delivery/delivery.view-models';
 
 @Component({
   selector: 'app-add-driver-modal',
