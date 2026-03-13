@@ -656,8 +656,8 @@ export class CreatePOModalComponent implements OnInit, AfterViewInit {
       notes: this.reviewForm.get('publicNotes')?.value || '',
       items: this.items.map(item => ({
         productId: item.productId,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice
+        quantity: Number(item.quantity),
+        unitPrice: Number(item.unitPrice)
       }))
     };
 

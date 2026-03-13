@@ -98,3 +98,30 @@ export const DELETE_PURCHASE_ORDER = gql`
     deletePurchaseOrder(id: $id)
   }
 `;
+
+/**
+ * Get Purchase Orders with supplier and item details (used by GRN creation)
+ */
+export const GET_PURCHASE_ORDERS_WITH_DETAILS = gql`
+  query GetPurchaseOrdersWithDetails {
+    purchaseOrders {
+      nodes {
+        ...PurchaseOrderFields
+        supplier {
+          id
+          name
+        }
+        items {
+          ...PurchaseOrderItemFields
+          product {
+            id
+            name
+            sku
+          }
+        }
+      }
+    }
+  }
+  ${FRAGMENT_PURCHASE_ORDER}
+  ${FRAGMENT_PURCHASE_ORDER_ITEM}
+`;

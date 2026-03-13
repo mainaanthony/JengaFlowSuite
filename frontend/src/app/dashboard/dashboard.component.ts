@@ -22,6 +22,7 @@ import {
 
 import { CreatePOModalComponent } from '../procurement/create-po-modal/create-po-modal.component';
 import { AddUserModalComponent } from '../users/add-user-modal/add-user-modal.component';
+import { AddProductModalComponent } from '../shared/modals/add-product-modal.component';
 import { DashboardPurchaseOrder, LowStockItem } from '../core/domain/purchase-order/purchase-order.view-models';
 
 @Component({
@@ -188,8 +189,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   addProduct() {
-    // Navigate to inventory page or open add product modal
-    console.log('Add Product clicked - Navigate to inventory');
+    const dialogRef = this.dialog.open(AddProductModalComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadDashboardData();
+      }
+    });
   }
 
   createPO() {

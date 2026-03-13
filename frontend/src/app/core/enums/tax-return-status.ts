@@ -1,7 +1,7 @@
 export enum TaxReturnStatus {
-  Draft = 'Draft',
-  Submitted = 'Submitted',
-  Approved = 'Approved',
-  Rejected = 'Rejected',
-  Paid = 'Paid'
+  Draft = 'DRAFT',
+  Submitted = 'SUBMITTED',
+  Approved = 'APPROVED',
+  Rejected = 'REJECTED',
+  Paid = 'PAID'
 }

@@ -1,21 +1,26 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, TemplateRef, ViewChild, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { InputTextComponent, InputTextConfig } from '../../shared/input-text/input-text.component';
+import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../shared/input-dropdown/input-dropdown.component';
+import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
 import { UserRepository, RoleRepository, BranchRepository, User as DomainUser } from '../../core/domain/domain.barrel';
 import { Permission, UserFormData } from '../../core/domain/user/user.view-models';
 
 @Component({
   selector: 'add-user-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatIconModule],
+  imports: [CommonModule, ReactiveFormsModule, MatIconModule, InputTextComponent, InputDropdownComponent],
   templateUrl: './add-user-modal.component.html',
   styleUrls: ['./add-user-modal.component.scss']
 })
-export class AddUserModalComponent implements OnInit {
+export class AddUserModalComponent implements OnInit, AfterViewInit {
+  @ViewChild('userFormTemplate') userFormTemplate!: TemplateRef<any>;
   currentStep: 1 | 2 | 3 | 4 = 1;
   completedSteps = new Set<number>();
+  modalInstance: any = null;
 
   // Form groups for each tab
   basicInfoForm: FormGroup;
@@ -23,44 +28,105 @@ export class AddUserModalComponent implements OnInit {
   permissionsForm: FormGroup;
   additionalForm: FormGroup;
 
+  // Input Text Configurations
+  firstNameConfig: InputTextConfig = {
+    placeholder: 'Enter first name',
+    label: 'First Name',
+    required: true,
+    clearable: true
+  };
+
+  lastNameConfig: InputTextConfig = {
+    placeholder: 'Enter last name',
+    label: 'Last Name',
+    required: true,
+    clearable: true
+  };
+
+  emailConfig: InputTextConfig = {
+    placeholder: 'Enter email address',
+    label: 'Email Address',
+    type: 'email',
+    required: true,
+    clearable: true
+  };
+
+  phoneConfig: InputTextConfig = {
+    placeholder: 'Enter phone number',
+    label: 'Phone Number',
+    clearable: true
+  };
+
+  employeeIdConfig: InputTextConfig = {
+    placeholder: 'Auto-generated or enter custom ID',
+    label: 'Employee ID',
+    clearable: true
+  };
+
+  startDateConfig: InputTextConfig = {
+    placeholder: 'Select start date',
+    label: 'Start Date',
+    type: 'date',
+    required: true,
+    clearable: true
+  };
+
+  profilePicUrlConfig: InputTextConfig = {
+    placeholder: 'Enter profile picture URL',
+    label: 'Profile Picture URL',
+    clearable: true
+  };
+
+  additionalNotesConfig: InputTextConfig = {
+    placeholder: 'Any additional information about the user',
+    label: 'Additional Notes',
+    description: true,
+    rows: 4,
+    clearable: true
+  };
+
+  // Dropdown Configurations
+  roleDropdownConfig: DropdownConfig = {
+    placeholder: 'Select role',
+    searchable: true,
+    clearable: true
+  };
+
+  departmentDropdownConfig: DropdownConfig = {
+    placeholder: 'Select department',
+    searchable: true,
+    clearable: true
+  };
+
+  branchDropdownConfig: DropdownConfig = {
+    placeholder: 'Select branch',
+    searchable: true,
+    clearable: true
+  };
+
+  // Dropdown Options
+  roleOptions: DropdownOption[] = [];
+  departmentOptions: DropdownOption[] = [
+    { id: 'sales', label: 'Sales', value: 'sales' },
+    { id: 'inventory', label: 'Inventory', value: 'inventory' },
+    { id: 'procurement', label: 'Procurement', value: 'procurement' },
+    { id: 'delivery', label: 'Delivery', value: 'delivery' },
+    { id: 'finance', label: 'Finance', value: 'finance' },
+    { id: 'admin', label: 'Administration', value: 'admin' }
+  ];
+  branchOptions: DropdownOption[] = [];
+
   // Permissions list
   permissions: Permission[] = [
-    // Core Modules
     { id: 'dashboard-access', name: 'Dashboard Access', category: 'core' },
     { id: 'inventory-mgmt', name: 'Inventory Management', category: 'core' },
     { id: 'sales-pos', name: 'Sales & POS', category: 'core' },
     { id: 'procurement', name: 'Procurement', category: 'core' },
     { id: 'delivery-mgmt', name: 'Delivery Management', category: 'core' },
-    // Administration
     { id: 'reports-analytics', name: 'Reports & Analytics', category: 'admin' },
     { id: 'user-mgmt', name: 'User Management', category: 'admin' },
     { id: 'branch-mgmt', name: 'Branch Management', category: 'admin' },
     { id: 'system-settings', name: 'System Settings', category: 'admin' }
-  ];
-
-  // Dropdown options
-  roles = [
-    { id: 'owner', name: 'Owner' },
-    { id: 'admin', name: 'Admin' },
-    { id: 'manager', name: 'Manager' },
-    { id: 'sales-associate', name: 'Sales Associate' },
-    { id: 'shop-attendant', name: 'Shop Attendant' }
-  ];
-
-  departments = [
-    { id: 'sales', name: 'Sales' },
-    { id: 'inventory', name: 'Inventory' },
-    { id: 'procurement', name: 'Procurement' },
-    { id: 'delivery', name: 'Delivery' },
-    { id: 'finance', name: 'Finance' },
-    { id: 'admin', name: 'Administration' }
-  ];
-
-  branches = [
-    { id: 'main', name: 'Main Branch' },
-    { id: 'westlands', name: 'Westlands Branch' },
-    { id: 'eastleigh', name: 'Eastleigh Branch' },
-    { id: 'industrial', name: 'Industrial Area' }
   ];
 
   selectedPermissions: Set<string> = new Set();
@@ -70,7 +136,8 @@ export class AddUserModalComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private dialogRef: MatDialogRef<AddUserModalComponent>,
+    private dialog: MatDialog,
+    public dialogRef: MatDialogRef<AddUserModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { user?: DomainUser },
     private userRepository: UserRepository,
     private roleRepository: RoleRepository,
@@ -85,15 +152,15 @@ export class AddUserModalComponent implements OnInit {
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
       emailAddress: ['', [Validators.required, Validators.email]],
-      phoneNumber: ['', [Validators.required]],
+      phoneNumber: [''],
       employeeId: ['']
     });
 
     this.employmentForm = this.formBuilder.group({
       role: ['', [Validators.required]],
-      department: ['', [Validators.required]],
+      department: [''],
       branchAssignment: ['', [Validators.required]],
-      startDate: ['', [Validators.required]]
+      startDate: ['']
     });
 
     this.permissionsForm = this.formBuilder.group({});
@@ -112,16 +179,150 @@ export class AddUserModalComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.openModal();
+    });
+  }
+
+  openModal(): void {
+    const modalConfig: AppModalConfig = {
+      title: this.editMode ? 'Edit User' : 'Add New User',
+      subtitle: this.editMode ? 'Modify user details' : 'Create a new user account',
+      wide: true
+    };
+
+    const leftButtons: ModalButton[] = [];
+    const rightButtons: ModalButton[] = [];
+
+    if (this.currentStep === 1) {
+      leftButtons.push({ label: 'Cancel', action: 'cancel', color: 'default' });
+      rightButtons.push({
+        label: 'Next',
+        action: 'next',
+        color: 'primary',
+        icon: 'arrow_forward',
+        disabled: !this.basicInfoForm.valid
+      });
+    } else if (this.currentStep < 4) {
+      leftButtons.push({ label: 'Back', action: 'previous', color: 'default', icon: 'arrow_back' });
+      rightButtons.push({
+        label: 'Next',
+        action: 'next',
+        color: 'primary',
+        icon: 'arrow_forward',
+        disabled: this.currentStep === 2 && !this.employmentForm.valid
+      });
+    } else {
+      leftButtons.push({ label: 'Back', action: 'previous', color: 'default', icon: 'arrow_back' });
+      rightButtons.push({
+        label: this.editMode ? 'Update User' : 'Add User',
+        action: 'save',
+        color: 'primary',
+        icon: 'check',
+        disabled: !this.basicInfoForm.valid || !this.employmentForm.valid
+      });
+    }
+
+    const modalDialogRef = this.dialog.open(AppModalComponent, {
+      data: {
+        config: modalConfig,
+        contentTemplate: this.userFormTemplate,
+        leftButtons,
+        rightButtons
+      },
+      width: '700px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      disableClose: false,
+      panelClass: 'custom-modal-panel'
+    });
+
+    this.modalInstance = modalDialogRef;
+
+    modalDialogRef.componentInstance.buttonClicked.subscribe((action: string) => {
+      switch (action) {
+        case 'cancel':
+          modalDialogRef.close();
+          this.dialogRef.close();
+          break;
+        case 'previous':
+          this.previousStep();
+          this.updateModal(modalDialogRef);
+          break;
+        case 'next':
+          this.nextStep();
+          this.updateModal(modalDialogRef);
+          break;
+        case 'save':
+          this.addUser(modalDialogRef);
+          break;
+      }
+    });
+
+    modalDialogRef.afterClosed().subscribe(() => {
+      if (!this.dialogRef.getState()) {
+        this.dialogRef.close();
+      }
+    });
+  }
+
+  updateModal(modalDialogRef: MatDialogRef<AppModalComponent>): void {
+    const instance = modalDialogRef.componentInstance;
+    const leftButtons: ModalButton[] = [];
+    const rightButtons: ModalButton[] = [];
+
+    if (this.currentStep === 1) {
+      leftButtons.push({ label: 'Cancel', action: 'cancel', color: 'default' });
+      rightButtons.push({
+        label: 'Next',
+        action: 'next',
+        color: 'primary',
+        icon: 'arrow_forward',
+        disabled: !this.basicInfoForm.valid
+      });
+    } else if (this.currentStep < 4) {
+      leftButtons.push({ label: 'Back', action: 'previous', color: 'default', icon: 'arrow_back' });
+      rightButtons.push({
+        label: 'Next',
+        action: 'next',
+        color: 'primary',
+        icon: 'arrow_forward',
+        disabled: this.currentStep === 2 && !this.employmentForm.valid
+      });
+    } else {
+      leftButtons.push({ label: 'Back', action: 'previous', color: 'default', icon: 'arrow_back' });
+      rightButtons.push({
+        label: this.editMode ? 'Update User' : 'Add User',
+        action: 'save',
+        color: 'primary',
+        icon: 'check',
+        disabled: !this.basicInfoForm.valid || !this.employmentForm.valid
+      });
+    }
+
+    instance.leftButtons = leftButtons;
+    instance.rightButtons = rightButtons;
+  }
+
   loadRolesAndBranches(): void {
     this.roleRepository.getAll().subscribe({
       next: (roles) => {
-        this.roles = roles.map(r => ({ id: r.id.toString(), name: r.name }));
+        this.roleOptions = roles.map(r => ({
+          id: r.id.toString(),
+          label: r.name,
+          value: r.id.toString()
+        }));
       },
       error: (err) => console.error('Failed to load roles:', err)
     });
     this.branchRepository.getAll().subscribe({
       next: (branches) => {
-        this.branches = branches.map(b => ({ id: b.id.toString(), name: b.name }));
+        this.branchOptions = branches.map(b => ({
+          id: b.id.toString(),
+          label: b.name,
+          value: b.id.toString()
+        }));
       },
       error: (err) => console.error('Failed to load branches:', err)
     });
@@ -143,9 +344,25 @@ export class AddUserModalComponent implements OnInit {
     });
   }
 
+  // Dropdown handlers
+  onRoleChange(option: DropdownOption): void {
+    this.employmentForm.patchValue({ role: option.value });
+  }
+
+  onDepartmentChange(option: DropdownOption): void {
+    this.employmentForm.patchValue({ department: option.value });
+  }
+
+  onBranchChange(option: DropdownOption): void {
+    this.employmentForm.patchValue({ branchAssignment: option.value });
+  }
+
   setStep(step: 1 | 2 | 3 | 4) {
     if (this.canProceedToStep(step)) {
       this.currentStep = step;
+      if (this.modalInstance) {
+        this.updateModal(this.modalInstance);
+      }
     }
   }
 
@@ -165,7 +382,6 @@ export class AddUserModalComponent implements OnInit {
     return this.completedSteps.has(step);
   }
 
-  // Permission management
   togglePermission(permissionId: string) {
     if (this.selectedPermissions.has(permissionId)) {
       this.selectedPermissions.delete(permissionId);
@@ -182,7 +398,6 @@ export class AddUserModalComponent implements OnInit {
     return this.permissions.filter(p => p.category === category);
   }
 
-  // Navigation
   previousStep() {
     if (this.currentStep > 1) {
       this.currentStep = (this.currentStep - 1) as 1 | 2 | 3 | 4;
@@ -190,21 +405,24 @@ export class AddUserModalComponent implements OnInit {
   }
 
   nextStep() {
-    if (this.canProceedToStep(this.currentStep + 1 as 1 | 2 | 3 | 4)) {
+    if (this.canProceedToStep((this.currentStep + 1) as 1 | 2 | 3 | 4)) {
       this.completedSteps.add(this.currentStep);
       this.currentStep = (this.currentStep + 1) as 1 | 2 | 3 | 4;
     }
   }
 
-  // Add user
-  addUser() {
-    if (this.basicInfoForm.valid && this.employmentForm.valid && this.additionalForm.valid) {
+  addUser(modalDialogRef?: MatDialogRef<AppModalComponent>) {
+    if (this.basicInfoForm.valid && this.employmentForm.valid) {
       this.loading = true;
+      if (modalDialogRef) {
+        this.setSubmitButtonLoading(modalDialogRef, true);
+      }
 
       const currentUser = this.userRepository.getCurrentUser();
       if (!currentUser || !currentUser.id) {
         alert('Unable to determine current user. Please log in again.');
         this.loading = false;
+        if (modalDialogRef) this.setSubmitButtonLoading(modalDialogRef, false);
         return;
       }
 
@@ -229,23 +447,30 @@ export class AddUserModalComponent implements OnInit {
 
       operation.subscribe({
         next: (result) => {
-          console.log(this.editMode ? 'User updated:' : 'User created:', result);
+          if (modalDialogRef) {
+            this.setSubmitButtonLoading(modalDialogRef, false);
+            modalDialogRef.close(result);
+          }
           this.dialogRef.close(result);
         },
         error: (error) => {
           console.error('Error saving user:', error);
           alert('Failed to save user. Please try again.');
           this.loading = false;
+          if (modalDialogRef) this.setSubmitButtonLoading(modalDialogRef, false);
         }
       });
     }
   }
 
-  private generateEmployeeId(): string {
-    return 'EMP-' + Date.now().toString().slice(-6);
-  }
-
   closeDialog() {
     this.dialogRef.close();
+  }
+
+  private setSubmitButtonLoading(modalDialogRef: MatDialogRef<AppModalComponent>, loading: boolean): void {
+    const submitBtn = modalDialogRef.componentInstance.rightButtons?.find(b => b.action === 'save');
+    if (submitBtn) {
+      submitBtn.loading = loading;
+    }
   }
 }

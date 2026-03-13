@@ -9,14 +9,16 @@ import { InputDropdownComponent, DropdownOption, DropdownConfig } from '../../sh
 import { AppModalComponent, AppModalConfig, ModalButton } from '../../shared/modals/app-modal.component';
 import { 
   GoodsReceivedNoteRepository, 
-  PurchaseOrderRepository,
+  PurchaseOrder,
   GoodsReceivedNote as DomainGRN,
   GoodsReceivedNoteItem 
 } from '../../core/domain/domain.barrel';
 import { GoodsReceivedNoteStatus } from '../../core/enums/enums.barrel';
 import { Apollo } from 'apollo-angular';
 import { ADD_GOODS_RECEIVED_NOTE_ITEM } from '../../core/domain/goods-received-note/goods-received-note-item.queries';
+import { GET_PURCHASE_ORDERS_WITH_DETAILS } from '../../core/domain/purchase-order/purchase-order.queries';
 import { forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { GRNItem, GRNData } from '../../core/domain/purchase-order/purchase-order.view-models';
 
 @Component({
@@ -93,12 +95,12 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
     label: 'General Notes'
   };
 
+  // Loaded purchase orders from backend
+  private purchaseOrders: PurchaseOrder[] = [];
+  private selectedPurchaseOrder: PurchaseOrder | null = null;
+
   // Dropdown Options
-  purchaseOrderOptions: DropdownOption[] = [
-    { id: 'po-001', label: 'PO-2024-001', value: 'PO-2024-001' },
-    { id: 'po-002', label: 'PO-2024-002', value: 'PO-2024-002' },
-    { id: 'po-003', label: 'PO-2024-003', value: 'PO-2024-003' }
-  ];
+  purchaseOrderOptions: DropdownOption[] = [];
 
   purchaseOrderConfig: DropdownConfig = {
     placeholder: 'Select purchase order',
@@ -132,13 +134,12 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
     private dialog: MatDialog,
     public dialogRef: MatDialogRef<CreateGrnModalComponent>,
     private grnRepository: GoodsReceivedNoteRepository,
-    private purchaseOrderRepository: PurchaseOrderRepository,
     private apollo: Apollo
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
-    this.loadMockItems();
+    this.loadPurchaseOrders();
     
     // Subscribe to form value changes to update button states
     this.grnForm.valueChanges.subscribe(() => {
@@ -191,12 +192,12 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
   }
 
   private saveGRN(): void {
-    if (this.grnForm.valid) {
+    if (this.grnForm.valid && this.selectedPurchaseOrder) {
       const formData = this.grnForm.value;
       
       const grn: Partial<DomainGRN> = {
         grnNumber: formData.grnNumber,
-        purchaseOrderId: parseInt(formData.purchaseOrder) || 0,
+        purchaseOrderId: this.selectedPurchaseOrder.id,
         receivedByUserId: 1, // TODO: Get from auth service
         receivedDate: new Date(formData.receivedDate),
         notes: formData.generalNotes || null,
@@ -244,7 +245,8 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
                this.grnForm.get('receivedBy')?.valid &&
                this.grnForm.get('warehouseLocation')?.valid);
       case 2:
-        return this.items.length > 0 && this.getTotalReceived() > 0;
+        return this.items.length > 0 && this.getTotalReceived() > 0 &&
+               this.items.every(item => !!item.condition);
       case 3:
         return true;
       default:
@@ -264,36 +266,50 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private loadMockItems(): void {
-    this.items = [
-      {
-        id: '1',
-        product: 'Cement Bags',
-        sku: 'CMT-50KG-001',
-        ordered: 200,
-        received: 200,
-        condition: 'good',
-        status: 'Complete',
-        notes: ''
-      },
-      {
-        id: '2',
-        product: 'Steel Rods 12mm',
-        sku: 'STL-12MM-001',
-        ordered: 100,
-        received: 100,
-        condition: 'good',
-        status: 'Complete',
-        notes: ''
-      }
-    ];
+  private loadPurchaseOrders(): void {
+    this.apollo
+      .watchQuery<{ purchaseOrders: { nodes: PurchaseOrder[] } }>({
+        query: GET_PURCHASE_ORDERS_WITH_DETAILS,
+      })
+      .valueChanges.pipe(map((result) => result.data.purchaseOrders.nodes))
+      .subscribe({
+        next: (orders) => {
+          this.purchaseOrders = orders;
+          this.purchaseOrderOptions = orders.map((po) => ({
+            id: po.id.toString(),
+            label: po.poNumber,
+            value: po.id.toString(),
+          }));
+        },
+        error: (err) => {
+          console.error('Failed to load purchase orders:', err);
+        },
+      });
+  }
+
+  private loadItemsFromPO(po: PurchaseOrder): void {
+    this.items = (po.items || []).map((item) => ({
+      id: item.productId.toString(),
+      product: item.product?.name || `Product #${item.productId}`,
+      sku: item.product?.sku || '',
+      ordered: item.quantity,
+      received: item.quantity,
+      condition: 'good',
+      status: 'Complete',
+      notes: '',
+    }));
   }
 
   onPurchaseOrderChange(value: DropdownOption | DropdownOption[] | null): void {
     if (value && !Array.isArray(value)) {
       this.grnForm.patchValue({ purchaseOrder: value.value });
-      // Auto-populate supplier based on PO
-      this.grnForm.patchValue({ supplier: 'Metro Building Supplies' });
+      // Find the selected PO and populate supplier + items
+      const po = this.purchaseOrders.find((p) => p.id.toString() === value.id);
+      if (po) {
+        this.selectedPurchaseOrder = po;
+        this.grnForm.patchValue({ supplier: po.supplier?.name || '' });
+        this.loadItemsFromPO(po);
+      }
     }
   }
 
@@ -349,7 +365,8 @@ export class CreateGrnModalComponent implements OnInit, AfterViewInit {
   }
 
   getTotalValue(): number {
-    return 180000; // Mock value
+    if (!this.selectedPurchaseOrder) return 0;
+    return this.selectedPurchaseOrder.totalAmount || 0;
   }
 
   nextStep(): void {

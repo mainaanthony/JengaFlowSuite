@@ -132,6 +132,7 @@
                 <app-input-dropdown
                   [options]="conditionOptions"
                   [config]="conditionConfig"
+                  [selectedId]="item.condition"
                   (selectionChanged)="onConditionChange(item, $event)"
                 ></app-input-dropdown>
               </td>

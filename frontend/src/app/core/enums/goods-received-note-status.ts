@@ -1,6 +1,6 @@
 export enum GoodsReceivedNoteStatus {
-  Pending = 'Pending',
-  PartiallyReceived = 'PartiallyReceived',
-  FullyReceived = 'FullyReceived',
-  Rejected = 'Rejected'
+  Pending = 'PENDING',
+  PartiallyReceived = 'PARTIALLY_RECEIVED',
+  FullyReceived = 'FULLY_RECEIVED',
+  Rejected = 'REJECTED'
 }

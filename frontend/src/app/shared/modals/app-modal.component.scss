@@ -38,7 +38,7 @@
 
 /* Wide modal variant for larger content */
 .modal-container.wide {
-  max-width: 800px;
+  max-width: 900px;
 }
 
 @keyframes slideUp {
@@ -180,6 +180,7 @@
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+  overflow-x: hidden;
   color: #333;
   font-size: 0.95rem;
 

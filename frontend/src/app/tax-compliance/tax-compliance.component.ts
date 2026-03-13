@@ -127,8 +127,8 @@ export class TaxComplianceComponent implements OnInit, OnDestroy {
     
     // Update stats
     const pendingReturns = this.taxReturns.filter(tr => tr.status === 'Pending').length;
-    const annualTaxPaid = taxReturns
-      .filter(tr => tr.status === 'Approved' || tr.status === 'Paid')
+    const annualTaxPaid = this.taxReturns
+      .filter(tr => tr.status === 'Approved')
       .reduce((sum, tr) => sum + (tr.amount || 0), 0);
     
     this.stats = {

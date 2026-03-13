@@ -1,3 +1,4 @@
+import { Product } from '../product/product';
 import { Supplier } from '../supplier/supplier';
 import { User } from '../user/user';
 import { OrderStatus } from '../../enums/order-status';
@@ -23,6 +24,9 @@ export interface PurchaseOrderItem {
 
   /** Total Price */
   totalPrice: number;
+
+  /** Product - navigation property */
+  product?: Product;
 
   /** Created At */
   createdAt?: Date;
