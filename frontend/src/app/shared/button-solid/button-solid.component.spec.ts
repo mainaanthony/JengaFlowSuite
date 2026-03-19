@@ -5,7 +5,7 @@ import { ButtonSolidComponent } from './button-solid.component';
 describe('BttonSolidComponent', () => {
   let component: ButtonSolidComponent;
   let fixture: ComponentFixture<ButtonSolidComponent>;
-
+//test test
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ButtonSolidComponent]
